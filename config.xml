@@ -6,7 +6,7 @@
         id        = "com.philips.world-map"
         version   = "1.0.0">
 
-    <name>Philips Worldmap</name>
+    <name>Philips Worldmap</name> 
 
     <description>
         Hello World sample application that responds to the deviceready event.
