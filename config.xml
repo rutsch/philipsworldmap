@@ -9,7 +9,7 @@
     <name>Philips Worldmap</name> 
 
     <description>
-        Hello World sample application that responds to the deviceready event.
+        Worldmap application visualizing Philips' performance
     </description>
 
     <author href="http://www.rutsch.nl" email="info@rutsch.nl">
