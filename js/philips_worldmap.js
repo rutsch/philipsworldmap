@@ -1,6 +1,22 @@
-
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 var app = {
-    online: true,
     // Application Constructor
     initialize: function() {
         this.bindEvents();
@@ -10,17 +26,14 @@ var app = {
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
-        // Check if we're mobile or not
+        
         if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
 			document.addEventListener("deviceready", this.onDeviceReady, false);
-			document.addEventListener("offline", this.onOffline, false);
-			document.addEventListener("online", this.onOnline, false);
 		} else {
 			this.onDeviceReady(); //this is the browser
 		}
-		$(window).bind('orientationchange', onResize);
     },
-    // Deviceready event handler
+    // deviceready Event Handler
     onDeviceReady: function() {
         // Open database
         app.openDatabase(function(){
@@ -29,55 +42,10 @@ var app = {
         })
 
     },
-    // Online event handler
-    onOnline: function() {
-        app.online = true;
-    },
-    // Offline event handler
-    onOffline: function() {
-        app.online = false;
-    },    
-    // Offline event handler
-    onResize: function() {
-        /*alert('bla');
-        var height = $(window).height() - $('#header').height() - $('#footer').height() - 44;
-        var width = $(window).width();
-        $('svg').css({
-            width: width,
-            height: height
-        });*/     
-    },    
-    // Opens the database and checks for new data. If found, clears the local storage cache before proceeding
-    openDatabase: function(cb){
-        app.store = new WebSqlStore();
-        // Database opened - Check availability of new data
-        app.checkNewData(function(err, hasNewData){
-            // if new data clear cache table
-            if(hasNewData){
-                app.store.clearCache(cb);    
-            }else{
-                cb();
-            }
-        });        
-    },
     
-    checkNewData: function(cb){
-        if(app.online){
-            $.ajax({
-                type: "GET",
-                url: config.general.newdata_url,
-                data: {
-                    dataType: 'json'
-                }
-            }).done(function( result ) {
-                cb(null, JSON.parse(result).newdata === 'true');
-            }).fail(function(xhr, err){
-                cb(err);
-            });              
-        }else{
-            cb(false);
-        }
-    },    
+    openDatabase: function(cb){
+        app.store = new WebSqlStore(cb());
+    },
     
     loadPage: function(pageId){
         app.getPageData(pageId, function(err, data){
@@ -91,43 +59,24 @@ var app = {
     
     getPageData: function(pageId, cb){
         // Check localstorage first 
-        app.store.findCacheKey(pageId, function(result){
-            if(result.rows.length > 0){
-                cb(null, JSON.parse(result.rows.item(0).value));
-            }else{
-                 // if not found in cache
-                $.ajax({
-                    type: "GET",
-                    url: config.general.data_url,
-                    data: {
-                        pageId: pageId,
-                        dataType: 'json'
-                    }
-                }).done(function( result ) {
-                    app.store.setCacheKey(pageId, result, function(){
-                        cb(null, JSON.parse(result));
-                    });
-                    
-                }).fail(function(xhr, err){
-                    cb(err);
-                });               
+        
+        // if not found in cache
+        $.ajax({
+            type: "POST",
+            url: config.general.data_url,
+            data: {
+                pageId: pageId,
+                dataType: 'json'
             }
+        }).done(function( result ) {
+            cb(null, result);
+        }).fail(function(xhr, err){
+            cb(err);
         });
     },
     
-    renderView: function(pageId, data){
-        // Use EJS to render view with provided data, update correct div and hide all other page divs
-        $('div.page').hide();
-        var strId = '#'+pageId;
-        if(pageId != 'home'){
-            //$(strId).html(new EJS({url: 'ejs/'+pageId+'.ejs'}).render({data:data}));
-        }
-        var height = $(window).height() - $('#header').height() - $('#footer').height();
-        var width = $(window).width();
-        $(strId).css({
-            height: height,
-            width: width
-        });
-        $(strId).fadeIn(500);
+    rendeView: function(pageId, data){
+        // Use HAML to render view with provided data, update correct div and hide all other app divs
+        
     }    
 };
