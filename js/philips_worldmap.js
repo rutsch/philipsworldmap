@@ -26,6 +26,7 @@ var app = {
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
+        
         if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
 			document.addEventListener("deviceready", this.onDeviceReady, false);
 		} else {
@@ -33,21 +34,49 @@ var app = {
 		}
     },
     // deviceready Event Handler
-    //
-    // The scope of 'this' is the event. In order to call the 'receivedEvent'
-    // function, we must explicity call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        app.receivedEvent('deviceready');
+        // Open database
+        app.openDatabase(function(){
+            // Load initial page - Intro screen shown until first page loaded
+            app.loadPage(config.general.homepage_id);           
+        })
+
     },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
-
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
-
-        console.log('Received Event: ' + id);
-    }
+    
+    openDatabase: function(cb){
+        app.store = new WebSqlStore(cb());
+    },
+    
+    loadPage: function(pageId){
+        app.getPageData(pageId, function(err, data){
+            if(err){
+                app.renderView(config.general.errorpage_id, err);
+            }else{
+                app.renderView(pageId, data);    
+            }
+        });
+    },
+    
+    getPageData: function(pageId, cb){
+        // Check localstorage first 
+        
+        // if not found in cache
+        $.ajax({
+            type: "POST",
+            url: config.general.data_url,
+            data: {
+                pageId: pageId,
+                dataType: 'json'
+            }
+        }).done(function( result ) {
+            cb(null, result);
+        }).fail(function(xhr, err){
+            cb(err);
+        });
+    },
+    
+    rendeView: function(pageId, data){
+        // Use HAML to render view with provided data, update correct div and hide all other app divs
+        
+    }    
 };
