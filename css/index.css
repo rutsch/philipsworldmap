@@ -62,24 +62,7 @@ h1 {
     padding:0px;
     text-align:center;
 }
-
-.event {
-    border-radius:4px;
-    -webkit-border-radius:4px;
-    color:#FFFFFF;
-    font-size:12px;
-    margin:0px 30px;
-    padding:2px 0px;
+.hidden{
+	display: none;
 }
-
-.event.listening {
-    background-color:#333333;
-    display:block;
-}
-
-.event.received {
-    background-color:#fff;
-    display:none;
-}
-
 
