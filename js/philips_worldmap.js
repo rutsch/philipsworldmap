@@ -43,7 +43,7 @@ var app = {
         app.checkNewData(function(err, hasNewData){
             // if new data clear cache table
             if(hasNewData){
-                app.store.clearCache(cb());    
+                app.store.clearCache(cb);    
             }else{
                 cb();
             }
@@ -80,19 +80,27 @@ var app = {
     
     getPageData: function(pageId, cb){
         // Check localstorage first 
-        //app.store.findCacheKey();
-        // if not found in cache
-        $.ajax({
-            type: "GET",
-            url: config.general.data_url,
-            data: {
-                pageId: pageId,
-                dataType: 'json'
+        app.store.findCacheKey(pageId, function(result){
+            if(result.rows.length > 0){
+                cb(null, JSON.parse(result.rows.item(0).value));
+            }else{
+                 // if not found in cache
+                $.ajax({
+                    type: "GET",
+                    url: config.general.data_url,
+                    data: {
+                        pageId: pageId,
+                        dataType: 'json'
+                    }
+                }).done(function( result ) {
+                    app.store.setCacheKey(pageId, result, function(){
+                        cb(null, JSON.parse(result));
+                    });
+                    
+                }).fail(function(xhr, err){
+                    cb(err);
+                });               
             }
-        }).done(function( result ) {
-            cb(null, JSON.parse(result));
-        }).fail(function(xhr, err){
-            cb(err);
         });
     },
     

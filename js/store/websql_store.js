@@ -49,7 +49,7 @@ var WebSqlStore = function(successCallback, errorCallback) {
         this.db.transaction(
             function(tx) {
                 var sql = "DELETE FROM cache";
-                tx.executeSql(sql, function(tx, results) {
+                tx.executeSql(sql, [], function(tx, results) {
                     callback();
                 });
             },
@@ -98,18 +98,16 @@ var WebSqlStore = function(successCallback, errorCallback) {
         );
     }
 
-    this.findById = function(id, callback) {
+    this.findCacheKey = function(key, callback) {
         this.db.transaction(
             function(tx) {
 
-                var sql = "SELECT e.id, e.firstName, e.lastName, e.title, e.city, e.officePhone, e.cellPhone, e.email, e.managerId, m.firstName managerFirstName, m.lastName managerLastName, count(r.id) reportCount " +
-                    "FROM employee e " +
-                    "LEFT JOIN employee r ON r.managerId = e.id " +
-                    "LEFT JOIN employee m ON e.managerId = m.id " +
-                    "WHERE e.id=:id";
+                var sql = "SELECT value " +
+                    "FROM cache " +
+                    "WHERE cachekey = ?";
 
-                tx.executeSql(sql, [id], function(tx, results) {
-                    callback(results.rows.length === 1 ? results.rows.item(0) : null);
+                tx.executeSql(sql, [key], function(tx, results) {
+                    callback(results);
                 });
             },
             function(error) {
@@ -118,6 +116,22 @@ var WebSqlStore = function(successCallback, errorCallback) {
         );
     };
 
+    this.setCacheKey = function(key, value, callback) {
+        this.db.transaction(
+            function(tx) {
+
+                var sql = "INSERT INTO cache (cachekey, value) " +
+                    "VALUES(:key, :value)";
+
+                tx.executeSql(sql, [key, value], function(tx, results) {
+                    callback(results);
+                });
+            },
+            function(error) {
+                alert("Transaction Error: " + error.message);
+            }
+        );
+    };
     this.initializeDatabase(successCallback, errorCallback);
 
 }
