@@ -106,9 +106,9 @@ var app = {
     
     renderView: function(pageId, data){
         // Use EJS to render view with provided data, update correct div and hide all other page divs
-        $('div.page').addClass('hidden');
+        $('div.page').hide();
         var strId = '#'+pageId;
         $(strId).html(new EJS({url: 'ejs/'+pageId+'.ejs'}).render({data:data}));
-        $(strId).removeClass('hidden');
+        $(strId).show(500);
     }    
 };

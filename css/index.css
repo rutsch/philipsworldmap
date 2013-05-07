@@ -33,12 +33,14 @@ body {
     text-transform:uppercase;
     width:100%;
 }
-
+#intro{
+	background: url('../img/philips-logo.png') no-repeat center;
+}
 /* Portrait layout (default) */
 .page {
     position:absolute;             /* position in the center of the screen */
     left:0px;
-    top:0px;
+    top:44px;
     bottom: 0px;
     right: 0px;
     height:100%;                   /* text area height */
@@ -46,14 +48,8 @@ body {
     text-align:center;
 
 }
-.options_bar {
-	position: absolute;
-	bottom: 0px;
-	left 0px;
-	height: 50px;
-	width: 100%;
-	background: #999;
-}
+
+
 .btn-large{
 	clear: both;
 	margin: 20px auto;
