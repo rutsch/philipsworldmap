@@ -404,7 +404,7 @@ jQuery(function () {
 
 
 	//prepare the placeholder which will contain the interactive world map
-	var height = $(window).height() - $('#header').height() - $('#footer').height();
+	var height = $(window).height() - $('#header').height() - $('#footer').height() - 44;
 	var width = $(window).width();
 	$mapPlaceholder.html('');
 	$mapPlaceholder.css({
