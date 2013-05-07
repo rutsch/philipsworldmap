@@ -79,7 +79,7 @@ var app = {
     
     getPageData: function(pageId, cb){
         // Check localstorage first 
-        app.store.findCacheKey()
+        //app.store.findCacheKey();
         // if not found in cache
         $.ajax({
             type: "POST",
