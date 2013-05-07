@@ -37,18 +37,6 @@ body {
 	background: url('../img/philips-logo.png') no-repeat center;
 }
 /* Portrait layout (default) */
-.page {
-    position:absolute;             /* position in the center of the screen */
-    left:0px;
-    top:44px;
-    bottom: 0px;
-    right: 0px;
-    height:100%;                   /* text area height */
-    width:100%;                   /* text area width */
-    text-align:center;
-
-}
-
 
 .btn-large{
 	clear: both;
@@ -59,9 +47,6 @@ body {
 }
 /* Landscape layout (with min-width) */
 @media screen and (min-aspect-ratio: 1/1) and (min-width:400px) {
-    .page {
-        background-position:left center;
-    }
 }
 
 h1 {
