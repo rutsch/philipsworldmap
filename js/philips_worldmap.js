@@ -55,16 +55,17 @@ var app = {
             $.ajax({
                 type: "GET",
                 url: config.general.newdata_url,
-                data: {}
+                data: {
+                    dataType: 'json'
+                }
             }).done(function( result ) {
-                cb(null, result);
+                cb(null, JSON.parse(result).newdata === 'true');
             }).fail(function(xhr, err){
                 cb(err);
             });              
         }else{
             cb(false);
         }
-      
     },    
     
     loadPage: function(pageId){
@@ -82,14 +83,14 @@ var app = {
         //app.store.findCacheKey();
         // if not found in cache
         $.ajax({
-            type: "POST",
+            type: "GET",
             url: config.general.data_url,
             data: {
                 pageId: pageId,
                 dataType: 'json'
             }
         }).done(function( result ) {
-            cb(null, result);
+            cb(null, JSON.parse(result));
         }).fail(function(xhr, err){
             cb(err);
         });
