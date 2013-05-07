@@ -11,7 +11,7 @@
         <title>Philips WorldMap</title>
     </head>
     <body>
-		<div data-role="header" data-theme="b">
+		<div data-role="header" data-theme="b" id="header">
 		    <a href="#" data-icon="delete">Back</a>
 		    <h1>Philips Worldmap</h1>
 		</div>
@@ -20,7 +20,7 @@
 	    		
 	    	</div>
 	        <div class="page hidden" data-transition="slide" data-inline="true" id="home">
-	        	
+	        	<div class="interactive_graph">.</div>
 	        </div>
 	        <div class="page hidden" data-transition="slide" data-inline="true" id="map">
 	        	
@@ -35,7 +35,7 @@
 	        	
 	        </div>
 	    </div>    
-		<div data-role="footer" data-theme="b" data-id="foo1" data-fullscreen="true" data-position="fixed">
+		<div data-role="footer" id="footer" data-theme="b" data-id="foo1" data-fullscreen="true" data-position="fixed">
 			<div data-role="navbar">
 				<ul>
 					<li><a href="#" onclick="app.loadPage('home')">Home</a></li>
@@ -51,6 +51,40 @@
         <script type="text/javascript" src="js/jquery.mobile-1.3.1.min.js"></script>
         <script type="text/javascript" src="js/ejs.js"></script>
         <script type="text/javascript" src="js/store/websql_store.js"></script>
+        
+        <script type="text/javascript" src="http://www.annualreport2012.philips.com/scripts/generated/_dynamic_en.js">//</script>
+
+        
+		<script type="text/javascript" src="js/world_map/jquery-jvectormap.js">//</script>
+		<script type="text/javascript" src="js/world_map/jquery-mousewheel.js">//</script>
+		<script type="text/javascript" src="js/world_map/jvectormap.js">//</script>
+		<script type="text/javascript" src="js/world_map/abstract-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/abstract-canvas-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/abstract-shape-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/svg-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/svg-group-element.js">	//</script>
+		<script type="text/javascript" src="js/world_map/svg-canvas-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/svg-shape-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/svg-path-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/svg-circle-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/vml-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/vml-group-element.js">	//</script>
+		<script type="text/javascript" src="js/world_map/vml-canvas-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/vml-shape-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/vml-path-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/vml-circle-element.js">//</script>
+		<script type="text/javascript" src="js/world_map/vector-canvas.js">//</script>
+		<script type="text/javascript" src="js/world_map/simple-scale.js">//</script>
+		<script type="text/javascript" src="js/world_map/numeric-scale.js">//</script>
+		<script type="text/javascript" src="js/world_map/ordinal-scale.js">//</script>
+		<script type="text/javascript" src="js/world_map/color-scale.js">//</script>
+		<script type="text/javascript" src="js/world_map/data-series.js">//</script>
+		<script type="text/javascript" src="js/world_map/proj.js">//</script>
+		<script type="text/javascript" src="js/world_map/world-map.js">//</script>
+		<script type="text/javascript" src="js/world_map/jquery-jvectormap-world-mill-en.js">//</script>
+		<script type="text/javascript" src="js/philips_ar_worldmap.js">//</script>
+        
+        
         <script type="text/javascript" src="js/philips_worldmap.js"></script>
         <script type="text/javascript">
             app.initialize();
