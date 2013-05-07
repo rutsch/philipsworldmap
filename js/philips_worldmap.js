@@ -1,22 +1,6 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+
 var app = {
+    online: true,
     // Application Constructor
     initialize: function() {
         this.bindEvents();
@@ -26,14 +10,16 @@ var app = {
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
-        
+        // Check if we're mobile or not
         if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
 			document.addEventListener("deviceready", this.onDeviceReady, false);
+			document.addEventListener("offline", this.onOffline, false);
+			document.addEventListener("online", this.onOnline, false);
 		} else {
 			this.onDeviceReady(); //this is the browser
 		}
     },
-    // deviceready Event Handler
+    // Deviceready event handler
     onDeviceReady: function() {
         // Open database
         app.openDatabase(function(){
@@ -42,10 +28,44 @@ var app = {
         })
 
     },
-    
-    openDatabase: function(cb){
-        app.store = new WebSqlStore(cb());
+    // Online event handler
+    onOnline: function() {
+        app.online = true;
     },
+    // Offline event handler
+    onOffline: function() {
+        app.online = false;
+    },    
+    // Opens the database and checks for new data. If found, clears the local storage cache before proceeding
+    openDatabase: function(cb){
+        app.store = new WebSqlStore();
+        // Database opened - Check availability of new data
+        app.checkNewData(function(err, hasNewData){
+            // if new data clear cache table
+            if(hasNewData){
+                app.store.clearCache(cb());    
+            }else{
+                cb();
+            }
+        });        
+    },
+    
+    checkNewData: function(cb){
+        if(app.online){
+            $.ajax({
+                type: "GET",
+                url: config.general.newdata_url,
+                data: {}
+            }).done(function( result ) {
+                cb(null, result);
+            }).fail(function(xhr, err){
+                cb(err);
+            });              
+        }else{
+            cb(false);
+        }
+      
+    },    
     
     loadPage: function(pageId){
         app.getPageData(pageId, function(err, data){
@@ -75,8 +95,11 @@ var app = {
         });
     },
     
-    rendeView: function(pageId, data){
-        // Use HAML to render view with provided data, update correct div and hide all other app divs
-        
+    renderView: function(pageId, data){
+        // Use EJS to render view with provided data, update correct div and hide all other page divs
+        $('div.page').addClass('hidden');
+        var strId = '#'+pageId;
+        $(strId).html(new EJS({url: 'ejs/'+pageId+'.ejs'}).render({data:data}));
+        $(strId).removeClass('hidden');
     }    
 };

@@ -35,7 +35,7 @@ body {
 }
 
 /* Portrait layout (default) */
-.app {
+.page {
     position:absolute;             /* position in the center of the screen */
     left:0px;
     top:0px;
@@ -49,7 +49,7 @@ body {
 
 /* Landscape layout (with min-width) */
 @media screen and (min-aspect-ratio: 1/1) and (min-width:400px) {
-    .app {
+    .page {
         background-position:left center;
     }
 }
