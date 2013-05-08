@@ -15,30 +15,29 @@
 		    <a href="#" data-icon="delete">Back</a>
 		    <h1>Philips Worldmap</h1>
 		</div>
-		<div data-role="content" id="content">
-	        <div class="page" data-transition="slide" data-inline="true" id="home">
+		<div id="content">
+	        <div class="page" id="intro">
+				<h1>Fetching data</h1>
+	        </div>
+	        <div class="page" id="map">
 	        	<div class="interactive_graph">.</div>
 	        </div>
-	        <div class="page hidden" data-theme="b" data-transition="slide" data-inline="true" id="map">
-	        	
+	        <div class="page hidden" id="filter">
+	        	<h1>Filters</h1>
 	        </div>
-	        <div class="page hidden" data-transition="slide" data-inline="true" id="filter">
-	        	
+	        <div class="page hidden" id="login">
+	        	<h1>Sign in</h1>
 	        </div>
-	        <div class="page hidden" data-transition="slide" data-inline="true" id="login">
-	        	
-	        </div>
-	        <div class="page hidden" data-transition="slide" data-inline="true" id="error">
+	        <div class="page hidden" id="error">
 	        	
 	        </div>
 	    </div>    
 		<div data-role="footer" id="footer" data-theme="b" data-position="fixed">
 			<div data-role="navbar">
 				<ul>
-					<li><a href="#" onclick="app.loadPage('home')">Home</a></li>
-					<li><a href="#" onclick="app.loadPage('map')">Map</a></li>
-					<li><a href="#" onclick="app.loadPage('filter')">Filter</a></li>
-					<li><a href="#" onclick="app.loadPage('login')">Sign in</a></li>
+					<li><a href="#" data-icon="home" onclick="app.loadPage('map')">Map</a></li>
+					<li><a href="#" data-icon="gear" onclick="app.loadPage('filter')">Filter</a></li>
+					<li><a href="#" data-icon="alert" onclick="app.loadPage('login')">Sign in</a></li>
 				</ul>
 			</div><!-- /navbar -->
 		</div><!-- /footer -->                

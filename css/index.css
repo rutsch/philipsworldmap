@@ -37,6 +37,7 @@ body {
 #intro{
 	background: url('../img/philips-logo.png') no-repeat center;
 }
+
 /* Portrait layout (default) */
 .page {
     position:absolute;             /* position in the center of the screen */
@@ -48,7 +49,9 @@ body {
     text-align:center;
 
 }
-
+.page h3{
+	display: none;
+}
 
 .btn-large{
 	clear: both;

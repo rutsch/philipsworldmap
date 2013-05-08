@@ -18,6 +18,7 @@ var app = {
 		} else {
 			this.onDeviceReady(); //this is the browser
 		}
+		$(window).bind('orientationchange', onResize);
     },
     // Deviceready event handler
     onDeviceReady: function() {
@@ -35,6 +36,16 @@ var app = {
     // Offline event handler
     onOffline: function() {
         app.online = false;
+    },    
+    // Offline event handler
+    onResize: function() {
+        /*alert('bla');
+        var height = $(window).height() - $('#header').height() - $('#footer').height() - 44;
+        var width = $(window).width();
+        $('svg').css({
+            width: width,
+            height: height
+        });*/     
     },    
     // Opens the database and checks for new data. If found, clears the local storage cache before proceeding
     openDatabase: function(cb){
@@ -109,7 +120,7 @@ var app = {
         $('div.page').hide();
         var strId = '#'+pageId;
         if(pageId != 'home'){
-            $(strId).html(new EJS({url: 'ejs/'+pageId+'.ejs'}).render({data:data}));
+            //$(strId).html(new EJS({url: 'ejs/'+pageId+'.ejs'}).render({data:data}));
         }
         var height = $(window).height() - $('#header').height() - $('#footer').height();
         var width = $(window).width();
@@ -117,6 +128,6 @@ var app = {
             height: height,
             width: width
         });
-        $(strId).show(500);
+        $(strId).fadeIn(500);
     }    
 };

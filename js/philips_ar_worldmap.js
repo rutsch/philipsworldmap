@@ -297,7 +297,15 @@ jQuery(function () {
 
 		generateMap = function (mode) {
 			// Get the data for the map
-
+            //prepare the placeholder which will contain the interactive world map
+            var height = $(window).height() - $('#header').height() - $('#footer').height();
+            var width = $(window).width();
+            $mapPlaceholder.html('');
+            $mapPlaceholder.css({
+                width: width,
+                height: height,
+                display: 'inline-block'
+            });
 			getMapData(mode, function (mapData) {
 
 				//console.log('in');
@@ -404,20 +412,14 @@ jQuery(function () {
 	}
 
 
-	//prepare the placeholder which will contain the interactive world map
-	var height = $(window).height() - $('#header').height() - $('#footer').height() - 44;
-	var width = $(window).width();
-	$mapPlaceholder.html('');
-	$mapPlaceholder.css({
-		width: width,
-		height: height,
-		display: 'inline-block'
-	});
+
+
 	$mapPlaceholder.prepend(title);
 	//$(footnote).insertAfter($mapPlaceholder.parent()).css({ display: 'inline-block', 'padding-top': '25px' });
 
 	//get the data and generate the map
 	generateMap(mode);
+
 });
 
 function format(nStr) {
