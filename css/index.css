@@ -32,6 +32,7 @@ body {
     padding:0px;
     text-transform:uppercase;
     width:100%;
+    overflow: hidden;
 }
 #intro{
 	background: url('../img/philips-logo.png') no-repeat center;
@@ -74,4 +75,14 @@ h1 {
 }
 .hidden{
 	display: none;
+}
+div.jvectormap-label {
+	position: absolute;
+	width: 275px;
+	display: none;
+	background: #fff;
+	border: 1px solid #b9bbc7;
+	color: #000;
+	font-family: sans-serif, Verdana;
+	font-size: smaller;
 }
