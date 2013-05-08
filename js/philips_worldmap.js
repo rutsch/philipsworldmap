@@ -111,7 +111,12 @@ var app = {
         if(pageId != 'home'){
             $(strId).html(new EJS({url: 'ejs/'+pageId+'.ejs'}).render({data:data}));
         }
-       
+        var height = $(window).height() - $('#header').height() - $('#footer').height();
+        var width = $(window).width();
+        $(strId).css({
+            height: height,
+            width: width
+        });
         $(strId).show(500);
     }    
 };

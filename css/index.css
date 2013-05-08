@@ -44,8 +44,7 @@ body {
     top:44px;
     bottom: 44px;
     right: 0px;
-    height:100%;                   /* text area height */
-    width:100%;                   /* text area width */
+                 /* text area width */
     text-align:center;
 
 }
