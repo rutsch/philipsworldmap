@@ -24,6 +24,16 @@
 	        </div>
 	        <div class="page hidden" id="filter">
 	        	<h1>Filters</h1>
+				<div data-role="fieldcontain">
+				    <fieldset data-role="controlgroup">
+				    	<legend>Choose data:</legend>
+				         	<input type="radio" name="radio-choice-1" id="radio-choice-livesimproved" value="lives_improved" checked="checked"  data-theme="d"/>
+				         	<label for="radio-choice-livesimproved">Lives improved</label>
+				
+				         	<input type="radio" name="radio-choice-1" id="radio-choice-ourcompany" value="our_company" data-theme="d" />
+				         	<label for="radio-choice-ourcompany">Our company</label>
+				    </fieldset>
+				</div>	        	
 	        </div>
 	        <div class="page hidden" id="login">
 	        	<h1>Sign in</h1>
@@ -46,7 +56,7 @@
         <script type="text/javascript" src="js/jquery.js"></script>
         <script type="text/javascript" src="js/jquery.mobile-1.3.1.min.js"></script>
         <script type="text/javascript" src="js/ejs.js"></script>
-        <script type="text/javascript" src="js/store/websql_store.js"></script>
+        <script type="text/javascript" src="js/store/webstorage.js"></script>
         
         <script type="text/javascript" src="http://www.annualreport2012.philips.com/scripts/generated/_dynamic_en.js">//</script>
 
