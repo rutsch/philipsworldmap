@@ -39,7 +39,6 @@ body {
 }
 
 /* Portrait layout (default) */
-<<<<<<< HEAD
 .page {
     position:absolute;             /* position in the center of the screen */
     left:0px;
@@ -52,18 +51,6 @@ body {
 }
 .page h3{
 	display: none;
-=======
-.app {
-    position:absolute;             /* position in the center of the screen */
-    left:0px;
-    top:0px;
-    bottom: 0px;
-    right: 0px;
-    height:100%;                   /* text area height */
-    width:100%;                   /* text area width */
-    text-align:center;
-
->>>>>>> 8e9c9d2... created base structure for the app. Config file added and also web-sql storage support.
 }
 
 .btn-large{
@@ -88,7 +75,6 @@ h1 {
     padding:0px;
     text-align:center;
 }
-<<<<<<< HEAD
 .hidden{
 	display: none;
 }
@@ -102,26 +88,3 @@ div.jvectormap-label {
 	font-family: sans-serif, Verdana;
 	font-size: smaller;
 }
-=======
-
-.event {
-    border-radius:4px;
-    -webkit-border-radius:4px;
-    color:#FFFFFF;
-    font-size:12px;
-    margin:0px 30px;
-    padding:2px 0px;
-}
-
-.event.listening {
-    background-color:#333333;
-    display:block;
-}
-
-.event.received {
-    background-color:#fff;
-    display:none;
-}
-
-
->>>>>>> 8e9c9d2... created base structure for the app. Config file added and also web-sql storage support.
