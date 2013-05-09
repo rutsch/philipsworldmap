@@ -307,7 +307,7 @@ var worldmap = {
 		    var self = this;
 			// Get the data for the map
             //prepare the placeholder which will contain the interactive world map
-            var height = $(window).height() - $('#header').height() - $('#footer').height();
+            var height = $(window).height() - $('#header').height();
             var width = $(window).width();
             $mapPlaceholder.html('');
             $mapPlaceholder.css({
