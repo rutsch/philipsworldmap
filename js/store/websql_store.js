@@ -96,7 +96,24 @@ var WebSqlStore = function(successCallback, errorCallback) {
                 alert("Transaction Error: " + error.message);
             }
         );
-    }
+    };
+    
+    this.getUserSettings = function(callback){
+        this.db.transaction(
+            function(tx) {
+
+                var sql = "SELECT * " +
+                    "FROM settings ";
+
+                tx.executeSql(sql, [], function(tx, results) {
+                    callback(results);
+                });
+            },
+            function(error) {
+                alert("Transaction Error: " + error.message);
+            }
+        );        
+    };
 
     this.findCacheKey = function(key, callback) {
         this.db.transaction(

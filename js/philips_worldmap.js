@@ -18,14 +18,38 @@ var app = {
 		} else {
 			this.onDeviceReady(); //this is the browser
 		}
-		$(window).bind('orientationchange', onResize);
+		$(window).bind('orientationchange', this.onResize);
+		$(window).bind('resize', this.onResize);
     },
     // Deviceready event handler
     onDeviceReady: function() {
         // Open database
         app.openDatabase(function(){
-            // Load initial page - Intro screen shown until first page loaded
-            app.loadPage(config.general.homepage_id);           
+            // Load user settings
+            app.store.getUserSettings(function(results){
+                var filters = {};
+                if(results.rows.length > 0){
+                    filters = JSON.parse(results.rows.item(0).value)
+                }
+                // Set filters based on user settings
+                app.setUserSettings(filters, function(hash){
+                    // Get app data based on filters or hash
+                    app.getData(hash, filters, function(err, data){
+                        // Load initial page - Intro screen shown until first page loaded
+
+                        worldmap.mapData = data;
+                        worldmap.init();
+                        app.loadPage(config.general.homepage_id);                         
+                    });
+                });
+            });
+            
+            
+            
+            
+            // Get data for worldmap (if present in localstorage then serve that, else do ajax call)
+            
+         
         })
 
     },
@@ -39,13 +63,7 @@ var app = {
     },    
     // Offline event handler
     onResize: function() {
-        /*alert('bla');
-        var height = $(window).height() - $('#header').height() - $('#footer').height() - 44;
-        var width = $(window).width();
-        $('svg').css({
-            width: width,
-            height: height
-        });*/     
+        worldmap.init();    
     },    
     // Opens the database and checks for new data. If found, clears the local storage cache before proceeding
     openDatabase: function(cb){
@@ -79,19 +97,20 @@ var app = {
         }
     },    
     
-    loadPage: function(pageId){
-        app.getPageData(pageId, function(err, data){
-            if(err){
-                app.renderView(config.general.errorpage_id, err);
-            }else{
-                app.renderView(pageId, data);    
-            }
-        });
+    setUserSettings: function(settings, cb){
+        // Sets the filters for the filter page to the last used settings and reurns a hash of the settings
+        // Calculate filter hash based on set filters 
+        console.log(settings);
+        cb("");        
     },
     
-    getPageData: function(pageId, cb){
+    loadPage: function(pageId){
+        app.showPage(pageId);   
+    },
+    
+    getData: function(key, filters, cb){
         // Check localstorage first 
-        app.store.findCacheKey(pageId, function(result){
+        app.store.findCacheKey(key, function(result){
             if(result.rows.length > 0){
                 cb(null, JSON.parse(result.rows.item(0).value));
             }else{
@@ -100,12 +119,12 @@ var app = {
                     type: "GET",
                     url: config.general.data_url,
                     data: {
-                        pageId: pageId,
+                        filters: filters,
                         dataType: 'json'
                     }
                 }).done(function( result ) {
-                    app.store.setCacheKey(pageId, result, function(){
-                        cb(null, JSON.parse(result));
+                    app.store.setCacheKey(key, JSON.stringify(JSON.parse(result).data), function(){
+                        cb(null, JSON.parse(result).data);
                     });
                     
                 }).fail(function(xhr, err){
@@ -115,13 +134,10 @@ var app = {
         });
     },
     
-    renderView: function(pageId, data){
-        // Use EJS to render view with provided data, update correct div and hide all other page divs
+    showPage: function(pageId){
         $('div.page').hide();
         var strId = '#'+pageId;
-        if(pageId != 'home'){
-            //$(strId).html(new EJS({url: 'ejs/'+pageId+'.ejs'}).render({data:data}));
-        }
+
         var height = $(window).height() - $('#header').height() - $('#footer').height();
         var width = $(window).width();
         $(strId).css({
