@@ -156,7 +156,7 @@ var worldmap = {
 
 					case 'our_company':
 						regionHtml = regionHtml.replace(/\[country_name]/g, arrTranslations[regionData.name.toLowerCase()]);
-						regionHtml = regionHtml.replace(/\[employees_total]/g, format(getCategoriesTotal(regionData.categories)));
+						regionHtml = regionHtml.replace(/\[employees_total]/g, format(self.getCategoriesTotal(regionData.categories)));
 						regionHtml = regionHtml.replace(/\[male]/g, regionData.value_female);
 						regionHtml = regionHtml.replace(/\[female]/g, regionData.value_male);
 						regionHtml = regionHtml.replace(/\[research]/g, regionData.value_research);
@@ -430,7 +430,7 @@ var worldmap = {
             //get the data and generate the map
             this.generateMap(this.mode); 		    
 		}
-};
+}
 
 
 

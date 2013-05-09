@@ -5,21 +5,26 @@ var app = {
     initialize: function() {
         this.bindEvents();
     },
+   /* isPhoneGap: function () {
+        return (cordova || PhoneGap || phonegap) 
+        && /^file:\/{3}[^\/]/i.test(window.location.href) 
+        && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);
+    },*/
     // Bind Event Listeners
     //
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         // Check if we're mobile or not
-        if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
+        if (window.PhoneGap) {
 			document.addEventListener("deviceready", this.onDeviceReady, false);
 			document.addEventListener("offline", this.onOffline, false);
 			document.addEventListener("online", this.onOnline, false);
+			$(window).bind('orientationchange', this.onResize);
 		} else {
+		    $(window).bind('resize', this.onResize);
 			this.onDeviceReady(); //this is the browser
 		}
-		$(window).bind('orientationchange', this.onResize);
-		$(window).bind('resize', this.onResize);
     },
     // Deviceready event handler
     onDeviceReady: function() {
@@ -27,16 +32,16 @@ var app = {
         app.openDatabase(function(){
             // Load user settings
             app.store.getUserSettings(function(results){
-                var filters = {};
-                if(results.rows.length > 0){
-                    filters = JSON.parse(results.rows.item(0).value)
-                }
+                var filters = 'lives_improved';//{};
+                //if(results.rows.length > 0){
+                //    filters = JSON.parse(results.rows.item(0).value)
+                //}
                 // Set filters based on user settings
                 app.setUserSettings(filters, function(hash){
                     // Get app data based on filters or hash
                     app.getData(hash, filters, function(err, data){
                         // Load initial page - Intro screen shown until first page loaded
-
+                        worldmap.mapVariation = filters;
                         worldmap.mapData = data;
                         worldmap.init();
                         app.loadPage(config.general.homepage_id);                         
@@ -67,7 +72,7 @@ var app = {
     },    
     // Opens the database and checks for new data. If found, clears the local storage cache before proceeding
     openDatabase: function(cb){
-        app.store = new WebSqlStore();
+        app.store = new LocalStorageStore();
         // Database opened - Check availability of new data
         app.checkNewData(function(err, hasNewData){
             // if new data clear cache table
@@ -84,24 +89,25 @@ var app = {
             $.ajax({
                 type: "GET",
                 url: config.general.newdata_url,
+                dataType: 'jsonp',
                 data: {
-                    dataType: 'json'
+                    
                 }
             }).done(function( result ) {
-                cb(null, JSON.parse(result).newdata === 'true');
+                cb(null, result.newdata === 'true');
             }).fail(function(xhr, err){
-                cb(err);
+                cb(null, false);
             });              
         }else{
-            cb(false);
+            cb(null, false);
         }
     },    
     
-    setUserSettings: function(settings, cb){
+    setUserSettings: function(filters, cb){
         // Sets the filters for the filter page to the last used settings and reurns a hash of the settings
         // Calculate filter hash based on set filters 
-        console.log(settings);
-        cb("");        
+        console.log(filters);
+        cb(filters);        
     },
     
     loadPage: function(pageId){
@@ -111,20 +117,21 @@ var app = {
     getData: function(key, filters, cb){
         // Check localstorage first 
         app.store.findCacheKey(key, function(result){
-            if(result.rows.length > 0){
-                cb(null, JSON.parse(result.rows.item(0).value));
+            
+            if(result){
+                cb(null, JSON.parse(result));
             }else{
                  // if not found in cache
                 $.ajax({
                     type: "GET",
                     url: config.general.data_url,
+                    dataType: 'jsonp',
                     data: {
-                        filters: filters,
-                        dataType: 'json'
+                        filters: filters
                     }
                 }).done(function( result ) {
-                    app.store.setCacheKey(key, JSON.stringify(JSON.parse(result).data), function(){
-                        cb(null, JSON.parse(result).data);
+                    app.store.setCacheKey(key, JSON.stringify(result.data), function(){
+                        cb(null, result.data);
                     });
                     
                 }).fail(function(xhr, err){
