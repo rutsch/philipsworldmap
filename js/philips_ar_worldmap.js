@@ -329,7 +329,7 @@ var worldmap = {
 					focusOn: {
 						x: 0.5,
 						y: 0.5,
-						scale: 3,
+						scale: 1,
 						baseScale: 1
 					},
 					regionStyle: {

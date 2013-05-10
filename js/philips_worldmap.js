@@ -1,62 +1,54 @@
 
 var app = {
-    online: true,
+    online: false,
+    currentfilter: '',
+    mapdata: {},
     // Application Constructor
     initialize: function() {
         this.bindEvents();
     },
-   /* isPhoneGap: function () {
-        return (cordova || PhoneGap || phonegap) 
-        && /^file:\/{3}[^\/]/i.test(window.location.href) 
-        && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);
-    },*/
     // Bind Event Listeners
     //
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
-        // Check if we're mobile or not
+        // Check if we're running on PhoneGap
         if (window.PhoneGap) {
+            document.addEventListener("load", this.onLoad, false);
 			document.addEventListener("deviceready", this.onDeviceReady, false);
 			document.addEventListener("offline", this.onOffline, false);
 			document.addEventListener("online", this.onOnline, false);
 			$(window).bind('orientationchange', this.onResize);
 		} else {
+		    // Regular browser
+		    this.online = true;
 		    $(window).bind('resize', this.onResize);
-			this.onDeviceReady(); //this is the browser
+			this.onDeviceReady(); 
 		}
+        $('#filter-data input').change(function() {
+            app.currentfilter = $(this).val();
+            app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
+                app.mapdata = data;
+            });
+        });		
+    },
+    // Load event handler
+    onLoad: function(){
+         
     },
     // Deviceready event handler
     onDeviceReady: function() {
-        // Open database
+        // Open local database
         app.openDatabase(function(){
             // Load user settings
             app.store.getUserSettings(function(results){
-                var filters = 'lives_improved';//{};
-                //if(results.rows.length > 0){
-                //    filters = JSON.parse(results.rows.item(0).value)
-                //}
-                // Set filters based on user settings
-                app.setUserSettings(filters, function(hash){
-                    // Get app data based on filters or hash
-                    app.getData(hash, filters, function(err, data){
-                        // Load initial page - Intro screen shown until first page loaded
-                        worldmap.mapVariation = filters;
-                        worldmap.mapData = data;
-                        worldmap.init();
-                        app.loadPage(config.general.homepage_id);                         
-                    });
+                // load startpage
+                app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
+                    app.mapdata = data;
+                    app.showPage(config.general.homepage_id);                 
                 });
             });
-            
-            
-            
-            
-            // Get data for worldmap (if present in localstorage then serve that, else do ajax call)
-            
-         
-        })
-
+        });
     },
     // Online event handler
     onOnline: function() {
@@ -83,7 +75,7 @@ var app = {
             }
         });        
     },
-    
+    // Checks for newer data on the server, returns a boolean
     checkNewData: function(cb){
         if(app.online){
             $.ajax({
@@ -102,41 +94,43 @@ var app = {
             cb(null, false);
         }
     },    
-    
+
     setUserSettings: function(filters, cb){
         // Sets the filters for the filter page to the last used settings and reurns a hash of the settings
         // Calculate filter hash based on set filters 
         console.log(filters);
         cb(filters);        
     },
-    
-    loadPage: function(pageId){
-        app.showPage(pageId);   
-    },
-    
-    getData: function(key, filters, cb){
+   
+    // Get data for worldmap (if present in localstorage then serve that, else do ajax call)
+    getWorldmapData: function(key, filters, cb){
         // Check localstorage first 
         app.store.findCacheKey(key, function(result){
             
             if(result){
                 cb(null, JSON.parse(result));
             }else{
-                 // if not found in cache
-                $.ajax({
-                    type: "GET",
-                    url: config.general.data_url,
-                    dataType: 'jsonp',
-                    data: {
-                        filters: filters
-                    }
-                }).done(function( result ) {
-                    app.store.setCacheKey(key, JSON.stringify(result.data), function(){
-                        cb(null, result.data);
-                    });
-                    
-                }).fail(function(xhr, err){
-                    cb(err);
-                });               
+                // if not found in cache
+                if(app.online){
+                    $.ajax({
+                        type: "GET",
+                        url: config.general.data_url,
+                        dataType: 'jsonp',
+                        data: {
+                            filters: filters
+                        }
+                    }).done(function( result ) {
+                        app.store.setCacheKey(key, JSON.stringify(result.data), function(){
+                            cb(null, result.data);
+                        });
+                        
+                    }).fail(function(xhr, err){
+                        cb(err);
+                    });                                
+                }else{
+                    cb(null, []);
+                }
+   
             }
         });
     },
@@ -151,6 +145,12 @@ var app = {
             height: height,
             width: width
         });
-        $(strId).fadeIn(500);
+        $(strId).fadeIn(500, function(){
+            if(pageId==='map'){
+                worldmap.mapVariation = app.currentfilter;
+                worldmap.mapData = app.mapdata;
+                worldmap.init();    
+            }
+        });
     }    
 };
