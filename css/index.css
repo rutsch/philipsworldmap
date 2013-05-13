@@ -39,13 +39,23 @@ body {
 }
 
 /* Portrait layout (default) */
+#mypanel{
+	position: absolute;
+	left: -10000px;
+	top: 50px;
+	height: 100%;
+	width: 100%;
+	z-index: 10000;
+	background: #eee;
+}
+
 .page {
     position:absolute;             /* position in the center of the screen */
     left:0px;
-    top:44px;
-    bottom: 44px;
+    top:54px;
+    bottom: 0px;
     right: 0px;
-                 /* text area width */
+    /* text area width */
     text-align:center;
 
 }

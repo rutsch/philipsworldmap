@@ -29,8 +29,13 @@ var app = {
             app.currentfilter = $(this).val();
             app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
                 app.mapdata = data;
+                //app.showPage(config.general.homepage_id);      
             });
         });		
+    
+        $('#settingstoggle').click(function(){
+            
+        });
     },
     // Load event handler
     onLoad: function(){
@@ -43,6 +48,7 @@ var app = {
             // Load user settings
             app.store.getUserSettings(function(results){
                 // load startpage
+                app.currentfilter = $('#filter-data input:checked').val();
                 app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
                     app.mapdata = data;
                     app.showPage(config.general.homepage_id);                 
@@ -61,6 +67,13 @@ var app = {
     // Offline event handler
     onResize: function() {
         worldmap.init();    
+        var height = $(window).height() - $('#header').height();
+        var width = $(window).width();        
+        $('#mypanel').css({
+            height: height,
+            width: width,
+            left: 0 -width
+        });
     },    
     // Opens the database and checks for new data. If found, clears the local storage cache before proceeding
     openDatabase: function(cb){
@@ -136,10 +149,11 @@ var app = {
     },
     
     showPage: function(pageId){
+        
         $('div.page').hide();
         var strId = '#'+pageId;
 
-        var height = $(window).height() - $('#header').height() - $('#footer').height();
+        var height = $(window).height() - $('#header').height();
         var width = $(window).width();
         $(strId).css({
             height: height,
@@ -150,7 +164,28 @@ var app = {
                 worldmap.mapVariation = app.currentfilter;
                 worldmap.mapData = app.mapdata;
                 worldmap.init();    
-            }
+                            }
         });
-    }    
+        $('#mypanel').css({
+            height: height,
+            width: width,
+            left: 0 -width
+        });
+    },
+
+    toggleSettings: function(){
+        var left = parseInt($('#mypanel').css('left')) < 0 ? 0 : - $(window).width();
+        if (left === 0){
+            $('#settingstoggle').find('.ui-icon').addClass('ui-icon-arrow-l').removeClass('ui-icon-arrow-r')
+        }else{
+            $('#settingstoggle').find('.ui-icon').addClass('ui-icon-arrow-r').removeClass('ui-icon-arrow-l')
+        }
+        $('#mypanel').animate({
+            left: left
+        });      
+        $('#map').show(); 
+        worldmap.mapVariation = app.currentfilter;
+        worldmap.mapData = app.mapdata;
+        worldmap.init();            
+    } 
 };
