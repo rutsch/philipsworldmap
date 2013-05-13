@@ -3,6 +3,7 @@ var app = {
     online: false,
     currentfilter: '',
     mapdata: {},
+    isapp: true,
     // Application Constructor
     initialize: function() {
         this.bindEvents();
@@ -21,6 +22,8 @@ var app = {
 			$(window).bind('orientationchange', this.onResize);
 		} else {
 		    // Regular browser
+		    this.restyleForWeb();
+		    this.isapp = false;
 		    this.online = true;
 		    $(window).bind('resize', this.onResize);
 			this.onDeviceReady(); 
@@ -66,7 +69,13 @@ var app = {
     },    
     // Offline event handler
     onResize: function() {
-        worldmap.init();    
+        if(app.isapp){
+            worldmap.init(true); 
+        }else{
+            worldmap.init(false); 
+        }
+        
+           
         var height = $(window).height() - $('#header').height();
         var width = $(window).width();        
         $('#mypanel').css({
@@ -75,6 +84,33 @@ var app = {
             left: 0 -width
         });
     },    
+    restyleForWeb: function(){
+
+        var strId = '#'+config.general.homepage_id;
+        
+        if(self.isapp){
+            height = $(window).height() - $('#header').height();
+            width = $(window).width();                
+        }else{
+            height = 450;
+            width = 600;
+            
+        }
+        $('#wrapper').css({
+            width: width
+            
+        });
+        $('.page').css({
+            width: width,
+            height: 450
+            
+        });        
+        $(strId).css({
+            height: height,
+            width: width
+        });        
+        $('#header').addClass('ui-bar-b').removeClass('ui-bar-a');
+    },
     // Opens the database and checks for new data. If found, clears the local storage cache before proceeding
     openDatabase: function(cb){
         app.store = new LocalStorageStore();
@@ -149,22 +185,30 @@ var app = {
     },
     
     showPage: function(pageId){
-        
+        var self = this;
         $('div.page').hide();
         var strId = '#'+pageId;
+        
+        if(self.isapp){
+            height = $(window).height() - $('#header').height();
+            width = $(window).width();                
+        }else{
+            height = 450;
+            width = 600;
+            
+        }
 
-        var height = $(window).height() - $('#header').height();
-        var width = $(window).width();
         $(strId).css({
             height: height,
             width: width
         });
+        
         $(strId).fadeIn(500, function(){
             if(pageId==='map'){
                 worldmap.mapVariation = app.currentfilter;
                 worldmap.mapData = app.mapdata;
-                worldmap.init();    
-                            }
+                worldmap.init(app.isapp);    
+            }
         });
         $('#mypanel').css({
             height: height,
@@ -186,6 +230,7 @@ var app = {
         $('#map').show(); 
         worldmap.mapVariation = app.currentfilter;
         worldmap.mapData = app.mapdata;
-        worldmap.init();            
+        worldmap.init();    
+                
     } 
 };

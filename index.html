@@ -11,53 +11,55 @@
         <title>Philips WorldMap</title>
     </head>
     <body>
-		<div id="mypanel" data-theme="b" class="ui-panel ui-panel-position-left ui-panel-display-reveal ui-body-b ui-panel-open">
-			<div id="panelcontent">			
-	        	<h1>Filters</h1>
-	        	
-				<div data-role="fieldcontain">
-				    <fieldset data-role="controlgroup" id="filter-data">
-				    	<legend>Choose data:</legend>
-				         	<input type="radio" name="radio-choice-1" id="radio-choice-livesimproved" value="lives_improved" checked="checked"  data-theme="d"/>
-				         	<label for="radio-choice-livesimproved">Lives improved</label>
-				
-				         	<input type="radio" name="radio-choice-1" id="radio-choice-ourcompany" value="our_company" data-theme="d" />
-				         	<label for="radio-choice-ourcompany">Our company</label>
-				    </fieldset>
+		<div id="wrapper">
+			<div id="mypanel" data-theme="b" class="ui-panel ui-panel-position-left ui-panel-display-reveal ui-body-b ui-panel-open">
+				<div id="panelcontent">			
+					<h1>Filters</h1>
+					
+					<div data-role="fieldcontain">
+						<fieldset data-role="controlgroup" id="filter-data">
+							<legend>Choose data:</legend>
+								<input type="radio" name="radio-choice-1" id="radio-choice-livesimproved" value="lives_improved" checked="checked"  data-theme="d"/>
+								<label for="radio-choice-livesimproved">Lives improved</label>
+					
+								<input type="radio" name="radio-choice-1" id="radio-choice-ourcompany" value="our_company" data-theme="d" />
+								<label for="radio-choice-ourcompany">Our company</label>
+						</fieldset>
+					</div>	
 				</div>	
-			</div>	
-	    </div>   	
-		<div data-role="header" data-theme="a" id="header">
-			<a href="#" onclick="app.toggleSettings()" data-icon="arrow-r" id="settingstoggle">Settings</a>
-		    <h1><img src="img/logo.png" height="20px" /></h1>
-		    <a href="#" data-icon="warn" class="ui-btn-right">Login</a>
-		</div>
-		<div id="content">
-	        <div class="page" id="intro">
-				<h1>Fetching data</h1>
-	        </div>
-	        <div class="page" id="map">
-	        	<div class="interactive_graph">.</div>
-	        </div>
-	        <div class="page hidden" id="filter">
-        		
-	        </div>
-	        <div class="page hidden" id="login">
-	        	<h1>Sign in</h1>
-	        </div>
-	        <div class="page hidden" id="error">
-	        	
-	        </div>
-	    </div>    
-		<!-- <div data-role="footer" id="footer" data-theme="a" data-position="fixed">
-			<div data-role="navbar">
-				<ul>
-					<li><a href="#" data-icon="home" onclick="app.showPage('map')">Map</a></li>
-					<li><a href="#" data-icon="gear" onclick="app.showPage('filter')">Filter</a></li>
-					<li><a href="#" data-icon="alert" onclick="app.showPage('login')">Sign in</a></li>
-				</ul>
+			</div>   	
+			<div data-role="header" data-theme="a" id="header">
+				<a href="#" onclick="app.toggleSettings()" data-icon="arrow-r" id="settingstoggle">Settings</a>
+				<h1><img src="img/logo.png" height="15px" /></h1>
+				<a href="#" data-icon="warn" class="ui-btn-right">Login</a>
 			</div>
-		</div>-->      
+			<div id="content">
+				<div class="page" id="intro">
+					<h1>Fetching data</h1>
+				</div>
+				<div class="page" id="map">
+					<div class="interactive_graph">.</div>
+				</div>
+				<div class="page hidden" id="filter">
+					
+				</div>
+				<div class="page hidden" id="login">
+					<h1>Sign in</h1>
+				</div>
+				<div class="page hidden" id="error">
+					
+				</div>
+			</div>    
+			<!-- <div data-role="footer" id="footer" data-theme="a" data-position="fixed">
+				<div data-role="navbar">
+					<ul>
+						<li><a href="#" data-icon="home" onclick="app.showPage('map')">Map</a></li>
+						<li><a href="#" data-icon="gear" onclick="app.showPage('filter')">Filter</a></li>
+						<li><a href="#" data-icon="alert" onclick="app.showPage('login')">Sign in</a></li>
+					</ul>
+				</div>
+			</div>-->      
+		</div>
         <script type="text/javascript" src="phonegap.js"></script>
         <script type="text/javascript" src="config.js"></script>
         <script type="text/javascript" src="js/jquery.js"></script>
