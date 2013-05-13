@@ -21,6 +21,7 @@ var app = {
 			$(window).bind('orientationchange', this.onResize);
 		} else {
 		    // Regular browser
+		    this.restyleForWeb();
 		    this.online = true;
 		    $(window).bind('resize', this.onResize);
 			this.onDeviceReady(); 
@@ -75,6 +76,9 @@ var app = {
             left: 0 -width
         });
     },    
+    restyleForWeb: function(){
+        $('#header').addClass('ui-bar-b').removeClass('ui-bar-a');
+    },
     // Opens the database and checks for new data. If found, clears the local storage cache before proceeding
     openDatabase: function(cb){
         app.store = new LocalStorageStore();
