@@ -67,7 +67,7 @@ var app = {
     },    
     // Offline event handler
     onResize: function() {
-        worldmap.init();    
+        
         var height = $(window).height() - $('#header').height();
         var width = $(window).width();        
         $('#mypanel').css({
@@ -80,6 +80,7 @@ var app = {
             height: height,
             width: width
         });        
+        worldmap.init();    
     },    
     restyleForWeb: function(){
         $('#header').addClass('ui-bar-b').removeClass('ui-bar-a');
