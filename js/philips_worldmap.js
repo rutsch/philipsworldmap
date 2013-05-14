@@ -75,6 +75,11 @@ var app = {
             width: width,
             left: 0 -width
         });
+
+        $('div.page').css({
+            height: height,
+            width: width
+        });        
     },    
     restyleForWeb: function(){
         $('#header').addClass('ui-bar-b').removeClass('ui-bar-a');
@@ -168,7 +173,7 @@ var app = {
                 worldmap.mapVariation = app.currentfilter;
                 worldmap.mapData = app.mapdata;
                 worldmap.init();    
-                            }
+            }
         });
         $('#mypanel').css({
             height: height,
