@@ -67,9 +67,23 @@ var app = {
     },    
     // Offline event handler
     onResize: function() {
-        
-        var height = $(window).height() - $('#header').height();
-        var width = $(window).width();        
+        var height, width;
+        if(event.orientation){
+            if(event.orientation == 'portrait'){
+                //do something
+                height = $(window).height() - $('#header').height();
+                width = $(window).width();        
+            }
+            else if(event.orientation == 'landscape') {
+                //do something
+                height = $(window).width() - $('#header').height();
+                width = $(window).height();      
+            }
+        } else{
+            height = $(window).height() - $('#header').height();
+            width = $(window).width();                 
+        }       
+
         $('#mypanel').css({
             height: height,
             width: width,
@@ -80,7 +94,7 @@ var app = {
             height: height,
             width: width
         });        
-        worldmap.init();    
+        worldmap.init(width, height);    
     },    
     restyleForWeb: function(){
         $('#header').addClass('ui-bar-b').removeClass('ui-bar-a');
@@ -173,7 +187,7 @@ var app = {
             if(pageId==='map'){
                 worldmap.mapVariation = app.currentfilter;
                 worldmap.mapData = app.mapdata;
-                worldmap.init();    
+                worldmap.init(width, height);    
             }
         });
         $('#mypanel').css({

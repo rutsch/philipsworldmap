@@ -303,12 +303,11 @@ var worldmap = {
 			});
 		},
 
-		generateMap : function (mode) {
+		generateMap : function (mode, width, height) {
 		    var self = this;
 			// Get the data for the map
             //prepare the placeholder which will contain the interactive world map
-            var height = $(window).height() - $('#header').height();
-            var width = $(window).width();
+
             $mapPlaceholder.html('');
             $mapPlaceholder.css({
                 width: width,
@@ -368,7 +367,7 @@ var worldmap = {
 			});
 		},
 		
-		init: function(){
+		init: function(width, height){
             // Code that is being executed at runtime
         
             //determine the type of map to show
@@ -428,7 +427,7 @@ var worldmap = {
             //$(footnote).insertAfter($mapPlaceholder.parent()).css({ display: 'inline-block', 'padding-top': '25px' });
         
             //get the data and generate the map
-            this.generateMap(this.mode); 		    
+            this.generateMap(this.mode, width, height); 		    
 		}
 }
 
