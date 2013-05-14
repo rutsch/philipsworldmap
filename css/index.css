@@ -55,6 +55,7 @@ body {
     right: 0px;
     /* text area width */
     text-align:center;
+    overflow: hidden;
 
 }
 .page h3{
