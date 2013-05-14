@@ -13,7 +13,7 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         // Check if we're running on PhoneGap
-        if (window.PhoneGap) {
+        if (window.cordova) {
             document.addEventListener("load", this.onLoad, false);
 			document.addEventListener("deviceready", this.onDeviceReady, false);
 			document.addEventListener("offline", this.onOffline, false);
