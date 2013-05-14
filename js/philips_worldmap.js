@@ -18,7 +18,7 @@ var app = {
 			document.addEventListener("deviceready", this.onDeviceReady, false);
 			document.addEventListener("offline", this.onOffline, false);
 			document.addEventListener("online", this.onOnline, false);
-			$(window).bind('orientationchange', this.onResize);
+			window.addEventListener("orientationchange", this.onResize, true);
 		} else {
 		    // Regular browser
 		    this.restyleForWeb();
@@ -66,7 +66,7 @@ var app = {
         app.online = false;
     },    
     // Offline event handler
-    onResize: function() {
+    onResize: function(event) {
         var height, width;
         if(event.orientation){
             if(event.orientation == 'portrait'){
