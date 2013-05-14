@@ -21,6 +21,7 @@
 }
 html{
 	overflow: hidden;
+	position: fixed;
 }
 body {
     -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
@@ -35,6 +36,7 @@ body {
     text-transform:uppercase;
     width:100%;
     overflow: hidden;
+    	position: fixed;
 }
 #intro{
 	background: url('../img/philips-logo.png') no-repeat center;
