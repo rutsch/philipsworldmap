@@ -42,7 +42,7 @@ body {
 #mypanel{
 	position: absolute;
 	left: -10000px;
-	top: 50px;
+	top: 44px;
 	z-index: 10000;
 	background: #eee;
 }
@@ -50,7 +50,7 @@ body {
 .page {
     position:absolute;             /* position in the center of the screen */
     left:0px;
-    top:54px;
+    top:44px;
     bottom: 0px;
     right: 0px;
     /* text area width */
