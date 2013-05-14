@@ -18,7 +18,8 @@ var app = {
 			document.addEventListener("deviceready", this.onDeviceReady, false);
 			document.addEventListener("offline", this.onOffline, false);
 			document.addEventListener("online", this.onOnline, false);
-			window.addEventListener("orientationchange", this.onResize, true);
+			//window.addEventListener("orientationchange", this.onResize, true);
+			$(window).bind('resize', this.onResize);
 		} else {
 		    // Regular browser
 		    this.restyleForWeb();
@@ -71,16 +72,16 @@ var app = {
         var orientation='portrait';
         if(window.orientation == -90 || window.orientation == 90) orientation = 'landscape';        
 
-            if(orientation == 'portrait'){
-                //do something
-                height = $(window).height() - $('#header').height();
-                width = $(window).width();        
-            }
-            else if(orientation == 'landscape') {
-                //do something
-                height = $(window).width() - $('#header').height();
-                width = $(window).height();      
-            }
+        //if(orientation == 'portrait'){
+            //do something
+            height = $(window).height() - $('#header').height();
+            width = $(window).width();        
+        //}
+        //else if(orientation == 'landscape') {
+            //do something
+        //    height = $(window).width() - $('#header').height();
+        //    width = $(window).height();      
+        //}
    
 
         $('#mypanel').css({
