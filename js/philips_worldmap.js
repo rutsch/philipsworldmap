@@ -68,21 +68,20 @@ var app = {
     // Offline event handler
     onResize: function(event) {
         var height, width;
-        if(event.orientation){
-            if(event.orientation == 'portrait'){
+        var orientation='portrait';
+        if(window.orientation == -90 || window.orientation == 90) orientation = 'landscape';        
+
+            if(orientation == 'portrait'){
                 //do something
                 height = $(window).height() - $('#header').height();
                 width = $(window).width();        
             }
-            else if(event.orientation == 'landscape') {
+            else if(orientation == 'landscape') {
                 //do something
                 height = $(window).width() - $('#header').height();
                 width = $(window).height();      
             }
-        } else{
-            height = $(window).height() - $('#header').height();
-            width = $(window).width();                 
-        }       
+   
 
         $('#mypanel').css({
             height: height,
