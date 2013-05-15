@@ -43,7 +43,7 @@ body {
 }
 
 /* Portrait layout (default) */
-#mypanel{
+#optionspanel{
 	position: absolute;
 	left: -10000px;
 	top: 44px;
