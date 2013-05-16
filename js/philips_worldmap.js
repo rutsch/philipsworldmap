@@ -16,35 +16,37 @@ var app = {
     mapdata: {},
     // Application Constructor
     initialize: function() {
-        this.bindEvents();
+        var self = this;
+        self.bindEvents();
     },
     // Bind Event Listeners
     bindEvents: function() {
+        var self = this;
         // Check if we're running on PhoneGap (cordova)
         if (window.cordova) {
             // PhoneGap
-            document.addEventListener("load", this.onLoad, false);
-			document.addEventListener("deviceready", this.onDeviceReady, false);
-			document.addEventListener("offline", this.onOffline, false);
-			document.addEventListener("online", this.onOnline, false);
+            document.addEventListener("load", self.onLoad, false);
+			document.addEventListener("deviceready", self.onDeviceReady, false);
+			document.addEventListener("offline", self.onOffline, false);
+			document.addEventListener("online", self.onOnline, false);
 			/*
 			 * TODO: Somehow the orientationchange event messes up in Android with Phonegap. 
 			 * Have to find out why, for now binding to window.resize seems to do the trick on both OS's. 
 			 */
 			//window.addEventListener("orientationchange", this.onResize, true);
-			$(window).bind('resize', this.onResize);
+			$(window).bind('resize', self.onResize);
 		} else {
 		    // Regular browser
 		    
 		    // Restyle
-		    this.restyleForWeb();
+		    self.restyleForWeb();
 		    // Assume browser is online
-		    this.online = true;
+		    self.online = true;
 		    // Bind resize event
-		    $(window).bind('resize', this.onResize);
+		    $(window).bind('resize', self.onResize);
 		    // Kickoff device ready (dont't have to call any "dom ready" event 
 		    // because all JS is loaded in the bottom of the page so the dom is loaded before the JS )
-			this.onDeviceReady(); 
+			self.onDeviceReady(); 
 		}
 		
 		// Bind filter change event, refreshes the worldmap
