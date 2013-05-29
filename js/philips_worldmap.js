@@ -14,6 +14,11 @@ var app = {
     online: false,
     currentfilter: '',
     mapdata: {},
+    window: {
+    	width: 0,
+    	height: 0,
+    	optionswidth: '0px'
+    },
     // Application Constructor
     initialize: function() {
         var self = this;
@@ -48,13 +53,13 @@ var app = {
 		    // because all JS is loaded in the bottom of the page so the dom is loaded before the JS )
 			self.onDeviceReady(); 
 		}
-		
+  
 		// Bind filter change event, refreshes the worldmap
 		/*
 		 * TODO: maybe don't call this at input changed in future when more filter options are added
 		 * Should be called then when the close button on the filter screen has been clicked
 		 */
-        $('#filter-data input').change(function() {
+        $('#select-choice-1').change(function() {
             /*
              * For now currentfilter is only a string value, this has to be extended to become a whole object 
              * We need to build an object from a combination of all form fields
@@ -66,10 +71,13 @@ var app = {
              * generates a key based on a object and send that as first param to getWorldmapData
              */
             app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
-                app.mapdata = data;     
+                worldmap.mapVariation = app.currentfilter;
+                worldmap.mapData = data;
+              
+                worldmap.init(app.window.width, app.window.height);  
             });
         });		
-        
+
         /*
          * TODO: Johan, you can add event listeners for hierarchy navigation click events here
          * all html for the navigation should be in the options panel div
@@ -83,22 +91,91 @@ var app = {
     onDeviceReady: function() {
         // Open local database
         app.openDatabase(function(){
-            // Load user settings
-            /*
-             * Not used for now but idea is to store the last filter combination in there and maybe
-             * some more options. 
-             */
-            app.store.getUserSettings(function(results){
-                // Load worldmap
-                // Get selected filter
-                app.currentfilter = $('#filter-data input:checked').val();
-                // Get worldmapdata and call showpage to show the homescreen
-                app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
-                    app.mapdata = data;
-                    app.showPage(config.general.homepage_id);                 
-                });
-            });
+        	// get producttree for generating the filter component
+            $.ajax({
+                type: "GET",
+                url: 'http://95.97.163.236/philips/producttree',
+                dataType: 'html',
+                data: {
+                    
+                }
+            }).done(function( result ) {
+            	$('#producttree_temp').html(result);
+            	// render the top level of the tree
+            	var topelement = $('#producttree_temp').find('li').first();
+            	
+            	$('#producttree').append('<li data-role="list-divider">Current filter: <span id="current_filter"></span></li>');
+            	$("#producttree").append('<li onclick="app.showNextLevel(\''+$(topelement).attr('id')+'\');"><span><input data-value="'+$(topelement).attr('id')+'" style="margin-left: 10px;" class="select_mru" type="checkbox" /></span><a href="#'+$(topelement).attr('id')+'">'+$(topelement).find('div').html()+'</a></li>');
+            	$("#producttree").listview();     
+            	
+            	$('.select_mru').click(function(e){
+            		e.stopPropagation();
+            		$('span#current_filter').html($(this).attr('data-value'));
+            	});
+                // Load user settings
+                /*
+                 * Not used for now but idea is to store the last filter combination in there and maybe
+                 * some more options. 
+                 */
+                app.store.getUserSettings(function(results){
+                    // Load worldmap
+                    // Get selected filter
+                    app.currentfilter = $('#select-choice-1').val();
+                    // Get worldmapdata and call showpage to show the homescreen
+                    app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
+                        app.mapdata = data;
+                        app.onResize();              
+                    });
+                });                
+            }).fail(function(xhr, err){
+                cb(null, false);
+            });            	
+        	
+
         });
+        app.menuStatus = '0px';
+
+        $("a.showMenu").click(function(){
+            if(app.menuStatus == "0px"){
+            	$(".ui-page-active").animate({
+            		marginLeft: "-" + app.window.optionswidth
+	            }, 300, function(){
+	            	app.menuStatus = app.window.optionswidth
+	            });
+	            return false;
+        	} else {
+				$(".ui-page-active").animate({
+					marginLeft: "0px",
+				}, 300, function(){
+					app.menuStatus = "0px"
+				});
+				return false;
+            }
+        });
+     
+        $('.showMenu').on("swipeleft", function(){
+        	$(".ui-page-active").animate({
+        		marginLeft: "-" + app.window.optionswidth
+        	}, 300, function(){
+        		app.menuStatus = app.window.optionswidth
+        	});
+        });
+     
+        $('.showMenu, #menu').on("swiperight", function(){
+        	$(".ui-page-active").animate({
+        		marginLeft: "0px"
+        	}, 300, function(){
+        		app.menuStatus = "0px"
+        	});
+        });
+        $('#info').on("swipedown", function(){
+        	$(this).animate({
+        		bottom: "-250px"
+        	}, 300, function(){
+        		app.menuStatus = "0px"
+        	});
+        });    
+    
     },
     // Online event handler
     onOnline: function() {
@@ -108,42 +185,20 @@ var app = {
     onOffline: function() {
         app.online = false;
     },    
-    // Offline event handler
+    // OnResize event handler
     onResize: function(event) {
-        var height, width;
-        var orientation='portrait';
-        if(window.orientation == -90 || window.orientation == 90) orientation = 'landscape';        
-        /*
-         * For now this seems to work best on Android as well as on iOs. 
-         * Android somehow does not handle orientation correctly??  
-         */
-         
-        //if(orientation == 'portrait'){
-            //do something
-            height = $(window).height() - $('#header').height();
-            width = $(window).width();        
-        //}
-        //else if(orientation == 'landscape') {
-            //do something
-        //    height = $(window).width() - $('#header').height();
-        //    width = $(window).height();      
-        //}
-   
-        // Adjust size of options panel
-        $('#optionspanel').css({
-            height: height,
-            width: width,
-            left: 0 -width
+        app.window.height = $(window).height();
+        app.window.width = $(window).width();        
+        app.window.optionswidth = app.window.width - ($("a.showMenu").width() + 20) + 'px';
+        $('#menu').css({
+        	width: app.window.optionswidth
         });
-        
-        // Adjust size of page div(s)
-        $('div.page').css({
-            height: height,
-            width: width
-        });        
-        
+        $(".ui-page-active").css({
+        	marginLeft: '0px'
+        });
+        app.menuStatus = '0px';
         // Re-init worldmap to rescale the svg
-        worldmap.init(width, height);    
+        app.initMap(); 
     },    
     // Function that restyles the interface where needed when running in "web mode"
     restyleForWeb: function(){
@@ -220,57 +275,43 @@ var app = {
         });
     },
     // Shows a page (div element with class "page") based on an ID
-    showPage: function(pageId){
-        // Hide all "page's"
-        $('div.page').hide();
-        var strId = '#'+pageId;
-
-        var height = $(window).height() - $('#header').height();
-        var width = $(window).width();
-        // Set correct width and height for "page" div
-        $(strId).css({
-            height: height,
-            width: width
-        });
-        // Fade in the page div
-        $(strId).fadeIn(500, function(){
-            // If we are on the map page init the worldmap
-            if(pageId==='map'){
-                worldmap.mapVariation = app.currentfilter;
-                worldmap.mapData = app.mapdata;
-                worldmap.init(width, height);    
-            }
-        });
-        // set height and with for options panel
-        $('#optionspanel').css({
-            height: height,
-            width: width,
-            left: 0 -width -10
-        });
+    initMap: function(){
+        worldmap.mapVariation = app.currentfilter;
+        worldmap.mapData = app.mapdata;
+        worldmap.init(app.window.width, app.window.height);
+        $('#menu').css({
+        	display: 'block'
+        })
     },
-    // Toggles the settings panel for the map. Calls re-init on the worldmap
     /*
-     * Maybe also should get the actual data here so we only do one ajax call once done with filter screen
-     */ 
-    toggleSettings: function(){
-        var left = parseInt($('#optionspanel').css('left')) < 0 ? 0 : - $(window).width() -10;
-        // Set the correct icon for the settings button
-        if (left === 0){
-            $('#settingstoggle').find('.ui-icon').addClass('ui-icon-arrow-l').removeClass('ui-icon-arrow-r')
-        }else{
-            $('#settingstoggle').find('.ui-icon').addClass('ui-icon-arrow-r').removeClass('ui-icon-arrow-l')
-        }
-        // Animate the optionspanel in or out
-        $('#optionspanel').animate({
-            left: left
-        });      
-        // If options panel is dissappearing then re-init worldmap
-        if (left < 0){
-            $('#map').show(); 
-            worldmap.mapVariation = app.currentfilter;
-            worldmap.mapData = app.mapdata;
-            worldmap.init();             
-        }
-          
-    } 
+     * Helpers for the MRU navigation
+     */
+    renderFilterListLevel: function(){
+    	
+    },
+    hasParents: function(el){
+    	return $(el).parents('li') > 0;
+    },
+    hasChildren: function(el){
+    	return $(el).find('ul') > 0;
+    },
+    showNextLevel: function(clicked_id){
+    	console.log(clicked_id);
+    	var selector = 'li#'+clicked_id+ ' >ul > li';
+    	$("#producttree").html('');
+    	$('#producttree').append('<li data-role="list-divider">Current filter: <span id="current_filter"></span></li>');
+    	
+    	$.each($(selector), function(index, el){
+    		$("#producttree").append('<li onclick="app.showNextLevel(\''+$(el).attr('id')+'\');"><span><input data-value="'+$(el).attr('id')+'" style="margin-left: 10px;" class="select_mru" type="checkbox" /></span><a href="#'+$(el).attr('id')+'">'+$(el).find('div').html()+'</a></li>');
+    	});
+    	$('.select_mru').click(function(e){
+    		e.stopPropagation();
+    		$('span#current_filter').html($(this).attr('data-value'));
+    	});    	
+    	$("#producttree").listview('refresh'); 
+    },
+    showPreviousLevel: function(){
+    	
+    }
 };
+function applyFilter(){}

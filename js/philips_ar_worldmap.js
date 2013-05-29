@@ -81,6 +81,7 @@ var worldmap = {
 	// Overrides the region mouseover event (set 'selected' property for all regions in mapData[i].code array)						
 	handleRegionMouseOver: function (e, code) {
 		var self = this;
+		self.map.clearSelectedRegions();
 		for (var i = 0; i < self.mapData.length; i++) {
 			if ($.inArray(code, self.mapData[i].code) > -1) {
 				//debugger;
@@ -177,8 +178,13 @@ var worldmap = {
 
 			}
 
-			el.html(regionHtml);
-
+			$('#region-details').html(regionHtml);
+			$('#info').animate({
+				bottom: 0
+			});
+			console.log(code);
+			console.log(self.zoom);
+			$('.interactive_graph').vectorMap('set', 'focus', regionData.code, 1);
 		} else {
 			// Country not found, prevent popup from showing
 			e.preventDefault();
@@ -320,6 +326,7 @@ var worldmap = {
 
 	generateMap: function (mode, width, height) {
 		var self = this;
+		$('.jvectormap-label').remove();
 		// Get the data for the map
 		//prepare the placeholder which will contain the interactive world map
 
@@ -339,7 +346,7 @@ var worldmap = {
 				map: self.mapName,
 				container: self.$mapPlaceholder,
 				backgroundColor: self.mapBackGroundColor,
-				hoverColor: true,
+				hoverColor: false,
 				focusOn: self.objmapfocus,
 				regionStyle: {
 					initial: {
@@ -350,21 +357,29 @@ var worldmap = {
 						"fill-opacity": self.regionHoverOpacity
 					}
 				},
-				onRegionOver: function (e, code) {
+				onRegionClick: function(e, code){
 					self.handleRegionMouseOver(e, code);
+					self.showCountryDetails(e, null, code);
+				},
+				onRegionOver: function (e, code) {
+					//self.handleRegionMouseOver(e, code);
 				},
 				onRegionSelected: function (e, code, isSelected, selectedRegions) {
-					self.handleRegionSelected(e, code, isSelected, selectedRegions);
+					//self.handleRegionSelected(e, code, isSelected, selectedRegions);
 				},
 				onRegionOut: function (e, code) {
-					self.map.clearSelectedRegions();
+					//self.map.clearSelectedRegions();
 				},
 				onRegionLabelShow: function (e, el, code) {
-					self.showCountryDetails(e, el, code);
+					//self.showCountryDetails(e, el, code);
+				},
+				onViewportChange: function(e, zoom){
+					console.log(e);
+					self.zoom = zoom;
 				},
 				series: {
 					regions: [{
-						hoverColor: true
+						hoverColor: false
 					}]
 				}
 			});

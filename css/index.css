@@ -43,18 +43,10 @@ body {
 }
 
 /* Portrait layout (default) */
-#optionspanel{
-	position: absolute;
-	left: -10000px;
-	top: 44px;
-	z-index: 10000;
-	background: #eee;
-}
 
 .page {
     position:absolute;             /* position in the center of the screen */
     left:0px;
-    top:44px;
     bottom: 0px;
     right: 0px;
     /* text area width */
@@ -101,3 +93,62 @@ div.jvectormap-label {
 	font-family: sans-serif, Verdana;
 	font-size: smaller;
 }
+.ui-btn-right{
+	z-index:100000;
+}
+.ui-content{
+	padding: 0px!important;
+}
+#header .ui-btn { height: 30px; width: 30px; font-size: 48px;moz-border-radius : 4 px ; -webkit-border-radius :  4px ; border-radius :  4px ; }
+#header .ui-icon, #header .ui-icon-searchfield::after  {moz-border-radius : 0 px ; -webkit-border-radius :  0px ; border-radius :  0px ;}
+.ui-panel-dismiss-display-push { display: none;}
+
+
+body {
+	-webkit-text-size-adjust: none;
+
+}
+.pages h3 {
+	font-size: 20px;
+	margin: 0;
+}
+#menu {
+	float: right;
+	height: 100%;
+	width: 250px;
+	position: fixed;
+	display: none;
+}
+#info {
+	border-top: 1px solid #ccc;
+	background: #fff;
+	height: 250px!important;
+	width: 100%;
+	position: absolute;
+	bottom: -250px;
+}
+.ui-header{
+	border: none;
+}
+.ui-li-static.ui-li{
+	padding: 0px;
+}
+.ui-btn-inner{
+	text-align: left;	
+}
+.jvectormap-label{
+	display: none!important;
+}
+#producttree_temp{
+	display: none;
+}
+#producttree .ui-link-inherit{
+	display: inline;
+	padding-left: 20px;
+}
+#producttree .ui-btn-icon-right{
+	height: 40px;
+}
+#producttree .ui-btn-inner.ui-li{
+	padding-top: 10px;
+} 
