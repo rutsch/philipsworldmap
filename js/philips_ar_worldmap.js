@@ -179,11 +179,14 @@ var worldmap = {
 			}
 
 			$('#region-details').html(regionHtml);
+	        $('#details').css({
+		    	width: app.window.width - 20
+		    });			
 			$('#info').animate({
 				bottom: 0
 			});
-			console.log(code);
-			console.log(self.zoom);
+			//console.log(code);
+			//console.log(self.zoom);
 			$('.interactive_graph').vectorMap('set', 'focus', regionData.code, 1);
 		} else {
 			// Country not found, prevent popup from showing
@@ -414,14 +417,25 @@ var worldmap = {
 			case 'lives_improved':
 				title = '<h3 class="wm_title gill_sans purple_base">' + arrTranslations['lives_improved_header'] + '</h3>';
 				footnote = '<em class="wm_footnote">' + arrTranslations['lives_improved_footer'] + '</em>';
-				self.popupTemplate = '<div class="country_details">' +
-                                        '<h3>[country_name]</h3>' +
-                                        '<table>' +
-                                        '<tr><td><div class="popup_header">' + arrTranslations['population'] + '</div></td><td><div class="country_total total_value">[population_total]</div><span>' + arrTranslations['million'] + '</span></td></tr>' +
-                                        '<tr><td><div class="popup_header">' + arrTranslations['lives_improved'] + '</div></td><td><div class="total_value">[total_value]</div><span>' + arrTranslations['million'] + '</span></td></tr>' +
-                                        '<tr><td><div class="popup_header">' + arrTranslations['gdp'] + '</div></td><td><span class="dollar">$</span><div class="country_total total_value">[gdp_total]</div><span>' + arrTranslations['billion'] + '</span></td></tr>' +
-                                        '</table>' +
-                                    '</div>';
+				self.popupTemplate = 	'<table id="details">' +
+											'<tr><td colspan="2"><h3>[country_name]</h3></td></tr>' +
+											'<tr><td colspan="2">' + arrTranslations['lives_improved'] + '</td></tr>' +
+											'<tr><td colspan="2"><div class="total_value">[total_value]</div><span>' + arrTranslations['million'] + '</span></td></tr>' +
+											'<tr>' +
+												'<td>' +
+													'<table>' +
+														'<tr><td>' + arrTranslations['population'] + '</td></tr>' +
+														'<tr><td><div class="country_total total_value">[population_total]</div><span>' + arrTranslations['million'] + '</span></td></tr>' +
+													'</table>' +
+												'</td>' +
+												'<td>' +
+													'<table>' +
+														'<tr><td>' + arrTranslations['gdp'] + '</td></tr>' +
+														'<tr><td><span class="dollar">$</span><div class="country_total total_value">[gdp_total]</div><span>' + arrTranslations['billion'] + '</span></td></tr>' +
+													'</table>' +
+												'</td>' +
+											'</tr>' +
+										'</table>';
 
 				break;
 			case 'our_company':

@@ -13,6 +13,7 @@ var app = {
      */
     online: false,
     currentfilter: '',
+    current_mru: 'Philips',
     mapdata: {},
     window: {
     	width: 0,
@@ -27,6 +28,9 @@ var app = {
     // Bind Event Listeners
     bindEvents: function() {
         var self = this;
+        
+        
+        
         // Check if we're running on PhoneGap (cordova)
         if (window.cordova) {
             // PhoneGap
@@ -59,7 +63,7 @@ var app = {
 		 * TODO: maybe don't call this at input changed in future when more filter options are added
 		 * Should be called then when the close button on the filter screen has been clicked
 		 */
-        $('#select-choice-1').change(function() {
+        $('#select-oru').change(function() {
             /*
              * For now currentfilter is only a string value, this has to be extended to become a whole object 
              * We need to build an object from a combination of all form fields
@@ -89,6 +93,7 @@ var app = {
     },
     // Deviceready event handler
     onDeviceReady: function() {
+    	var self = this;
         // Open local database
         app.openDatabase(function(){
         	// get producttree for generating the filter component
@@ -100,18 +105,16 @@ var app = {
                     
                 }
             }).done(function( result ) {
+
             	$('#producttree_temp').html(result);
             	// render the top level of the tree
-            	var topelement = $('#producttree_temp').find('li').first();
+            	var selector = 'li#philips >ul > li';
+            	app.renderSelectList(selector, false);
+            	$("#bottomcarousel").touchCarousel({
+
+                });
+
             	
-            	$('#producttree').append('<li data-role="list-divider">Current filter: <span id="current_filter"></span></li>');
-            	$("#producttree").append('<li onclick="app.showNextLevel(\''+$(topelement).attr('id')+'\');"><span><input data-value="'+$(topelement).attr('id')+'" style="margin-left: 10px;" class="select_mru" type="checkbox" /></span><a href="#'+$(topelement).attr('id')+'">'+$(topelement).find('div').html()+'</a></li>');
-            	$("#producttree").listview();     
-            	
-            	$('.select_mru').click(function(e){
-            		e.stopPropagation();
-            		$('span#current_filter').html($(this).attr('data-value'));
-            	});
                 // Load user settings
                 /*
                  * Not used for now but idea is to store the last filter combination in there and maybe
@@ -120,7 +123,7 @@ var app = {
                 app.store.getUserSettings(function(results){
                     // Load worldmap
                     // Get selected filter
-                    app.currentfilter = $('#select-choice-1').val();
+                    app.currentfilter = $('#select-oru').val();
                     // Get worldmapdata and call showpage to show the homescreen
                     app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
                         app.mapdata = data;
@@ -133,7 +136,11 @@ var app = {
         	
 
         });
+        
+        app.myScroll = new iScroll('menu', {lockDirection: true });  
+        
         app.menuStatus = '0px';
+        app.infoStatus = '0px';
 
         $("a.showMenu").click(function(){
             if(app.menuStatus == "0px"){
@@ -170,11 +177,13 @@ var app = {
         });
         $('#info').on("swipedown", function(){
         	$(this).animate({
-        		bottom: "-250px"
+        		bottom: "-200px"
         	}, 300, function(){
-        		app.menuStatus = "0px"
+        		//app.menuStatus = "0px"
         	});
         });    
+        //TODO: hier die onderste paneeltjes animeren.
+    
     
     },
     // Online event handler
@@ -193,9 +202,29 @@ var app = {
         $('#menu').css({
         	width: app.window.optionswidth
         });
+        $('#carousel-single-image, #carousel-single-image .touchcarousel-item, #carousel-single-image div.placeholder').css({
+	    	width: app.window.width
+	    });
+        $('#details').css({
+	    	width: app.window.width - 20
+	    });	
         $(".ui-page-active").css({
         	marginLeft: '0px'
         });
+
+		$("#carousel-single-image").touchCarousel({
+			pagingNav: true,
+			scrollbar: false,
+			directionNavAutoHide: false,				
+			itemsPerMove: 1,				
+			loopItems: true,				
+			directionNav: false,
+			autoplay: false,
+			autoplayDelay: 2000,
+			useWebkit3d: true,
+			transitionSpeed: 400
+		});      
+        app.myScroll.refresh();
         app.menuStatus = '0px';
         // Re-init worldmap to rescale the svg
         app.initMap(); 
@@ -295,23 +324,87 @@ var app = {
     hasChildren: function(el){
     	return $(el).find('ul') > 0;
     },
-    showNextLevel: function(clicked_id){
-    	console.log(clicked_id);
-    	var selector = 'li#'+clicked_id+ ' >ul > li';
-    	$("#producttree").html('');
-    	$('#producttree').append('<li data-role="list-divider">Current filter: <span id="current_filter"></span></li>');
+    itemSelected: function(id){
+    	var $spancurrentfilter = $('span#current_filter'),
+    		$arrselect = $('.select_mru');
+    	//alert(id);	
+		var elClicked = id.parent('div').find('input');
+        if(!elClicked.is(":checked")) {  
+        	$arrselect.prop('checked', false);
+    		app.current_mru = elClicked.attr('data-value');
+    		elClicked.prop('checked', true);
+    		$spancurrentfilter.html(app.current_mru); 
+        }else{
+        	if($spancurrentfilter.html() == elClicked.attr('data-value')) {
+        		app.current_mru = 'philips';
+        		$spancurrentfilter.html(app.current_mru);
+        	}
+        	$arrselect.prop('checked', false);
+        }
+        
+		
+    },
+    renderSelectList: function(selector, showBackbutton){
+    	var self = this,
+    		backbutton = '<a id="btn_back" onclick="app.showPreviousLevel();" href="#" data-role="button" data-icon="back" data-iconpos="notext">Back</a></div>',
+    		$producttree = $("#producttree");
     	
+    	$producttree.html('');
+    	$('.cbxoverlay').remove();
+    	if(!showBackbutton){
+    		$producttree.append('<li data-theme="c" data-role="list-divider"><span id="current_filter">'+app.current_mru+'</span></li>');
+    	}else{
+    		$producttree.append('<li data-theme="c" data-role="list-divider">'+backbutton+'<span id="current_filter">'+app.current_mru+'</span></li>');    	
+    	}
     	$.each($(selector), function(index, el){
-    		$("#producttree").append('<li onclick="app.showNextLevel(\''+$(el).attr('id')+'\');"><span><input data-value="'+$(el).attr('id')+'" style="margin-left: 10px;" class="select_mru" type="checkbox" /></span><a href="#'+$(el).attr('id')+'">'+$(el).find('div').html()+'</a></li>');
+    		var $el = $(el);
+    		if($('#producttree_temp li[id="'+$el.attr('id')+'"]').find('ul').length > 0){
+    			$producttree.append('<li data-id="'+$el.attr('id')+'" data-inverse="true" onclick="app.showNextLevel(\''+$el.attr('id')+'\');"><div data-id="'+$el.attr('id')+'" class="cbxoverlay"></div><input data-value="'+$el.attr('id')+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+$el.attr('id')+'">'+$el.find('div').html()+'</a></li>');	
+    		}else{
+    			$producttree.append('<li data-id="'+$el.attr('id')+'" data-icon="false"><div data-id="'+$el.attr('id')+'" class="cbxoverlay"></div><input data-value="'+$el.attr('id')+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+$el.attr('id')+'">'+$el.find('div').html()+'</a></li>');
+    		}
     	});
-    	$('.select_mru').click(function(e){
-    		e.stopPropagation();
-    		$('span#current_filter').html($(this).attr('data-value'));
+
+    	$('[data-role=button]').button();
+    	
+    	var isTouchSupported = "ontouchend" in document;
+    	var event = isTouchSupported ? 'tap' : 'click';
+
+    	$('.cbxoverlay').bind(event, function(e){
+    		if( e.target.tagName.toUpperCase() === 'DIV' ) {
+	        	e.stopPropagation();
+	    		e.stopImmediatePropagation();
+	    		e.preventDefault();    		
+	    		app.itemSelected($(this));
+    		}
     	});    	
-    	$("#producttree").listview('refresh'); 
+    	$('#select-oru').selectmenu('close');
+    	
+    	$producttree.listview(); 
+    	$producttree.listview('refresh');
+    	var height = $('.ui-controlgroup-controls').height() + 120;
+    	$('#wrapper form').css({height: height});
+    	    	
+    	app.myScroll.refresh(); 
+    },
+    showNextLevel: function(clicked_id){
+    	var self = this,
+    		selector = 'li#'+clicked_id+ ' >ul > li';
+    	
+    	self.renderSelectList(selector, true);
     },
     showPreviousLevel: function(){
-    	
+    	var self = this,
+    		// get id from second item from current list (first one is the header)
+    		id = $($("#producttree").find('li')[1]).attr('data-id'),
+	    	// find first parent ul of parent ul in temp producttree
+    		selector = $('#producttree_temp li#'+id).parent('ul').parents('ul').first().find('>li');
+
+    	if($('#producttree_temp li#'+id).parent('ul').parents('ul').first().find('>li').first().parent('ul').parents('ul').first().find('>li').length > 1){
+    		self.renderSelectList(selector, true);
+    	}else{
+    		self.renderSelectList(selector, false);
+    	}
     }
 };
 function applyFilter(){}
