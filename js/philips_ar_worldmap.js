@@ -386,12 +386,15 @@ var worldmap = {
 					}]
 				}
 			});
+			
 			// Set the colors for the regions
 			self.map.series.regions[0].setValues(self.generateColors(mapData));
 			// Add the mode switch buttons when needed
 			if (self.showModeSwitch) {
 				generateModeSwitch(mode);
 			}
+			
+			window.cordova.exec(null, null, "SplashScreen", "hide", []);
 		});
 	},
 

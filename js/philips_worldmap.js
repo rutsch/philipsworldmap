@@ -23,7 +23,23 @@ var app = {
     // Application Constructor
     initialize: function() {
         var self = this;
-        self.bindEvents();
+        
+        function include(script, callback) {
+            var e = document.createElement('script');
+            e.onload = callback;
+            e.src = script;
+            e.type = "text/javascript";
+            document.getElementsByTagName("head")[0].appendChild(e);
+        }
+        debugger;
+        if ("ontouchend" in document){
+            include('cordova-2.7.0.js', function() {
+            	self.bindEvents();
+            });        	
+        }
+        else{
+        	self.bindEvents();
+        }
     },
     // Bind Event Listeners
     bindEvents: function() {
@@ -310,7 +326,8 @@ var app = {
         worldmap.init(app.window.width, app.window.height);
         $('#menu').css({
         	display: 'block'
-        })
+        });
+        
     },
     /*
      * Helpers for the MRU navigation

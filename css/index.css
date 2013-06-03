@@ -291,4 +291,7 @@ span#current_filter{
 	float: left;
 	position: relative;
 	left: 50%;
+}
+.gillsans{
+ 	font-family: GillSansAltOneWGLRegular;
 }	
