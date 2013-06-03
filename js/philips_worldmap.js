@@ -31,7 +31,7 @@ var app = {
             e.type = "text/javascript";
             document.getElementsByTagName("head")[0].appendChild(e);
         }
-        debugger;
+
         if ("ontouchend" in document){
             include('cordova-2.7.0.js', function() {
             	self.bindEvents();

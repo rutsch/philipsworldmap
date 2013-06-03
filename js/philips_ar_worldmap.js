@@ -394,7 +394,7 @@ var worldmap = {
 				generateModeSwitch(mode);
 			}
 			
-			window.cordova.exec(null, null, "SplashScreen", "hide", []);
+			if (window.cordova) window.cordova.exec(null, null, "SplashScreen", "hide", []);
 		});
 	},
 
