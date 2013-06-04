@@ -459,7 +459,6 @@ var app = {
     	var event = isTouchSupported ? 'tap' : 'click';        
     	$('.cbxoverlay').bind('tap', function(e){
         	e.stopPropagation();
-    		e.stopImmediatePropagation();
     		e.preventDefault();     		
     		if( e.target.tagName.toUpperCase() === 'DIV' ) {
 	    		app.itemSelected($(this));
