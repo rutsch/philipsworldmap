@@ -20,6 +20,15 @@ var app = {
     	height: 0,
     	optionswidth: '0px'
     },
+    $producttree: $('#producttree'),
+    $producttreetemp: $('#producttree_temp'),
+    $selectoru: $('#select-oru'),
+    $bottomcarousel: $('#carousel-single-image'),
+    $menu: $('#menu'),
+    $worldmappage: $('.ui-page-active'),
+    $selectoru: $('#select-oru'),
+    $infopanel: $('#info'),
+    $showmenu: $('.showMenu'),
     // Application Constructor
     initialize: function() {
         var self = this;
@@ -44,9 +53,7 @@ var app = {
     // Bind Event Listeners
     bindEvents: function() {
         var self = this;
-        
-        
-        
+
         // Check if we're running on PhoneGap (cordova)
         if (window.cordova) {
             // PhoneGap
@@ -54,15 +61,9 @@ var app = {
 			document.addEventListener("deviceready", self.onDeviceReady, false);
 			document.addEventListener("offline", self.onOffline, false);
 			document.addEventListener("online", self.onOnline, false);
-			/*
-			 * TODO: Somehow the orientationchange event messes up in Android with Phonegap. 
-			 * Have to find out why, for now binding to window.resize seems to do the trick on both OS's. 
-			 */
-			//window.addEventListener("orientationchange", this.onResize, true);
 			$(window).bind('resize', self.onResize);
 		} else {
 		    // Regular browser
-		    
 		    // Restyle
 		    self.restyleForWeb();
 		    // Assume browser is online
@@ -71,15 +72,15 @@ var app = {
 		    $(window).bind('resize', self.onResize);
 		    // Kickoff device ready (dont't have to call any "dom ready" event 
 		    // because all JS is loaded in the bottom of the page so the dom is loaded before the JS )
-			self.onDeviceReady(); 
+			self.onDeviceReady();                                                                    
 		}
-  
+
 		// Bind filter change event, refreshes the worldmap
 		/*
 		 * TODO: maybe don't call this at input changed in future when more filter options are added
 		 * Should be called then when the close button on the filter screen has been clicked
 		 */
-        $('#select-oru').change(function() {
+        app.$selectoru.change(function() {
             /*
              * For now currentfilter is only a string value, this has to be extended to become a whole object 
              * We need to build an object from a combination of all form fields
@@ -97,68 +98,11 @@ var app = {
                 worldmap.init(app.window.width, app.window.height);  
             });
         });		
-
-        /*
-         * TODO: Johan, you can add event listeners for hierarchy navigation click events here
-         * all html for the navigation should be in the options panel div
-         */
-    },
-    // Load event handler
-    onLoad: function(){
-         
-    },
-    // Deviceready event handler
-    onDeviceReady: function() {
-    	var self = this;
-        // Open local database
-        app.openDatabase(function(){
-        	// get producttree for generating the filter component
-            $.ajax({
-                type: "GET",
-                url: 'http://95.97.163.236/philips/producttree',
-                dataType: 'html',
-                data: {
-                    
-                }
-            }).done(function( result ) {
-
-            	$('#producttree_temp').html(result);
-            	// render the top level of the tree
-            	var selector = 'li#philips >ul > li';
-            	app.renderSelectList(selector, false);
-            	$("#bottomcarousel").touchCarousel({
-
-                });
-
-            	
-                // Load user settings
-                /*
-                 * Not used for now but idea is to store the last filter combination in there and maybe
-                 * some more options. 
-                 */
-                app.store.getUserSettings(function(results){
-                    // Load worldmap
-                    // Get selected filter
-                    app.currentfilter = $('#select-oru').val();
-                    // Get worldmapdata and call showpage to show the homescreen
-                    app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
-                        app.mapdata = data;
-                        app.onResize();              
-                    });
-                });                
-            }).fail(function(xhr, err){
-                cb(null, false);
-            });            	
-        	
-
-        });
-        
-        app.myScroll = new iScroll('menu', {lockDirection: true });  
         
         app.menuStatus = '0px';
         app.infoStatus = '0px';
 
-        $("a.showMenu").click(function(){
+        app.$showmenu.click(function(){
             if(app.menuStatus == "0px"){
             	$(".ui-page-active").animate({
             		marginLeft: "-" + app.window.optionswidth
@@ -176,7 +120,7 @@ var app = {
             }
         });
      
-        $('.showMenu').on("swipeleft", function(){
+        app.$showmenu.on("swipeleft", function(){
         	$(".ui-page-active").animate({
         		marginLeft: "-" + app.window.optionswidth
         	}, 300, function(){
@@ -184,23 +128,84 @@ var app = {
         	});
         });
      
-        $('.showMenu, #menu').on("swiperight", function(){
+        app.$showmenu.on("swiperight", function(){
         	$(".ui-page-active").animate({
         		marginLeft: "0px"
         	}, 300, function(){
         		app.menuStatus = "0px"
         	});
         });
-        $('#info').on("swipedown", function(){
+        
+        app.$menu.on("swiperight", function(){
+        	$(".ui-page-active").animate({
+        		marginLeft: "0px"
+        	}, 300, function(){
+        		app.menuStatus = "0px"
+        	});
+        });        
+        
+        app.$infopanel.on("swipedown", function(){
         	$(this).animate({
         		bottom: "-200px"
         	}, 300, function(){
         		//app.menuStatus = "0px"
         	});
-        });    
-        //TODO: hier die onderste paneeltjes animeren.
-    
-    
+        }); 
+        /*
+         * TODO: Johan, you can add event listeners for hierarchy navigation click events here
+         * all html for the navigation should be in the options panel div
+         */
+    },
+    // Load event handler
+    onLoad: function(){
+         
+    },
+    // Deviceready event handler
+    onDeviceReady: function() {
+    	var self = this;
+        // Open local database
+    	
+        app.openDatabase(function(){
+        	app.myScroll = new iScroll('menu', {lockDirection: true });             
+        	// get producttree for generating the filter component
+        	app.getMruData(function(result){
+            	app.$producttreetemp.html(result);
+            	// render the top level of the tree
+            	var selector = 'li#philips >ul > li';
+            	app.renderSelectList(selector, false);
+            	
+                $('#menu').css({
+                	width: app.window.optionswidth
+                });        		
+        	});
+        	
+            app.$bottomcarousel.iosSlider({
+    			snapToChildren: true,
+                scrollbar: false,
+                desktopClickDrag: true,
+                keyboardControls: true,
+                responsiveSlideContainer: true,
+                responsiveSlides: true,
+                onSliderResize: app.resizeSlider
+    		}); 
+            // Load user settings
+            /*
+             * Not used for now but idea is to store the last filter combination in there and maybe
+             * some more options. 
+             */
+            app.store.getUserSettings(function(results){
+            	// TODO: Load favourites screen with result
+            	
+                // Load worldmap
+                // Get selected filter
+                app.currentfilter = $('#select-oru').val();
+                // Get worldmapdata and call showpage to show the homescreen
+                app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
+                    app.mapdata = data;
+                    app.onResize();              
+                });
+            });  
+        });   
     },
     // Online event handler
     onOnline: function() {
@@ -213,38 +218,43 @@ var app = {
     // OnResize event handler
     onResize: function(event) {
         app.window.height = $(window).height();
-        app.window.width = $(window).width();        
+        app.window.width = $(window).width();   
+        //alert('width: ' + app.window.width + ' height: ' + app.window.height);
         app.window.optionswidth = app.window.width - ($("a.showMenu").width() + 20) + 'px';
-        $('#menu').css({
-        	width: app.window.optionswidth
-        });
-        $('#carousel-single-image, #carousel-single-image .touchcarousel-item, #carousel-single-image div.placeholder').css({
-	    	width: app.window.width
-	    });
-        $('#details').css({
-	    	width: app.window.width - 20
-	    });	
-        $(".ui-page-active").css({
-        	marginLeft: '0px'
-        });
+        // Re-init worldmap to rescale the svg
+        app.initMap();
 
-		$("#carousel-single-image").touchCarousel({
-			pagingNav: true,
-			scrollbar: false,
-			directionNavAutoHide: false,				
-			itemsPerMove: 1,				
-			loopItems: true,				
-			directionNav: false,
-			autoplay: false,
-			autoplayDelay: 2000,
-			useWebkit3d: true,
-			transitionSpeed: 400
-		});      
+        app.$menu.css({
+	    	width: app.window.optionswidth
+	    }); 
+
+        app.$worldmappage.css({
+        	marginLeft: '0px'
+        });		
+
         app.myScroll.refresh();
         app.menuStatus = '0px';
-        // Re-init worldmap to rescale the svg
-        app.initMap(); 
-    },    
+        
+        app.$bottomcarousel.iosSlider('destroy');
+    	setTimeout(function() {
+            app.$bottomcarousel.iosSlider({
+    			snapToChildren: true,
+                scrollbar: false,
+                desktopClickDrag: true,
+                keyboardControls: true,
+                responsiveSlideContainer: true,
+                responsiveSlides: true,
+                onSliderResize: app.resizeSlider
+    		}); 
+    	}, 200);
+
+       
+      
+    },
+    resizeSlider: function(){
+
+  	
+    },
     // Function that restyles the interface where needed when running in "web mode"
     restyleForWeb: function(){
         /*
@@ -319,6 +329,36 @@ var app = {
             }
         });
     },
+    // Get data for worldmap (if present in localstorage then serve that, else do ajax call)
+    getMruData: function(cb){
+        // Check localstorage first 
+        app.store.findCacheKey('mru_tree', function(result){
+            
+            if(result){
+            	
+                cb(result);
+            }else{
+                // if not found in cache
+                if(app.online){
+                    $.ajax({
+                        type: "GET",
+                        url: config.general.mru_url,
+                        dataType: 'html'
+                    }).done(function( result ) {
+                        app.store.setCacheKey('mru_tree', result, function(){
+                            cb(result);
+                        });
+                        
+                    }).fail(function(xhr, err){
+                        cb(err);
+                    });                                
+                }else{
+                    cb('');
+                }
+   
+            }
+        });
+    },    
     // Shows a page (div element with class "page") based on an ID
     initMap: function(){
         worldmap.mapVariation = app.currentfilter;
@@ -327,7 +367,6 @@ var app = {
         $('#menu').css({
         	display: 'block'
         });
-        
     },
     /*
      * Helpers for the MRU navigation
@@ -341,13 +380,13 @@ var app = {
     hasChildren: function(el){
     	return $(el).find('ul') > 0;
     },
-    itemSelected: function(id){
-    	var $spancurrentfilter = $('span#current_filter'),
-    		$arrselect = $('.select_mru');
+    itemSelected: function($el){
+    	var $spancurrentfilter = app.$producttree.find('span#current_filter'),
+    		$arrselect = app.$producttree.find('.select_mru');
     	//alert(id);	
-		var elClicked = id.parent('div').find('input');
+		var elClicked = $el.parent('div').find('input');
         if(!elClicked.is(":checked")) {  
-        	$arrselect.prop('checked', false);
+        	$arrselect.removeAttr("checked"); //.prop('checked', false);
     		app.current_mru = elClicked.attr('data-value');
     		elClicked.prop('checked', true);
     		$spancurrentfilter.html(app.current_mru); 
@@ -358,51 +397,50 @@ var app = {
         	}
         	$arrselect.prop('checked', false);
         }
-        
-		
     },
     renderSelectList: function(selector, showBackbutton){
     	var self = this,
-    		backbutton = '<a id="btn_back" onclick="app.showPreviousLevel();" href="#" data-role="button" data-icon="back" data-iconpos="notext">Back</a></div>',
-    		$producttree = $("#producttree");
+    		backbutton = '<a id="btn_back" onclick="app.showPreviousLevel();" href="#" data-role="button" data-icon="back" data-iconpos="notext">Back</a></div>';
     	
-    	$producttree.html('');
-    	$('.cbxoverlay').remove();
+    	app.$producttree.html('');
+    	//$('.cbxoverlay').remove();
     	if(!showBackbutton){
-    		$producttree.append('<li data-theme="c" data-role="list-divider"><span id="current_filter">'+app.current_mru+'</span></li>');
+    		app.$producttree.append('<li data-theme="c" data-role="list-divider"><span id="current_filter">'+app.current_mru+'</span></li>');
     	}else{
-    		$producttree.append('<li data-theme="c" data-role="list-divider">'+backbutton+'<span id="current_filter">'+app.current_mru+'</span></li>');    	
+    		app.$producttree.append('<li data-theme="c" data-role="list-divider">'+backbutton+'<span id="current_filter">'+app.current_mru+'</span></li>');    	
     	}
     	$.each($(selector), function(index, el){
-    		var $el = $(el);
-    		if($('#producttree_temp li[id="'+$el.attr('id')+'"]').find('ul').length > 0){
-    			$producttree.append('<li data-id="'+$el.attr('id')+'" data-inverse="true" onclick="app.showNextLevel(\''+$el.attr('id')+'\');"><div data-id="'+$el.attr('id')+'" class="cbxoverlay"></div><input data-value="'+$el.attr('id')+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+$el.attr('id')+'">'+$el.find('div').html()+'</a></li>');	
+    		var $el = $(el),
+    			id = $el.attr('id'),
+    			name = $el.find('div').html();
+    		
+    		if(app.$producttreetemp.find('li[id="'+id+'"]').find('ul').length > 0){
+    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><div data-id="'+id+'" class="cbxoverlay"></div><input data-value="'+id+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+id+'">'+name+'</a></li>');	
     		}else{
-    			$producttree.append('<li data-id="'+$el.attr('id')+'" data-icon="false"><div data-id="'+$el.attr('id')+'" class="cbxoverlay"></div><input data-value="'+$el.attr('id')+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+$el.attr('id')+'">'+$el.find('div').html()+'</a></li>');
+    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div data-id="'+id+'" class="cbxoverlay"></div><input data-value="'+id+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+id+'">'+name+'</a></li>');
     		}
     	});
 
-    	$('[data-role=button]').button();
-    	
-    	var isTouchSupported = "ontouchend" in document;
-    	var event = isTouchSupported ? 'tap' : 'click';
+    	$('#btn_back').button();
 
+    	var isTouchSupported = "ontouchend" in document;
+    	var event = isTouchSupported ? 'tap' : 'click';        
     	$('.cbxoverlay').bind(event, function(e){
+        	e.stopPropagation();
+    		e.stopImmediatePropagation();
+    		e.preventDefault();     		
     		if( e.target.tagName.toUpperCase() === 'DIV' ) {
-	        	e.stopPropagation();
-	    		e.stopImmediatePropagation();
-	    		e.preventDefault();    		
 	    		app.itemSelected($(this));
     		}
     	});    	
-    	$('#select-oru').selectmenu('close');
     	
-    	$producttree.listview(); 
-    	$producttree.listview('refresh');
-    	var height = $('.ui-controlgroup-controls').height() + 120;
-    	$('#wrapper form').css({height: height});
+    	app.$selectoru.selectmenu('close');
+    	
+    	app.$producttree.listview(); 
+    	app.$producttree.listview('refresh');
+
     	    	
-    	app.myScroll.refresh(); 
+    	self.myScroll.refresh(); 
     },
     showNextLevel: function(clicked_id){
     	var self = this,

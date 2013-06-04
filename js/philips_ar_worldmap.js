@@ -179,15 +179,13 @@ var worldmap = {
 			}
 
 			$('#region-details').html(regionHtml);
-	        $('#details').css({
-		    	width: app.window.width - 20
-		    });			
+	
 			$('#info').animate({
 				bottom: 0
 			});
 			//console.log(code);
 			//console.log(self.zoom);
-			$('.interactive_graph').vectorMap('set', 'focus', regionData.code, 1);
+			//$('.interactive_graph').vectorMap('set', 'focus', regionData.code, 1);
 		} else {
 			// Country not found, prevent popup from showing
 			e.preventDefault();

@@ -172,7 +172,7 @@ body {
 .ui-li-static.ui-li{
 	padding: 0px;
 }
-.ui-btn-inner{
+#filter-data .ui-btn-inner{
 	text-align: left;	
 }
 
@@ -233,8 +233,13 @@ span#current_filter{
 .showMenu{
 	border-color: #fff!important;
 	background-color: rgb(57, 107, 158);
-	background-image: linear-gradient(rgb(95, 156, 197), rgb(57, 107, 158));	
-	
+	height: 32px!important;
+	width: 32px!important;
+	background: url('../img/menu_icon.png') no-repeat!important; 
+	border: none!important;
+}
+.showMenu span{
+	border: none!important;
 }
 .tc-paging-container {
 	margin-top: -29px;
@@ -294,4 +299,54 @@ span#current_filter{
 }
 .gillsans{
  	font-family: GillSansAltOneWGLRegular;
-}	
+}
+fieldset{
+	padding-bottom: 20px!important;
+}
+label{
+	text-transform: none!important;
+	font-family: GillSansAltOneWGLRegular;
+	font-size: 15px;	
+}
+.btn_signin{
+	text-align: center!important;
+}
+#login{
+	height: 0px;
+	padding-top: 20px;
+	overflow: hidden;
+}
+input[type=text] {
+    -webkit-user-select: auto !important;
+    user-select: auto !important;
+}
+#popupLogin-popup{
+	width: 80%!important;
+	top: 10px!important;
+}
+.ui-popup-screen.in {
+	position: fixed!important;	
+	opacity: 0.5;
+	background: #000;
+}
+.slider{
+	height: 200px!important;
+	background: #fff;
+}
+.item{
+	float: left;
+	height: 200px!important;
+	margin: 10px;
+	background: #fff;
+}
+#carousel-single-image, #carousel-single-image .item, #carousel-single-image .slider{
+	width: 100%;
+	background: #fff;
+}
+i{
+	display: none!important;
+}
+#details{
+	width: 100%;
+	
+}
