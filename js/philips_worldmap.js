@@ -164,47 +164,51 @@ var app = {
     onDeviceReady: function() {
     	var self = this;
         // Open local database
+    	app.myScroll = new iScroll('menu', {lockDirection: true }); 
     	
         app.openDatabase(function(){
-        	app.myScroll = new iScroll('menu', {lockDirection: true });             
-        	// get producttree for generating the filter component
-        	app.getMruData(function(result){
-            	app.$producttreetemp.html(result);
-            	// render the top level of the tree
-            	var selector = 'li#philips >ul > li';
-            	app.renderSelectList(selector, false);
+        	app.getArrTranslations(function(result){
+            	$('body').append('<script>'+result+'</script>');
+            	// get producttree for generating the filter component
+            	app.getMruData(function(result){
+                	app.$producttreetemp.html(result);
+                	// render the top level of the tree
+                	var selector = 'li#philips >ul > li';
+                	app.renderSelectList(selector, false);
+                	
+                    $('#menu').css({
+                    	width: app.window.optionswidth
+                    });        		
+            	});
             	
-                $('#menu').css({
-                	width: app.window.optionswidth
-                });        		
+                app.$bottomcarousel.iosSlider({
+        			snapToChildren: true,
+                    scrollbar: false,
+                    desktopClickDrag: true,
+                    keyboardControls: true,
+                    responsiveSlideContainer: true,
+                    responsiveSlides: true,
+                    onSliderResize: app.resizeSlider
+        		}); 
+                // Load user settings
+                /*
+                 * Not used for now but idea is to store the last filter combination in there and maybe
+                 * some more options. 
+                 */
+                app.store.getUserSettings(function(results){
+                	// TODO: Load favourites screen with result
+                	
+                    // Load worldmap
+                    // Get selected filter
+                    app.currentfilter = $('#select-oru').val();
+                    // Get worldmapdata and call showpage to show the homescreen
+                    app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
+                        app.mapdata = data;
+                        app.onResize();              
+                    });
+                });          		
         	});
-        	
-            app.$bottomcarousel.iosSlider({
-    			snapToChildren: true,
-                scrollbar: false,
-                desktopClickDrag: true,
-                keyboardControls: true,
-                responsiveSlideContainer: true,
-                responsiveSlides: true,
-                onSliderResize: app.resizeSlider
-    		}); 
-            // Load user settings
-            /*
-             * Not used for now but idea is to store the last filter combination in there and maybe
-             * some more options. 
-             */
-            app.store.getUserSettings(function(results){
-            	// TODO: Load favourites screen with result
-            	
-                // Load worldmap
-                // Get selected filter
-                app.currentfilter = $('#select-oru').val();
-                // Get worldmapdata and call showpage to show the homescreen
-                app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
-                    app.mapdata = data;
-                    app.onResize();              
-                });
-            });  
+
         });   
     },
     // Online event handler
@@ -297,6 +301,35 @@ var app = {
             cb(null, false);
         }
     },    
+    getArrTranslations: function(cb){
+        // Check localstorage first 
+        app.store.findCacheKey('arr_translations', function(result){
+            
+            if(result){
+            	
+                cb(result);
+            }else{
+                // if not found in cache
+                if(app.online){
+                    $.ajax({
+                        type: "GET",
+                        url: config.general.js_url,
+                        dataType: 'text'
+                    }).done(function( result ) {
+                        app.store.setCacheKey('arr_translations', result, function(){
+                            cb(result);
+                        });
+                        
+                    }).fail(function(xhr, err){
+                        cb(err);
+                    });                                
+                }else{
+                    cb('');
+                }
+   
+            }
+        });
+    },    
     // Get data for worldmap (if present in localstorage then serve that, else do ajax call)
     getWorldmapData: function(key, filters, cb){
         // Check localstorage first 
@@ -329,7 +362,6 @@ var app = {
             }
         });
     },
-    // Get data for worldmap (if present in localstorage then serve that, else do ajax call)
     getMruData: function(cb){
         // Check localstorage first 
         app.store.findCacheKey('mru_tree', function(result){
@@ -425,7 +457,7 @@ var app = {
 
     	var isTouchSupported = "ontouchend" in document;
     	var event = isTouchSupported ? 'tap' : 'click';        
-    	$('.cbxoverlay').bind(event, function(e){
+    	$('.cbxoverlay').bind('tap', function(e){
         	e.stopPropagation();
     		e.stopImmediatePropagation();
     		e.preventDefault();     		
