@@ -460,9 +460,8 @@ var app = {
     	$('.cbxoverlay').bind('tap', function(e){
         	e.stopPropagation();
     		e.preventDefault();     		
-    		if( e.target.tagName.toUpperCase() === 'DIV' ) {
-	    		app.itemSelected($(this));
-    		}
+
+	    	app.itemSelected($(this));
     	});    	
     	
     	app.$selectoru.selectmenu('close');
