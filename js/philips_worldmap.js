@@ -413,7 +413,7 @@ var app = {
     	return $(el).find('ul') > 0;
     },
     itemSelected: function($el){
-    	
+    	//console.log('kllll');
     	var $spancurrentfilter = app.$producttree.find('span#current_filter'),
     		$arrselect = app.$producttree.find('.select_mru');
     	//alert(id);	
@@ -435,7 +435,7 @@ var app = {
     	var self = this,
     		backbutton = '<a id="btn_back" onclick="app.showPreviousLevel();" href="#" data-role="button" data-icon="back" data-iconpos="notext">Back</a></div>';
     	
-    	app.$producttree.html('');
+    	app.$producttree.find('li').remove();
     	//$('.cbxoverlay').remove();
     	if(!showBackbutton){
     		app.$producttree.append('<li data-theme="c" data-role="list-divider"><span id="current_filter">'+app.current_mru+'</span></li>');
@@ -448,9 +448,9 @@ var app = {
     			name = $el.find('div').html();
     		
     		if(app.$producttreetemp.find('li[id="'+id+'"]').find('ul').length > 0){
-    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><input data-value="'+id+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+id+'">'+name+'</a></li>');	
+    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><a href="#'+id+'">'+name+'</a></li>');	
     		}else{
-    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><input data-value="'+id+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+id+'">'+name+'</a></li>');
+    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><a href="#'+id+'">'+name+'</a></li>');
     		}
     	});
 
@@ -465,19 +465,25 @@ var app = {
     	app.$producttree.listview(); 
     	app.$producttree.listview('refresh');
     	
-    	app.$producttree.find('li').append('<div class="cbxoverlay"></div>');
+    	$.each(app.$producttree.find('li'), function(index, el){
+            var elLi=$(el);
+            var id=elLi.attr('id');
+            $(el).append('<div class="cbxoverlay"><input data-value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div>')
+        });
     	app.$producttree.find('li[data-role=list-divider] div.cbxoverlay').remove();
-
+        
+        /*
     	var isTouchSupported = "ontouchend" in document;
-    	var event = isTouchSupported ? 'tap' : 'click';        
-    	$('.cbxoverlay').bind('tap', function(e){
+    	
+        var event = isTouchSupported ? 'tap' : 'click';        
+    	$('.cbxoverlay').bind('ontouchstart', function(e){
         	//e.stopPropagation();
     		//e.preventDefault();     		
-    		console.log('hoi');
+    		//console.log('hoi');
 	    	app.itemSelected($(this));
 	    	return false;
     	});       	
-    	
+        */
     	self.myScroll.refresh(); 
     },
     showNextLevel: function(clicked_id){
