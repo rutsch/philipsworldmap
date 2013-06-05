@@ -413,10 +413,11 @@ var app = {
     	return $(el).find('ul') > 0;
     },
     itemSelected: function($el){
+    	
     	var $spancurrentfilter = app.$producttree.find('span#current_filter'),
     		$arrselect = app.$producttree.find('.select_mru');
     	//alert(id);	
-		var elClicked = $el.parent('div').find('input');
+		var elClicked = $el.parent('li').find('input');
         if(!elClicked.is(":checked")) {  
         	$arrselect.removeAttr("checked"); //.prop('checked', false);
     		app.current_mru = elClicked.attr('data-value');
@@ -447,29 +448,36 @@ var app = {
     			name = $el.find('div').html();
     		
     		if(app.$producttreetemp.find('li[id="'+id+'"]').find('ul').length > 0){
-    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><div data-id="'+id+'" class="cbxoverlay"></div><input data-value="'+id+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+id+'">'+name+'</a></li>');	
+    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><input data-value="'+id+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+id+'">'+name+'</a></li>');	
     		}else{
-    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div data-id="'+id+'" class="cbxoverlay"></div><input data-value="'+id+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+id+'">'+name+'</a></li>');
+    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><input data-value="'+id+'" style="margin-left: 20px;" class="select_mru" type="radio" /><a href="#'+id+'">'+name+'</a></li>');
     		}
     	});
 
+    	
+    	
     	$('#btn_back').button();
 
-    	var isTouchSupported = "ontouchend" in document;
-    	var event = isTouchSupported ? 'tap' : 'click';        
-    	$('.cbxoverlay').bind('tap', function(e){
-        	e.stopPropagation();
-    		e.preventDefault();     		
-
-	    	app.itemSelected($(this));
-    	});    	
+ 	
     	
     	app.$selectoru.selectmenu('close');
     	
     	app.$producttree.listview(); 
     	app.$producttree.listview('refresh');
+    	
+    	app.$producttree.find('li').append('<div class="cbxoverlay"></div>');
+    	app.$producttree.find('li[data-role=list-divider] div.cbxoverlay').remove();
 
-    	    	
+    	var isTouchSupported = "ontouchend" in document;
+    	var event = isTouchSupported ? 'tap' : 'click';        
+    	$('.cbxoverlay').bind(event, function(e){
+        	//e.stopPropagation();
+    		//e.preventDefault();     		
+    		console.log('hoi');
+	    	app.itemSelected($(this));
+	    	return false;
+    	});       	
+    	
     	self.myScroll.refresh(); 
     },
     showNextLevel: function(clicked_id){

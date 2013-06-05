@@ -226,7 +226,7 @@ span#current_filter{
 	width: 50px;
 	height: 40px;
 	left: 0px;
-	top: -14px;
+	top: 0px;
 	background: transparent;
 	z-index: 10;
 	cursor:pointer;
