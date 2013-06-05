@@ -470,7 +470,7 @@ var app = {
 
     	var isTouchSupported = "ontouchend" in document;
     	var event = isTouchSupported ? 'tap' : 'click';        
-    	$('.cbxoverlay').bind(event, function(e){
+    	$('.cbxoverlay').bind('tap', function(e){
         	//e.stopPropagation();
     		//e.preventDefault();     		
     		console.log('hoi');
