@@ -480,7 +480,7 @@ var app = {
     	var isTouchSupported = "ontouchend" in document;
     	
         var event = isTouchSupported ? 'tap' : 'click';        
-		$('.cbxoverlay').bind(event, function(e) {
+		$('.cbxoverlay').bind('touchend', function(e) {
 			app.imageClick($(this));
 		});	        
     	/*$('.cbxoverlay input').bind('touchend', function(e){
