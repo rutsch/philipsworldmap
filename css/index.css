@@ -222,7 +222,7 @@ span#current_filter{
 	left: 0px!important;
 	top: 0px!important;
 }
-.cbxoverlay{
+.cbxoverlays{
 	display: inline-block;
 	width: 50px;
 	height: 40px;
@@ -367,4 +367,7 @@ i{
 }
 svg{
 	cursor: pointer;
+}
+.hide{
+	display: none;
 }

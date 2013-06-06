@@ -419,16 +419,16 @@ var app = {
     		$arrselect = app.$producttree.find('.select_mru');
     	//alert(id);	
 		var elClicked = $el;// $el.parent('li').find('input');
-       if(elClicked.is(":checked")) {  
+       if(!elClicked.is(":checked")) {  
         	//$arrselect.removeAttr("checked"); //.prop('checked', false);
     		app.current_mru = elClicked.attr('value');
-    		//elClicked.prop('checked', true);
+    		elClicked.prop('checked', true);
     		$spancurrentfilter.html(app.current_mru); 
         }else{
-        	if($spancurrentfilter.html() == elClicked.attr('value')) {
-        		app.current_mru = 'philips';
-        		$spancurrentfilter.html(app.current_mru);
-        	}
+        	//if($spancurrentfilter.html() == elClicked.attr('value')) {
+        	//	app.current_mru = 'philips';
+        	//	$spancurrentfilter.html(app.current_mru);
+        	//}
         	//$arrselect.prop('checked', false);
         }
     },
@@ -449,9 +449,9 @@ var app = {
     			name = $el.find('div').html();
     		
     		if(app.$producttreetemp.find('li[id="'+id+'"]').find('ul').length > 0){
-    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><div class="cbxoverlays"><label for="'+id+'"><div class="li_name">'+name+'</div></label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_shownext">></div></li>');	
+    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><div class="cbxoverlay"><label class="hide" for="'+id+'">'+name+'</label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');	
     		}else{
-    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div class="cbxoverlays"><label for="'+id+'"><div class="li_name">'+name+'</div></label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_shownext">></div></li>');
+    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div class="cbxoverlay"><label class="hide" for="'+id+'">'+name+'</label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');
     		}
     	});
 
@@ -477,7 +477,7 @@ var app = {
     	var isTouchSupported = "ontouchend" in document;
     	
         var event = isTouchSupported ? 'tap' : 'click';        
-    	$('.cbxoverlays input').bind('change', function(e){
+    	$('.cbxoverlay input').bind('touchend', function(e){
         	//e.stopPropagation();
     		//e.preventDefault();     		
     		console.log('hoi');
