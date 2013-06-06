@@ -20,7 +20,15 @@
 		<label>bla</label>
 		<input type="radio" name="meuk"/>
 	</form>
-
+	
+	<script type="text/javascript" src="js/jquery.js">//</script>
+	<script type="text/javascript" src="js/google.fastbutton.js"></script>
+	<script type="text/javascript" src="js/jquery.google.fastbutton.js"></script>	
+	<script>
+		$('input[type=radio]').fastClick(function(e) {
+		  //alert('fast clicked!');
+		});		
+	</script>
 </body>
 </html>
 
