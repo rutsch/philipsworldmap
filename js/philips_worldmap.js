@@ -432,6 +432,9 @@ var app = {
         	//$arrselect.prop('checked', false);
         }
     },
+    imageClick: function($el){
+    	$el.toggleClass('grey');
+    },
     renderSelectList: function(selector, showBackbutton){
     	var self = this,
     		backbutton = '<a id="btn_back" onclick="app.showPreviousLevel();" href="#" data-role="button" data-icon="back" data-iconpos="notext">Back</a></div>';
@@ -449,9 +452,9 @@ var app = {
     			name = $el.find('div').html();
     		
     		if(app.$producttreetemp.find('li[id="'+id+'"]').find('ul').length > 0){
-    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><div class="cbxoverlay"><label class="hide" for="'+id+'">'+name+'</label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');	
+    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><div class="cbxoverlay"></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');	
     		}else{
-    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div class="cbxoverlay"><label class="hide" for="'+id+'">'+name+'</label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');
+    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div class="cbxoverlay"></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');
     		}
     	});
 
@@ -460,7 +463,7 @@ var app = {
     	$('#btn_back').button();
 
     	//app.$producttree.trigger('create');
-    	$('.cbxoverlay input').checkboxradio();
+    	//$('.cbxoverlay input').checkboxradio();
     	app.$selectoru.selectmenu('close');
     	
     	app.$producttree.listview(); 
@@ -477,13 +480,16 @@ var app = {
     	var isTouchSupported = "ontouchend" in document;
     	
         var event = isTouchSupported ? 'tap' : 'click';        
-    	$('.cbxoverlay input').bind('touchend', function(e){
+		$('.cbxoverlay').bind(event, function(e) {
+			app.imageClick($(this));
+		});	        
+    	/*$('.cbxoverlay input').bind('touchend', function(e){
         	//e.stopPropagation();
     		//e.preventDefault();     		
     		console.log('hoi');
 	    	app.itemSelected($(this));
 	    	//return false;
-    	});       	
+    	}); */      	
         
     	self.myScroll.refresh(); 
     },
