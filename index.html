@@ -8,8 +8,7 @@
 
 	<link rel="stylesheet" type="text/css" href="css/touchcarousel.css" />
 	<link rel="stylesheet" type="text/css" href="css/minimal-light-skin/minimal-light-skin.css" /> 
-	<link rel="stylesheet" type="text/css" href="css/bootstrap.css" /> 
-	<link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.css" /> 
+
 	<link rel="stylesheet" type="text/css" href="css/index.css" /> 
 	<title>Philips Sustainability WorldMap</title>
 </head>
@@ -20,27 +19,27 @@
 		<div id="menu" class="">
 			<div class="">
 				<div class="menu_inner">
+					<label >Group data by</label>
 					<fieldset id="filter-data" class="ui-icon-alt">
-						<label >Group data by</label>
 						<select name="select-oru" id="select-oru" data-native-menu="false" data-inset="true" data-overlay-theme="c">
 							<option value="lives_improved">World</option>
 							<option value="region">Region</option>
 							<option value="country">Country</option>
 						</select>		
 					</fieldset>
+					<label class="select">Filter data by</label>
 					<fieldset class="ui-icon-alt">
-						<label for="producttree" class="select">Filter data by</label>
 						<div class="tree-nav">			
 							<ul id="producttree" data-inset="true">
 
 							</ul>
 						</div>						
 					</fieldset>		
+					<label>Are you a Philips employee?<br/>
+						Sign in and unlock all the features of the application.
+					</label>					
 					<fieldset class="ui-icon-alt">
-						<label>Are you a Philips employee?<br/>
-							Sign in and unlock all the features of the application.
-						</label>
-						<a href="#popupLogin" class="" data-role="button" class="btn_signin" data-rel="popup">Sign in</a>
+						<input type="submit" value="Sign in" onclick="app.showPopupLogin();return false;">
 					</fieldset>
 				</div>
 			    <div id="popupLogin" data-theme="c" class="ui-corner-all">

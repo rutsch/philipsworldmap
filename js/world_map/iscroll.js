@@ -1,5 +1,5 @@
 /*!
- * iScroll v4.2.5 ~ Copyright (c) 2012 Matteo Spinelli, http://cubiq.org
+ * iScroll v4.2 ~ Copyright (c) 2012 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
  */
 (function(window, doc){
@@ -37,7 +37,7 @@ var m = Math,
 
     has3d = prefixStyle('perspective') in dummyStyle,
     hasTouch = 'ontouchstart' in window && !isTouchPad,
-    hasTransform = vendor !== false,
+    hasTransform = !!vendor,
     hasTransitionEnd = prefixStyle('transition') in dummyStyle,
 
 	RESIZE_EV = 'onorientationchange' in window ? 'orientationchange' : 'resize',
@@ -45,6 +45,7 @@ var m = Math,
 	MOVE_EV = hasTouch ? 'touchmove' : 'mousemove',
 	END_EV = hasTouch ? 'touchend' : 'mouseup',
 	CANCEL_EV = hasTouch ? 'touchcancel' : 'mouseup',
+	WHEEL_EV = vendor == 'Moz' ? 'DOMMouseScroll' : 'mousewheel',
 	TRNEND_EV = (function () {
 		if ( vendor === false ) return false;
 
@@ -52,7 +53,7 @@ var m = Math,
 				''			: 'transitionend',
 				'webkit'	: 'webkitTransitionEnd',
 				'Moz'		: 'transitionend',
-				'O'			: 'otransitionend',
+				'O'			: 'oTransitionEnd',
 				'ms'		: 'MSTransitionEnd'
 			};
 
@@ -126,7 +127,28 @@ var m = Math,
 
 			// Events
 			onRefresh: null,
-			onBeforeScrollStart: function (e) { e.preventDefault(); },
+			onBeforeScrollStart: function (e) {
+				if (!(e.target instanceof HTMLButtonElement) && 
+				  !(e.srcElement instanceof HTMLButtonElement) &&
+				  
+				  !(e.target instanceof HTMLInputElement) && 
+				  !(e.srcElement instanceof HTMLInputElement) &&
+				  
+				  !(e.target instanceof HTMLOptGroupElement) && 
+				  !(e.srcElement instanceof HTMLOptGroupElement) &&
+
+				  !(e.target instanceof HTMLOptionElement) && 
+				  !(e.srcElement instanceof HTMLOptionElement) &&
+				
+				  !(e.target instanceof HTMLSelectElement) && 
+				  !(e.srcElement instanceof HTMLSelectElement) &&
+
+				  !(e.target instanceof HTMLTextAreaElement) && 
+				  !(e.srcElement instanceof HTMLTextAreaElement)) {
+				
+					e.preventDefault(); 
+
+				  }},
 			onScrollStart: null,
 			onBeforeScrollMove: null,
 			onScrollMove: null,
@@ -176,10 +198,8 @@ var m = Math,
 		that._bind(RESIZE_EV, window);
 		that._bind(START_EV);
 		if (!hasTouch) {
-			if (that.options.wheelAction != 'none') {
-				that._bind('DOMMouseScroll');
-				that._bind('mousewheel');
-			}
+			if (that.options.wheelAction != 'none')
+				that._bind(WHEEL_EV);
 		}
 
 		if (that.options.checkDOMChanges) that.checkDOMTime = setInterval(function () {
@@ -210,7 +230,7 @@ iScroll.prototype = {
 			case END_EV:
 			case CANCEL_EV: that._end(e); break;
 			case RESIZE_EV: that._resize(); break;
-			case 'DOMMouseScroll': case 'mousewheel': that._wheel(e); break;
+			case WHEEL_EV: that._wheel(e); break;
 			case TRNEND_EV: that._transitionEnd(e); break;
 		}
 	},
@@ -376,11 +396,11 @@ iScroll.prototype = {
 			if (that.options.useTransform) {
 				// Very lame general purpose alternative to CSSMatrix
 				matrix = getComputedStyle(that.scroller, null)[transform].replace(/[^0-9\-.,]/g, '').split(',');
-				x = +(matrix[12] || matrix[4]);
-				y = +(matrix[13] || matrix[5]);
+				x = matrix[4] * 1;
+				y = matrix[5] * 1;
 			} else {
-				x = +getComputedStyle(that.scroller, null).left.replace(/[^0-9-]/g, '');
-				y = +getComputedStyle(that.scroller, null).top.replace(/[^0-9-]/g, '');
+				x = getComputedStyle(that.scroller, null).left.replace(/[^0-9-]/g, '') * 1;
+				y = getComputedStyle(that.scroller, null).top.replace(/[^0-9-]/g, '') * 1;
 			}
 			
 			if (x != that.x || y != that.y) {
@@ -388,7 +408,6 @@ iScroll.prototype = {
 				else cancelFrame(that.aniTime);
 				that.steps = [];
 				that._pos(x, y);
-				if (that.options.onScrollEnd) that.options.onScrollEnd.call(that);
 			}
 		}
 
@@ -436,7 +455,7 @@ iScroll.prototype = {
 
 			that.lastScale = scale / this.scale;
 
-			newX = this.originX - this.originX * that.lastScale + this.x;
+			newX = this.originX - this.originX * that.lastScale + this.x,
 			newY = this.originY - this.originY * that.lastScale + this.y;
 
 			this.scroller.style[transform] = 'translate(' + newX + 'px,' + newY + 'px) scale(' + scale + ')' + translateZ;
@@ -891,8 +910,7 @@ iScroll.prototype = {
 		that._unbind(CANCEL_EV, window);
 		
 		if (!that.options.hasTouch) {
-			that._unbind('DOMMouseScroll');
-			that._unbind('mousewheel');
+			that._unbind(WHEEL_EV);
 		}
 		
 		if (that.options.useTransition) that._unbind(TRNEND_EV);

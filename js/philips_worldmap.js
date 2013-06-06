@@ -474,6 +474,9 @@ var app = {
     	}else{
     		self.renderSelectList(selector, false);
     	}
+    },
+    showPopupLogin: function(){
+    	
     }
 };
 function applyFilter(){}

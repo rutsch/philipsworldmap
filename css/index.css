@@ -151,7 +151,9 @@ li[data-role=list-divider]{
 span#current_filter{
 	display: inline-block!important;
 	float: right;
-	padding-top: 5px!important;
+	padding: 10px 15px 0px 0px!important;
+	font-size: 15px;
+	font-weight: bold;
 }
 #wrapper{
 	height: 100%;
@@ -191,9 +193,7 @@ span#current_filter{
 .gillsans{
  	font-family: GillSansAltOneWGLRegular;
 }
-fieldset{
-	padding-bottom: 20px!important;
-}
+
 
 .btn_signin{
 	text-align: center!important;
@@ -277,7 +277,8 @@ label{
 	margin-left: 0px;
 	top: 0px;
 	left: 0px;	
-	-webkit-transition: margin-left 0.3s linear;	
+	-webkit-transition: margin-left 0.3s ease-in-out;	
+	box-shadow: 10px 0px 20px 1px #ccc;
 }
 .showMenu{
 	position: absolute;
@@ -333,6 +334,11 @@ label{
 	height: 100%;
 	width: 250px;
 	display: none;
+	background: #eee;
+}
+select, input[type=submit]{
+	width: 100%;
+	height: 40px;
 }
 .menu_inner{
 	margin: 20px;
@@ -342,14 +348,27 @@ label{
 	width: 50px;
 	height: 40px;
 }
+label{
+	display: inline-block;
+	padding-bottom: 10px;
+}
+fieldset{
+	margin: 0px;
+	padding: 0px 0px 20px 0px;
+	border: none;
+}
 .menu_inner ul{
 	margin: 0px;
+	padding: 0px;
+	border: 1px solid #ccc;
+	border-radius: 3px;		
 }
 .menu_inner li{
 	list-style-type: none;
 	position: relative;
 	height: 40px;
 	background: #fff;
+	border-bottom: 1px solid #ccc;
 }
 .cbxoverlay{
 	display: inline-block;
@@ -369,7 +388,7 @@ label{
 	display: inline;
 	left: 50px;
 	right: 50px;
-	padding-top: 10px;
+	padding-top: 13px;
 }
 .li_shownext{
 	position: absolute;
