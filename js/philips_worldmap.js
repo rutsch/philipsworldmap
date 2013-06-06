@@ -448,7 +448,7 @@ var app = {
     			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div data-value="'+id+'" class="cbxoverlay"></div><div class="li_name">'+name+'</div></li>');
     		}
     	});      
-        
+
         var event = "ontouchend" in document ? 'tap' : 'click';        
 		$('.cbxoverlay').bind(event, function(e) {
 			app.itemSelected($(this));
@@ -474,6 +474,13 @@ var app = {
     	}else{
     		self.renderSelectList(selector, false);
     	}
+    },
+    closeInfoPanel: function(){
+    	$('#info').animate({
+    		bottom: "-200px"
+    	}, 300, function(){
+    		//app.menuStatus = "0px"
+    	});    	
     },
     showPopupLogin: function(){
     	
