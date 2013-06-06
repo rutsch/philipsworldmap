@@ -104,14 +104,14 @@ var app = {
 
         app.$showmenu.click(function(){
             if(app.menuStatus == "0px"){
-            	$(".ui-page-active").animate({
+            	$(".interactive_graph").animate({
             		marginLeft: "-" + app.window.optionswidth
 	            }, 300, function(){
 	            	app.menuStatus = app.window.optionswidth
 	            });
 	            return false;
         	} else {
-				$(".ui-page-active").animate({
+				$(".interactive_graph").animate({
 					marginLeft: "0px",
 				}, 300, function(){
 					app.menuStatus = "0px"
@@ -460,13 +460,13 @@ var app = {
 
     	
     	
-    	$('#btn_back').button();
+    	//$('#btn_back').button();
 
     	//app.$producttree.trigger('create');
     	//$('.cbxoverlay input').checkboxradio();
-    	app.$selectoru.selectmenu('close');
+    	//app.$selectoru.selectmenu('close');
     	
-    	app.$producttree.listview(); 
+    	//app.$producttree.listview(); 
     	//app.$producttree.listview('refresh');
     	
     	/*$.each(app.$producttree.find('li'), function(index, el){
