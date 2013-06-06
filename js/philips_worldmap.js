@@ -25,7 +25,7 @@ var app = {
     $selectoru: $('#select-oru'),
     $bottomcarousel: $('#carousel-single-image'),
     $menu: $('#menu'),
-    $worldmappage: $('.ui-page-active'),
+    $worldmappage: $('#wrapper'),
     $selectoru: $('#select-oru'),
     $infopanel: $('#info'),
     $showmenu: $('.showMenu'),
@@ -99,49 +99,45 @@ var app = {
             });
         });		
         
-        app.menuStatus = '0px';
+        self.menuStatus = 'closed';
         app.infoStatus = '0px';
 
         app.$showmenu.click(function(){
-            if(app.menuStatus == "0px"){
-            	$(".interactive_graph").animate({
+
+            if(self.menuStatus == 'closed'){
+            	$("#wrapper").css({
             		marginLeft: "-" + app.window.optionswidth
-	            }, 300, function(){
-	            	app.menuStatus = app.window.optionswidth
 	            });
+	            self.menuStatus = 'open'
 	            return false;
         	} else {
-				$(".interactive_graph").animate({
+				$("#wrapper").css({
 					marginLeft: "0px",
-				}, 300, function(){
-					app.menuStatus = "0px"
 				});
+				self.menuStatus = 'closed'
 				return false;
             }
         });
      
         app.$showmenu.on("swipeleft", function(){
-        	$(".ui-page-active").animate({
+        	$("#wrapper").css({
         		marginLeft: "-" + app.window.optionswidth
-        	}, 300, function(){
-        		app.menuStatus = app.window.optionswidth
-        	});
+            });
+            self.menuStatus = 'open'
         });
      
         app.$showmenu.on("swiperight", function(){
-        	$(".ui-page-active").animate({
-        		marginLeft: "0px"
-        	}, 300, function(){
-        		app.menuStatus = "0px"
-        	});
+			$("#wrapper").css({
+				marginLeft: "0px",
+			});
+			self.menuStatus = 'closed'
         });
         
         app.$menu.on("swiperight", function(){
-        	$(".ui-page-active").animate({
-        		marginLeft: "0px"
-        	}, 300, function(){
-        		app.menuStatus = "0px"
-        	});
+			$("#wrapper").css({
+				marginLeft: "0px",
+			});
+			self.menuStatus = 'closed'
         });        
         
         app.$infopanel.on("swipedown", function(){
@@ -237,7 +233,7 @@ var app = {
         });		
 
         app.myScroll.refresh();
-        app.menuStatus = '0px';
+        //app.menuStatus = '0px';
         
         app.$bottomcarousel.iosSlider('destroy');
     	setTimeout(function() {
@@ -413,31 +409,26 @@ var app = {
     	return $(el).find('ul') > 0;
     },
     itemSelected: function($el){
-    	console.log('kllll');
-    	//debugger;
     	var $spancurrentfilter = app.$producttree.find('span#current_filter'),
-    		$arrselect = app.$producttree.find('.select_mru');
+    		$arrselect = app.$producttree.find('.cbxoverlay');
     	//alert(id);	
 		var elClicked = $el;// $el.parent('li').find('input');
-       if(!elClicked.is(":checked")) {  
-        	//$arrselect.removeAttr("checked"); //.prop('checked', false);
-    		app.current_mru = elClicked.attr('value');
-    		elClicked.prop('checked', true);
+        if(!elClicked.hasClass('checked')) {  
+        	$arrselect.removeClass('checked');
+        	elClicked.addClass('checked')
+    		app.current_mru = elClicked.attr('data-value');
     		$spancurrentfilter.html(app.current_mru); 
         }else{
-        	//if($spancurrentfilter.html() == elClicked.attr('value')) {
-        	//	app.current_mru = 'philips';
-        	//	$spancurrentfilter.html(app.current_mru);
+        	//if($spancurrentfilter.html() == elClicked.attr('data-value')) {
+        		app.current_mru = 'philips';
+        		$spancurrentfilter.html(app.current_mru);
+        		elClicked.removeClass('checked');
         	//}
-        	//$arrselect.prop('checked', false);
         }
-    },
-    imageClick: function($el){
-    	$el.toggleClass('grey');
     },
     renderSelectList: function(selector, showBackbutton){
     	var self = this,
-    		backbutton = '<a id="btn_back" onclick="app.showPreviousLevel();" href="#" data-role="button" data-icon="back" data-iconpos="notext">Back</a></div>';
+    		backbutton = '<a id="btn_back" onclick="app.showPreviousLevel();" href="#"></a></div>';
     	
     	app.$producttree.find('li').remove();
     	//$('.cbxoverlay').remove();
@@ -452,52 +443,24 @@ var app = {
     			name = $el.find('div').html();
     		
     		if(app.$producttreetemp.find('li[id="'+id+'"]').find('ul').length > 0){
-    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><div class="cbxoverlay"></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');	
+    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true"><div data-value="'+id+'" class="cbxoverlay"></div><div class="li_name">'+name+'</div><div class="li_shownext" onclick="app.showNextLevel(\''+id+'\');"></div></li>');	
     		}else{
-    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div class="cbxoverlay"></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');
+    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div data-value="'+id+'" class="cbxoverlay"></div><div class="li_name">'+name+'</div></li>');
     		}
-    	});
-
-    	
-    	
-    	//$('#btn_back').button();
-
-    	//app.$producttree.trigger('create');
-    	//$('.cbxoverlay input').checkboxradio();
-    	//app.$selectoru.selectmenu('close');
-    	
-    	//app.$producttree.listview(); 
-    	//app.$producttree.listview('refresh');
-    	
-    	/*$.each(app.$producttree.find('li'), function(index, el){
-            var elLi=$(el);
-            var id=elLi.attr('data-id');
-            //$(el).append('<div class="cbxoverlay"><input value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div>')
-        });*/
-    	app.$producttree.find('li[data-role=list-divider] div.cbxoverlay').remove();
+    	});      
         
-        
-    	var isTouchSupported = "ontouchend" in document;
-    	
-        var event = isTouchSupported ? 'tap' : 'click';        
-		$('.cbxoverlay').bind('touchend', function(e) {
-			app.imageClick($(this));
+        var event = "ontouchend" in document ? 'tap' : 'click';        
+		$('.cbxoverlay').bind(event, function(e) {
+			app.itemSelected($(this));
 		});	        
-    	/*$('.cbxoverlay input').bind('touchend', function(e){
-        	//e.stopPropagation();
-    		//e.preventDefault();     		
-    		console.log('hoi');
-	    	app.itemSelected($(this));
-	    	//return false;
-    	}); */      	
         
     	self.myScroll.refresh(); 
     },
     showNextLevel: function(clicked_id){
-    /*	var self = this,
+    	var self = this,
     		selector = 'li#'+clicked_id+ ' >ul > li';
     	
-    	self.renderSelectList(selector, true);*/
+    	self.renderSelectList(selector, true);
     },
     showPreviousLevel: function(){
     	var self = this,

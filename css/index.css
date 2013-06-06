@@ -16,38 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-@font-face {
-    font-family: 'GillSansAltOneWGLRegular';
-    src: url('fonts/gsa_wg-webfont.eot');
-    src: url('fonts/gsa_wg-webfont.eot?#iefix') format('embedded-opentype'),
-         url('fonts/gsa_wg-webfont.woff') format('woff'),
-         url('fonts/gsa_wg-webfont.ttf') format('truetype'),
-         url('fonts/gsa_wg-webfont.svg#GillSansAltOneWGLLightRegular') format('svg');
-    font-weight: normal;
-    font-style: normal;
-} 
-* {
-    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
-}
-html{
-	overflow: hidden;
-	position: fixed;
-}
-body {
-    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
-    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
-    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
-	background: #fff;
-    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
-    font-size:12px;
-    height:100%;
-    margin:0px;
-    padding:0px;
-    text-transform:uppercase;
-    width:100%;
-    overflow: hidden;
-    	position: fixed;
-}
+
 #intro{
 	background: url('../img/philips-logo.png') no-repeat center;
 }
@@ -109,15 +78,6 @@ div.jvectormap-label {
 	font-family: sans-serif, Verdana;
 	font-size: smaller;
 }
-.ui-btn-right{
-	z-index:100000;
-}
-.ui-content{
-	padding: 0px!important;
-}
-#header .ui-btn { height: 30px; width: 30px; font-size: 48px;moz-border-radius : 4 px ; -webkit-border-radius :  4px ; border-radius :  4px ; }
-#header .ui-icon, #header .ui-icon-searchfield::after  {moz-border-radius : 0 px ; -webkit-border-radius :  0px ; border-radius :  0px ;}
-.ui-panel-dismiss-display-push { display: none;}
 
 
 body {
@@ -148,13 +108,7 @@ body {
 	padding-right: 0px;
 		font-size: 12px;
 }
-#menu {
-	float: right;
-	height: 100%;
-	width: 250px;
-	position: fixed;
-	display: none;
-}
+
 #info {
 	border-top: 1px solid #ccc;
 	background: #fff;
@@ -166,15 +120,6 @@ body {
 	font-size: 12px;
 }
 
-.ui-header{
-	border: none;
-}
-.ui-li-static.ui-li{
-	padding: 0px;
-}
-#filter-data .ui-btn-inner{
-	text-align: left;	
-}
 
 .jvectormap-label{
 	display: none!important;
@@ -222,37 +167,8 @@ span#current_filter{
 	left: 0px!important;
 	top: 0px!important;
 }
-.cbxoverlay{
-	display: inline-block;
-	width: 50px;
-	height: 40px;
-	left: 0px;
-	top: 0px;
-	background: #000;
-	z-index: 10;
-	cursor:pointer;
-	margin-top: 10px;
-}
-.cbxoverlay input{
-	margin-top: 17px;
-	margin-left: 20px;	
-}
-.li_name{
-	display: inline-block;
-}
-.li_shownext{
-	position: absolute;
-	right: 0;
-	top: 0;	
-}
-.showMenu{
-	border-color: #fff!important;
-	background-color: rgb(57, 107, 158);
-	height: 32px!important;
-	width: 32px!important;
-	background: url('../img/menu_icon.png') no-repeat!important; 
-	border: none!important;
-}
+
+
 .showMenu span{
 	border: none!important;
 }
@@ -271,58 +187,14 @@ span#current_filter{
 	background: #FFF;
 	border: 0;
 }
-/**
-* Carousel with a single image per view
-**/
-#carousel-single-image {
 
-	height: 200px;
-	margin: 0 auto;			
-	background: #ccc;
-}
-#carousel-single-image .touchcarousel-container {
-	height: 100%;
-}
-#carousel-single-image .touchcarousel-item {
-	margin-right: 0;
-
-	height: 200px;
-}
-#carousel-single-image div.placeholder {
-
-	height: 200px;
-	margin: 0px 0 0 0px;	
-	
-	float:left;
-	position: relative;
-	display: block;
-	padding: 10px;
-	background: #FFF;
-	border: 0;
-	
-	-webkit-box-shadow: 0 1px 6px rgba(0,0,0,0.6);
-	-moz-box-shadow: 0 1px 6px rgba(0,0,0,0.6);
-	box-shadow: 0 1px 6px rgba(0,0,0,0.6);
-}
-#carousel-single-image .tc-paging-container {
-	margin-top: -29px;
-}
-.touchcarousel .tc-paging-centerer {
-	float: left;
-	position: relative;
-	left: 50%;
-}
 .gillsans{
  	font-family: GillSansAltOneWGLRegular;
 }
 fieldset{
 	padding-bottom: 20px!important;
 }
-label{
-	text-transform: none!important;
-	font-family: GillSansAltOneWGLRegular;
-	font-size: 15px;	
-}
+
 .btn_signin{
 	text-align: center!important;
 }
@@ -335,15 +207,108 @@ input[type=text] {
     -webkit-user-select: auto !important;
     user-select: auto !important;
 }
+
+svg{
+	cursor: pointer;
+}
+.hidden{
+	display: none;
+}
+.grey{
+	background: #ccc!important;
+}
+
+
+
+
+
+
+
+
+/* general */
+@font-face {
+    font-family: 'GillSansAltOneWGLRegular';
+    src: url('fonts/gsa_wg-webfont.eot');
+    src: url('fonts/gsa_wg-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/gsa_wg-webfont.woff') format('woff'),
+         url('fonts/gsa_wg-webfont.ttf') format('truetype'),
+         url('fonts/gsa_wg-webfont.svg#GillSansAltOneWGLLightRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+::-webkit-scrollbar { 
+    display: none; 
+}
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+}
+html{
+	overflow-x: hidden;
+	overflow-y: hidden;
+	position: fixed;
+}
+body {
+    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+	background: #fff;
+    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    font-size:12px;
+    height:100%;
+    margin:0px;
+    padding:0px;
+    text-transform:uppercase;
+    width:100%;
+	overflow-x: hidden;
+	overflow-y: hidden;
+    position: fixed;
+}
+i{
+	display: none!important;
+}
+label{
+	text-transform: none!important;
+	font-family: GillSansAltOneWGLRegular;
+	font-size: 15px;	
+}
+/* main content area*/
+#wrapper{
+	position: absolute;
+	margin-left: 0px;
+	top: 0px;
+	left: 0px;	
+	-webkit-transition: margin-left 0.3s linear;	
+}
+.showMenu{
+	position: absolute;
+	top: 0px;
+	right: 0px;	
+	border-color: #fff!important;
+	background-color: rgb(57, 107, 158);
+	height: 32px!important;
+	width: 32px!important;
+	background: url('../img/menu_icon.png') no-repeat 10px 10px!important; 
+	border: none!important;
+	display: block;
+	float: right;
+	padding: 10px;
+	z-index: 100;
+}
+.worldmap{
+	position: relative;
+	top: 0;
+	left: 0;
+}
+/* bottom details panel */
+#details{
+	width: 100%;
+	
+}
 #popupLogin-popup{
 	width: 80%!important;
 	top: 10px!important;
 }
-.ui-popup-screen.in {
-	position: fixed!important;	
-	opacity: 0.5;
-	background: #000;
-}
+
 .slider{
 	height: 200px!important;
 	background: #fff;
@@ -358,19 +323,67 @@ input[type=text] {
 	width: 100%;
 	background: #fff;
 }
-i{
-	display: none!important;
-}
-#details{
-	width: 100%;
-	
-}
-svg{
-	cursor: pointer;
-}
-.hidden{
+
+/* right menu panel */
+#menu {
+	position: fixed;
+	right: 0px;
+	bottom: 0px;
+	top: 0px;
+	height: 100%;
+	width: 250px;
 	display: none;
 }
-.grey{
-	background: #ccc!important;
+.menu_inner{
+	margin: 20px;
+}
+#btn_back{
+	background: url('../img/arrow_left.png') no-repeat 50% 50%;
+	width: 50px;
+	height: 40px;
+}
+.menu_inner ul{
+	margin: 0px;
+}
+.menu_inner li{
+	list-style-type: none;
+	position: relative;
+	height: 40px;
+	background: #fff;
+}
+.cbxoverlay{
+	display: inline-block;
+	width: 50px;
+	height: 40px;
+	left: 0px;
+	top: 0px;
+	background: url('../img/radio.png') no-repeat 50% 50%;
+	z-index: 1;
+	cursor:pointer;
+}
+.checked{
+	background: url('../img/radio_checked.png') no-repeat 50% 50%;
+}
+.li_name{
+	position: absolute;
+	display: inline;
+	left: 50px;
+	right: 50px;
+	padding-top: 10px;
+}
+.li_shownext{
+	position: absolute;
+	display: inline-block;
+	width: 50px;
+	height: 40px;
+	right: 0px;
+	top: 0px;
+	background: url('../img/arrow_right.png') no-repeat 50% 50%;
+	z-index: 1;
+	cursor:pointer;
+}
+
+/* login popup */
+#popupLogin{
+	display: none;
 }

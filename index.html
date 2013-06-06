@@ -5,25 +5,21 @@
 	<meta name="format-detection" content="telephone=no" />
 	<meta name="viewport"
 		content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no" />
-	<link rel="stylesheet" type="text/css"
-		href="css/jquery.mobile-1.3.1.min.css" />
-	<link rel="stylesheet" type="text/css"
-		href="css/jquery.mobile.structure-1.3.1.min.css" />
-	<link rel="stylesheet" type="text/css"
-		href="css/jquery.mobile.theme-1.3.1.min.css" />
+
 	<link rel="stylesheet" type="text/css" href="css/touchcarousel.css" />
 	<link rel="stylesheet" type="text/css" href="css/minimal-light-skin/minimal-light-skin.css" /> 
-	
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css" /> 
+	<link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.css" /> 
 	<link rel="stylesheet" type="text/css" href="css/index.css" /> 
 	<title>Philips Sustainability WorldMap</title>
 </head>
 <body>
 
-	<div data-role="page" class="pages" id="home">
+	<div class="pages" id="home">
 		
-		<div id="menu" class="ui-panel ui-panel-display-reveal ui-panel-position-right">
-			<div class="ui-panel-inner">
-				<div class="ui-controlgroup-controls">
+		<div id="menu" class="">
+			<div class="">
+				<div class="menu_inner">
 					<fieldset id="filter-data" class="ui-icon-alt">
 						<label >Group data by</label>
 						<select name="select-oru" id="select-oru" data-native-menu="false" data-inset="true" data-overlay-theme="c">
@@ -46,19 +42,8 @@
 						</label>
 						<a href="#popupLogin" class="" data-role="button" class="btn_signin" data-rel="popup">Sign in</a>
 					</fieldset>
-					<form>
-						<a href="test.html" target="_self">test page</a>
-						<label>bla</label>
-						<input type="radio" name="meuk"/>
-						<label>bla</label>
-						<input type="radio" name="meuk"/>
-						<label>bla</label>
-						<input type="radio" name="meuk"/>
-						<label>bla</label>
-						<input type="radio" name="meuk"/>
-					</form>
 				</div>
-			    <div data-role="popup" id="popupLogin" data-theme="c" class="ui-corner-all">
+			    <div id="popupLogin" data-theme="c" class="ui-corner-all">
 			        <form>
 			            <div style="padding:10px 20px;">
 			              <h3>Please sign in</h3>
@@ -75,12 +60,11 @@
 			</div>
 		</div>
 
-		<div data-role="header" id="header">
-			<a href="#" class="showMenu ui-btn-right"></a>
-		</div>
+
 		<!-- /header -->
-		<div data-role="content">
-			<div class="interactive_graph"></div>
+		<div id="wrapper">
+			<a href="#" class="showMenu"></a>		
+			<div class="wrapper"></div>
 			<div id="info" class="">
 				<div id="carousel-single-image" class="minimal-light">       
 					<div class="slider">
@@ -105,14 +89,12 @@
 	<!-- <script src="http://debug-software.intel.com/target/target-script-min.js#c3bf8f89-faf9-3626-9018-fa0fc21cdc81"></script> -->
 	<script type="text/javascript" src="config.js">//</script>
 	<script type="text/javascript" src="js/jquery.js">//</script>
-	<!-- <script type="text/javascript" src="js/jquery.mobile-1.3.1.min.js">//</script>-->
+	<script type="text/javascript" src="js/jquery.mobile-events.min.js">//</script>
+	<script type="text/javascript" src="js/bootstrap.min.js">//</script>
 	<script type="text/javascript" src="js/jquery.touchcarousel-1.2.min.js">//</script>
-	<script type="text/javascript" src="js/google.fastbutton.js"></script>
-	<script type="text/javascript" src="js/jquery.google.fastbutton.js"></script>		
 	<script type="text/javascript" src="js/ejs.js">//</script>
 	<script type="text/javascript" src="js/store/webstorage.js">//</script>
 	<script type="text/javascript" src="js/store/websql_store.js">//</script>
-	<script type="text/javascript" src="js/LightningTouch.js"></script>
 	<!-- needed to retrieve translations - this needs to be hosted/served by the same server that generates the content (NodeJS?) -->
 	
 	<script type="text/javascript" src="js/world_map/iscroll.js">//</script>

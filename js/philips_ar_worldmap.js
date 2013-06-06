@@ -46,7 +46,7 @@ var worldmap = {
 	regionHoverColor: '#135ed5', //'#0b5ed7',	
 	regionHoverOpacity: 1,
 	mapData: false,
-	$mapPlaceholder: $('div.interactive_graph'),
+	$mapPlaceholder: $('div.wrapper'),
 	allowedModes: ['grouped', 'country'],
 	mode: 'grouped', // grouped or country
 	showModeSwitch: false,
