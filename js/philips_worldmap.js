@@ -413,22 +413,23 @@ var app = {
     	return $(el).find('ul') > 0;
     },
     itemSelected: function($el){
-    	//console.log('kllll');
+    	console.log('kllll');
+    	//debugger;
     	var $spancurrentfilter = app.$producttree.find('span#current_filter'),
     		$arrselect = app.$producttree.find('.select_mru');
     	//alert(id);	
-		var elClicked = $el.parent('li').find('input');
-        if(!elClicked.is(":checked")) {  
-        	$arrselect.removeAttr("checked"); //.prop('checked', false);
-    		app.current_mru = elClicked.attr('data-value');
-    		elClicked.prop('checked', true);
+		var elClicked = $el;// $el.parent('li').find('input');
+       if(elClicked.is(":checked")) {  
+        	//$arrselect.removeAttr("checked"); //.prop('checked', false);
+    		app.current_mru = elClicked.attr('value');
+    		//elClicked.prop('checked', true);
     		$spancurrentfilter.html(app.current_mru); 
         }else{
-        	if($spancurrentfilter.html() == elClicked.attr('data-value')) {
+        	if($spancurrentfilter.html() == elClicked.attr('value')) {
         		app.current_mru = 'philips';
         		$spancurrentfilter.html(app.current_mru);
         	}
-        	$arrselect.prop('checked', false);
+        	//$arrselect.prop('checked', false);
         }
     },
     renderSelectList: function(selector, showBackbutton){
@@ -448,9 +449,9 @@ var app = {
     			name = $el.find('div').html();
     		
     		if(app.$producttreetemp.find('li[id="'+id+'"]').find('ul').length > 0){
-    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><a href="#'+id+'">'+name+'</a></li>');	
+    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><div class="cbxoverlay"><label for="'+id+'"></label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');	
     		}else{
-    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><a href="#'+id+'">'+name+'</a></li>');
+    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div class="cbxoverlay"><label for="'+id+'"></label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');
     		}
     	});
 
@@ -458,39 +459,39 @@ var app = {
     	
     	$('#btn_back').button();
 
- 	
-    	
+    	app.$producttree.trigger('create');
+    	$('.cbxoverlay input').checkboxradio();
     	app.$selectoru.selectmenu('close');
     	
     	app.$producttree.listview(); 
-    	app.$producttree.listview('refresh');
+    	//app.$producttree.listview('refresh');
     	
-    	$.each(app.$producttree.find('li'), function(index, el){
+    	/*$.each(app.$producttree.find('li'), function(index, el){
             var elLi=$(el);
-            var id=elLi.attr('id');
-            $(el).append('<div class="cbxoverlay"><input data-value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div>')
-        });
+            var id=elLi.attr('data-id');
+            //$(el).append('<div class="cbxoverlay"><input value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div>')
+        });*/
     	app.$producttree.find('li[data-role=list-divider] div.cbxoverlay').remove();
         
-        /*
+        
     	var isTouchSupported = "ontouchend" in document;
     	
         var event = isTouchSupported ? 'tap' : 'click';        
-    	$('.cbxoverlay').bind('ontouchstart', function(e){
+    	$('.cbxoverlay input').bind('change', function(e){
         	//e.stopPropagation();
     		//e.preventDefault();     		
-    		//console.log('hoi');
+    		console.log('hoi');
 	    	app.itemSelected($(this));
-	    	return false;
+	    	//return false;
     	});       	
-        */
+        
     	self.myScroll.refresh(); 
     },
     showNextLevel: function(clicked_id){
-    	var self = this,
+    /*	var self = this,
     		selector = 'li#'+clicked_id+ ' >ul > li';
     	
-    	self.renderSelectList(selector, true);
+    	self.renderSelectList(selector, true);*/
     },
     showPreviousLevel: function(){
     	var self = this,

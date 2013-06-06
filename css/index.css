@@ -193,6 +193,7 @@ body {
 	height: 40px;
 }
 #producttree .ui-btn-inner.ui-li{
+	padding-left: 50px;
 	padding-top: 10px;
 }
 li[data-role=list-divider]{
@@ -222,7 +223,7 @@ span#current_filter{
 	top: 0px!important;
 }
 .cbxoverlay{
-	position: absolute;
+	display: inline-block;
 	width: 50px;
 	height: 40px;
 	left: 0px;
@@ -230,6 +231,19 @@ span#current_filter{
 	background: transparent;
 	z-index: 10;
 	cursor:pointer;
+	margin-top: 10px;
+}
+.cbxoverlay input{
+	margin-top: 17px;
+	margin-left: 20px;	
+}
+.li_name{
+	display: inline-block;
+}
+.li_shownext{
+	position: absolute;
+	right: 0;
+	top: 0;	
 }
 .showMenu{
 	border-color: #fff!important;
