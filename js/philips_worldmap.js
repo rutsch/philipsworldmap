@@ -449,9 +449,9 @@ var app = {
     			name = $el.find('div').html();
     		
     		if(app.$producttreetemp.find('li[id="'+id+'"]').find('ul').length > 0){
-    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><div class="cbxoverlay"><label for="'+id+'"></label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');	
+    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true" onclick="app.showNextLevel(\''+id+'\');"><div class="cbxoverlays"><label for="'+id+'"><div class="li_name">'+name+'</div></label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_shownext">></div></li>');	
     		}else{
-    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div class="cbxoverlay"><label for="'+id+'"></label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_name">'+name+'</div><div class="li_shownext">></div></li>');
+    			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div class="cbxoverlays"><label for="'+id+'"><div class="li_name">'+name+'</div></label><input id="'+id+'" value="'+id+'" name="select_mru" style="margin-left: 20px;" class="select_mru" type="radio" /></div><div class="li_shownext">></div></li>');
     		}
     	});
 
@@ -459,7 +459,7 @@ var app = {
     	
     	$('#btn_back').button();
 
-    	app.$producttree.trigger('create');
+    	//app.$producttree.trigger('create');
     	$('.cbxoverlay input').checkboxradio();
     	app.$selectoru.selectmenu('close');
     	
@@ -477,7 +477,7 @@ var app = {
     	var isTouchSupported = "ontouchend" in document;
     	
         var event = isTouchSupported ? 'tap' : 'click';        
-    	$('.cbxoverlay input').bind('change', function(e){
+    	$('.cbxoverlays input').bind('change', function(e){
         	//e.stopPropagation();
     		//e.preventDefault();     		
     		console.log('hoi');
