@@ -39,23 +39,22 @@
 					</fieldset>		
 					<label>Are you a Philips employee?<br/>
 						Sign in and unlock all the features of the application.
-					</label>					
+					</label>	
 					<fieldset class="ui-icon-alt">
-						<div class="btn" onclick="app.btnSignInClick(this);return false;">			    
-							<div id="popupLogin" data-theme="c" class="ui-corner-all">
-						        <form>
-						            <div style="padding:10px 20px;">
-						              <h3>Please sign in</h3>
-						              <label for="un" class="ui-hidden-accessible">Username:</label>
-						              <input type="text" name="user" id="un" value="" placeholder="username" data-theme="b" />
-						
-						              <label for="pw" class="ui-hidden-accessible">Password:</label>
-						              <input type="password" name="pass" id="pw" value="" placeholder="password" data-theme="b" />
-						
-						              <button type="submit" data-theme="c">Sign in</button>
-						            </div>
-						        </form>
-						    </div>		
+						<div id="popupLogin" data-theme="c" class="btn">
+					        <form class="btn_inner height_auto">
+					            <div style="padding:10px 20px;">
+					              <h3>Please sign in</h3>
+					              <input type="text" name="user" id="un" value="" placeholder="username" data-theme="b" />
+					              <input type="password" name="pass" id="pw" value="" placeholder="password" data-theme="b" />
+					
+					              <!-- <button type="submit" data-theme="c">Sign in</button>-->
+					            </div>
+					        </form>
+					    </div>	
+				    </fieldset>
+					<fieldset class="ui-icon-alt">
+						<div class="btn" onclick="app.btnSignInClick(this);">			    	
 				    		<div class="btn_inner">Sign in</div>
 			    		</div>
 					</fieldset>
@@ -63,6 +62,7 @@
 		
 			</div>
 		</div>
+
 
 
 		<!-- /header -->

@@ -248,12 +248,11 @@ var app = {
                 onSliderResize: app.resizeSlider
     		}); 
     	}, 200);
-    
-
     	
 		$('div.oru-button').css({
     	    width: ((app.window.intoptionswidth - 40) / 3)  -1
         });
+		
         app.$producttree.corner();
         $('.btn').corner();
         $('div.oru-button.left').corner('left');
@@ -510,8 +509,14 @@ var app = {
     		//app.menuStatus = "0px"
     	});    	
     },
-    showPopupLogin: function(){
-    	
+    btnSignInClick: function(el){
+    	var $el = $(el),
+    		$loginScreen = $('#popupLogin');
+    	if($loginScreen.hasClass('open')){
+    		//handle actual login
+    	}else{
+    		$loginScreen.addClass('open');
+    	}
     }
 };
 function applyFilter(){}
