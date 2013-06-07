@@ -9,6 +9,7 @@
 	<link rel="stylesheet" type="text/css" href="css/touchcarousel.css" />
 	<link rel="stylesheet" type="text/css" href="css/minimal-light-skin/minimal-light-skin.css" /> 
 
+
 	<link rel="stylesheet" type="text/css" href="css/index.css" /> 
 	<title>Philips Sustainability WorldMap</title>
 </head>
@@ -20,13 +21,14 @@
 			<div class="">
 				<div class="menu_inner">
 					<label >Group data by</label>
-					<fieldset id="filter-data" class="ui-icon-alt">
-						<select name="select-oru" id="select-oru" data-native-menu="false" data-inset="true" data-overlay-theme="c">
-							<option value="lives_improved">World</option>
-							<option value="region">Region</option>
-							<option value="country">Country</option>
-						</select>		
-					</fieldset>
+					<div id="select-oru">
+					
+							<div class="oru-button left" data-value="our_company" onclick="app.oruSelected(this);">World</div>
+							<div class="oru-button selected" data-value="lives_improved" onclick="app.oruSelected(this);">Region</div>
+							<div class="oru-button right" data-value="country" onclick="app.oruSelected(this);">Country</div>
+					
+					</div>
+		
 					<label class="select">Filter data by</label>
 					<fieldset class="ui-icon-alt">
 						<div class="tree-nav">			
@@ -39,23 +41,26 @@
 						Sign in and unlock all the features of the application.
 					</label>					
 					<fieldset class="ui-icon-alt">
-						<input type="submit" value="Sign in" onclick="app.showPopupLogin();return false;">
+						<div class="btn" onclick="app.btnSignInClick(this);return false;">			    
+							<div id="popupLogin" data-theme="c" class="ui-corner-all">
+						        <form>
+						            <div style="padding:10px 20px;">
+						              <h3>Please sign in</h3>
+						              <label for="un" class="ui-hidden-accessible">Username:</label>
+						              <input type="text" name="user" id="un" value="" placeholder="username" data-theme="b" />
+						
+						              <label for="pw" class="ui-hidden-accessible">Password:</label>
+						              <input type="password" name="pass" id="pw" value="" placeholder="password" data-theme="b" />
+						
+						              <button type="submit" data-theme="c">Sign in</button>
+						            </div>
+						        </form>
+						    </div>		
+				    		<div class="btn_inner">Sign in</div>
+			    		</div>
 					</fieldset>
 				</div>
-			    <div id="popupLogin" data-theme="c" class="ui-corner-all">
-			        <form>
-			            <div style="padding:10px 20px;">
-			              <h3>Please sign in</h3>
-			              <label for="un" class="ui-hidden-accessible">Username:</label>
-			              <input type="text" name="user" id="un" value="" placeholder="username" data-theme="b" />
-			
-			              <label for="pw" class="ui-hidden-accessible">Password:</label>
-			              <input type="password" name="pass" id="pw" value="" placeholder="password" data-theme="b" />
-			
-			              <button type="submit" data-theme="c">Sign in</button>
-			            </div>
-			        </form>
-			    </div>				
+		
 			</div>
 		</div>
 
@@ -89,6 +94,7 @@
 	<!-- <script src="http://debug-software.intel.com/target/target-script-min.js#c3bf8f89-faf9-3626-9018-fa0fc21cdc81"></script> -->
 	<script type="text/javascript" src="config.js">//</script>
 	<script type="text/javascript" src="js/jquery.js">//</script>
+	<script type="text/javascript" src="js/jquery.corner.js">//</script>
 	<script type="text/javascript" src="js/jquery.mobile-events.min.js">//</script>
 	<script type="text/javascript" src="js/bootstrap.min.js">//</script>
 	<script type="text/javascript" src="js/jquery.touchcarousel-1.2.min.js">//</script>

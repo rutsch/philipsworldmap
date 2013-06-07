@@ -196,7 +196,7 @@ var app = {
                 	
                     // Load worldmap
                     // Get selected filter
-                    app.currentfilter = $('#select-oru').val();
+                    app.currentfilter = $('div.oru-button.selected').attr('data-value');
                     // Get worldmapdata and call showpage to show the homescreen
                     app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
                         app.mapdata = data;
@@ -221,6 +221,7 @@ var app = {
         app.window.width = $(window).width();   
         //alert('width: ' + app.window.width + ' height: ' + app.window.height);
         app.window.optionswidth = app.window.width - ($("a.showMenu").width() + 20) + 'px';
+        app.window.intoptionswidth = app.window.width - ($("a.showMenu").width() + 20);
         // Re-init worldmap to rescale the svg
         app.initMap();
 
@@ -247,8 +248,18 @@ var app = {
                 onSliderResize: app.resizeSlider
     		}); 
     	}, 200);
+    
 
-       
+    	
+		$('div.oru-button').css({
+    	    width: ((app.window.intoptionswidth - 40) / 3)  -1
+        });
+        app.$producttree.corner();
+        $('.btn').corner();
+        $('div.oru-button.left').corner('left');
+        $('div.oru-button.right').corner('right');
+        
+
       
     },
     resizeSlider: function(){
@@ -408,7 +419,24 @@ var app = {
     hasChildren: function(el){
     	return $(el).find('ul') > 0;
     },
-    itemSelected: function($el){
+    oruSelected: function(el){
+    	var $el = $(el);
+    	$el.parent().find('div').removeClass('selected');
+    	$el.addClass('selected');
+    	app.currentfilter = $el.attr('data-value');
+        /* 
+         * Because currentfilter is string, now send it for key and value
+         * When currentfilter becomes object we need to create a function that 
+         * generates a key based on a object and send that as first param to getWorldmapData
+         */
+        app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
+            worldmap.mapVariation = app.currentfilter;
+            worldmap.mapData = data;
+          
+            worldmap.init(app.window.width, app.window.height);  
+        });    	
+    },
+    mruSelected: function($el){
     	var $spancurrentfilter = app.$producttree.find('span#current_filter'),
     		$arrselect = app.$producttree.find('.cbxoverlay');
     	//alert(id);	
@@ -451,7 +479,7 @@ var app = {
 
         var event = "ontouchend" in document ? 'tap' : 'click';        
 		$('.cbxoverlay').bind(event, function(e) {
-			app.itemSelected($(this));
+			app.mruSelected($(this));
 		});	        
         
     	self.myScroll.refresh(); 
