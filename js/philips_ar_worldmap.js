@@ -179,6 +179,7 @@ var worldmap = {
 			}
 
 			$('#region-details').html(regionHtml);
+			$('#region-filter').html('<div class="btn" onclick="app.addFavourite(\''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\', \''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\');"><div class="btn_inner">'+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'</div></div>');
 	
 			$('#info').animate({
 				bottom: 0
@@ -347,6 +348,7 @@ var worldmap = {
 				map: self.mapName,
 				container: self.$mapPlaceholder,
 				backgroundColor: self.mapBackGroundColor,
+				hoverOpacity: 1,
 				hoverColor: false,
 				focusOn: self.objmapfocus,
 				regionStyle: {
@@ -356,16 +358,22 @@ var worldmap = {
 					selected: {
 						fill: self.regionHoverColor,
 						"fill-opacity": self.regionHoverOpacity
+					},
+					hover: {
+						"fill-opacity": self.regionHoverOpacity						
 					}
 				},
 				onRegionClick: function(e, code){
+					e.preventDefault();
 					self.handleRegionMouseOver(e, code);
-					self.showCountryDetails(e, null, code);
+					self.showCountryDetails(e, null, code);		
 				},
 				onRegionOver: function (e, code) {
 					//self.handleRegionMouseOver(e, code);
+
 				},
 				onRegionSelected: function (e, code, isSelected, selectedRegions) {
+			
 					//self.handleRegionSelected(e, code, isSelected, selectedRegions);
 				},
 				onRegionOut: function (e, code) {

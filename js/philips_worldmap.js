@@ -12,7 +12,8 @@ var app = {
      * Some global variables
      */
     online: false,
-    currentfilter: '',
+    current_oru: '',
+    signedin: true,
     current_mru: 'Philips',
     mapdata: {},
     window: {
@@ -25,6 +26,9 @@ var app = {
     $selectoru: $('#select-oru'),
     $bottomcarousel: $('#carousel-single-image'),
     $menu: $('#menu'),
+    $signin: $('#signin'),
+    $signedin: $('#signedin'),
+    $favourites: $('#favourites'),
     $worldmappage: $('#wrapper'),
     $selectoru: $('#select-oru'),
     $infopanel: $('#info'),
@@ -85,14 +89,14 @@ var app = {
              * For now currentfilter is only a string value, this has to be extended to become a whole object 
              * We need to build an object from a combination of all form fields
              */ 
-            app.currentfilter = $(this).val();
+            app.current_oru = $(this).val();
             /* 
              * Because currentfilter is string, now send it for key and value
              * When currentfilter becomes object we need to create a function that 
              * generates a key based on a object and send that as first param to getWorldmapData
              */
-            app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
-                worldmap.mapVariation = app.currentfilter;
+            app.getWorldmapData(app.current_oru, app.current_oru, function(err, data){
+                worldmap.mapVariation = app.current_oru;
                 worldmap.mapData = data;
               
                 worldmap.init(app.window.width, app.window.height);  
@@ -154,11 +158,20 @@ var app = {
     },
     // Load event handler
     onLoad: function(){
-         
+    	var self = this;
+
     },
     // Deviceready event handler
     onDeviceReady: function() {
     	var self = this;
+    	if(self.signedin){
+    		// hide signin panel
+    		self.$signin.hide();
+    		self.$signedin.show();
+    		// show signout and favourites
+    		//self.$favourites.show();
+    	}    	
+
         // Open local database
     	app.myScroll = new iScroll('menu', {lockDirection: true }); 
     	
@@ -176,7 +189,9 @@ var app = {
                     	width: app.window.optionswidth
                     });        		
             	});
-            	
+            	self.arrfavourites = self.store.findFavourites(function(result){
+            		self.renderFavourites(result);
+            	});            	
                 app.$bottomcarousel.iosSlider({
         			snapToChildren: true,
                     scrollbar: false,
@@ -196,9 +211,9 @@ var app = {
                 	
                     // Load worldmap
                     // Get selected filter
-                    app.currentfilter = $('div.oru-button.selected').attr('data-value');
+                    app.current_oru = $('div.oru-button.selected').attr('data-value');
                     // Get worldmapdata and call showpage to show the homescreen
-                    app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
+                    app.getWorldmapData(app.current_oru, app.current_oru, function(err, data){
                         app.mapdata = data;
                         app.onResize();              
                     });
@@ -224,10 +239,15 @@ var app = {
         app.window.intoptionswidth = app.window.width - ($("a.showMenu").width() + 20);
         // Re-init worldmap to rescale the svg
         app.initMap();
+    	
 
         app.$menu.css({
 	    	width: app.window.optionswidth
 	    }); 
+        app.$favourites.css({
+	    	width: app.window.optionswidth,
+	    	right: - app.window.intoptionswidth
+	    });         
 
         app.$worldmappage.css({
         	marginLeft: '0px'
@@ -280,7 +300,7 @@ var app = {
         app.store = new LocalStorageStore();
         // Database opened - Check availability of new data on server
         app.checkNewData(function(err, hasNewData){
-            // if new data clear cache table
+            // if new data clear cache table-webkit-transition: right 0.3s ease-in-out;
             if(hasNewData){
                 app.store.clearCache(cb);    
             }else{
@@ -399,10 +419,10 @@ var app = {
     },    
     // Shows a page (div element with class "page") based on an ID
     initMap: function(){
-        worldmap.mapVariation = app.currentfilter;
+        worldmap.mapVariation = app.current_oru;
         worldmap.mapData = app.mapdata;
         worldmap.init(app.window.width, app.window.height);
-        $('#menu').css({
+        $('#menu, #favourites').css({
         	display: 'block'
         });
     },
@@ -422,14 +442,14 @@ var app = {
     	var $el = $(el);
     	$el.parent().find('div').removeClass('selected');
     	$el.addClass('selected');
-    	app.currentfilter = $el.attr('data-value');
+    	app.current_oru = $el.attr('data-value');
         /* 
          * Because currentfilter is string, now send it for key and value
          * When currentfilter becomes object we need to create a function that 
          * generates a key based on a object and send that as first param to getWorldmapData
          */
-        app.getWorldmapData(app.currentfilter, app.currentfilter, function(err, data){
-            worldmap.mapVariation = app.currentfilter;
+        app.getWorldmapData(app.current_oru, app.current_oru, function(err, data){
+            worldmap.mapVariation = app.current_oru;
             worldmap.mapData = data;
           
             worldmap.init(app.window.width, app.window.height);  
@@ -503,10 +523,12 @@ var app = {
     	}
     },
     closeInfoPanel: function(){
+    	worldmap.map.clearSelectedRegions();
     	$('#info').animate({
     		bottom: "-200px"
     	}, 300, function(){
     		//app.menuStatus = "0px"
+    		
     	});    	
     },
     btnSignInClick: function(el){
@@ -514,8 +536,42 @@ var app = {
     		$loginScreen = $('#popupLogin');
     	if($loginScreen.hasClass('open')){
     		//handle actual login
+    		
     	}else{
     		$loginScreen.addClass('open');
+    	}
+    },
+    showFavourites: function(){
+    	var self = this;
+    	self.$favourites.css({
+    		right: 0
+    	}, 300, function(){
+    		//app.menuStatus = "0px"
+    		
+    	});
+    },
+    hideFavourites: function(){
+    	var self = this;
+    	self.$favourites.css({
+    		right: - self.window.intoptionswidth 
+    	}, 300, function(){
+    		//app.menuStatus = "0px"
+    		
+    	});
+    },
+    addFavourite: function(key, value){   	
+    	key = 'fav_' + key;
+        app.store.setCacheKey(key, value, function(){
+            
+        });    	
+    },
+    removeFavourite: function(){
+        app.store.removeCacheKey(key); 	
+    },
+    renderFavourites: function(arrFavs){
+    	var self = this;
+    	for(var i=0;i<arrFavs.length;i++){
+    		self.$favourites.append(arrFavs[i] + '<br/>');
     	}
     }
 };

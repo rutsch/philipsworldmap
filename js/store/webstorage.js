@@ -14,13 +14,26 @@ var LocalStorageStore = function(successCallback, errorCallback) {
     this.clearCache = function(callback){
         for (var i = 0; i < store.length; i++){
             var key = localStorage.key(i);
-            if(key !== 'usersettings'){
+            if(key !== 'usersettings' && key.indexOf('fav_') === -1 ){
                 store.removeItem(key);                
             }
         }       
         callLater(callback);    
     }
-    
+    this.removeCacheKey = function(key){
+    	store.removeItem(key);    
+    }
+    this.findFavourites = function(callback){
+    	var arrResult = [];
+        for (var i = 0; i < store.length; i++){
+            var key = localStorage.key(i);
+            if(key.indexOf('fav_') > -1 ){
+            	arrResult.push(store.getItem(key));
+                                
+            }
+        }     	
+    	callback(arrResult);
+    }
     
     // Used to simulate async calls. This is done to provide a consistent interface with stores (like WebSqlStore)
     // that use async data access APIs

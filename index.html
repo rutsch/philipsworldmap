@@ -37,10 +37,12 @@
 							</ul>
 						</div>						
 					</fieldset>		
-					<label>Are you a Philips employee?<br/>
-						Sign in and unlock all the features of the application.
-					</label>	
-					<fieldset class="ui-icon-alt">
+
+
+					<fieldset class="ui-icon-alt" id="signin">
+						<label>Are you a Philips employee?<br/>
+							Sign in and unlock all the features of the application.
+						</label>						
 						<div id="popupLogin" data-theme="c" class="btn">
 					        <form class="btn_inner height_auto">
 					            <div style="padding:10px 20px;">
@@ -52,17 +54,35 @@
 					            </div>
 					        </form>
 					    </div>	
-				    </fieldset>
-					<fieldset class="ui-icon-alt">
+					    <br/>
 						<div class="btn" onclick="app.btnSignInClick(this);">			    	
 				    		<div class="btn_inner">Sign in</div>
 			    		</div>
+					</fieldset>
+					<fieldset class="ui-icon-alt" id="signedin">
+						<div class="">
+							<div class="btn" onclick="app.showFavourites();">			    	
+					    		<div class="btn_inner">Favourites</div>
+				    		</div>
+							<div class="btn" onclick="app.SignOut();">			    	
+					    		<div class="btn_inner">Sign out</div>
+				    		</div>
+						</div>					
 					</fieldset>
 				</div>
 		
 			</div>
 		</div>
-
+		<div id="favourites">
+			<div class="panel_header">
+				<div class="btn_small left" onclick="app.hideFavourites();">			    	
+		    		<div class="btn_inner">back</div>
+	    		</div>
+			</div>
+			<div class="menu_inner">
+				Favourites
+			</div>
+		</div>
 
 
 		<!-- /header -->
@@ -73,10 +93,8 @@
 				<div class="close_button" onclick="app.closeInfoPanel();"></div>
 				<div id="carousel-single-image" class="minimal-light">       
 					<div class="slider">
-						<div class="item" id="region-details">
-
-						</div>		
-						<!-- <div class="item" id="region-history">historic graph</div>-->
+						<div class="item" id="region-details"></div>		
+						<div class="item" id="region-history">historic graph</div>
 						<div class="item" id="region-filter">current filter</div>
 					</div>
 				</div>					
@@ -104,7 +122,7 @@
 	<!-- needed to retrieve translations - this needs to be hosted/served by the same server that generates the content (NodeJS?) -->
 	
 	<script type="text/javascript" src="js/world_map/iscroll.js">//</script>
-	<script type="text/javascript" src="js/world_map/swipeupdown.js">//</script>
+	<!-- <script type="text/javascript" src="js/world_map/swipeupdown.js">//</script>-->
 	<script type="text/javascript" src="js/world_map/jquery-jvectormap.js">//</script>
 	<script type="text/javascript" src="js/world_map/jquery-mousewheel.js">//</script>
 	<script type="text/javascript" src="js/world_map/jvectormap.js">//</script>
