@@ -2,10 +2,10 @@ var WebSqlStore = function(successCallback, errorCallback) {
 
     this.initializeDatabase = function(successCallback, errorCallback) {
         var self = this;
-        this.db = window.openDatabase("PhilipsWorldMap", "1.0", "Philips Worldmap Application Database", 200000);
+        this.db = window.openDatabase("PhilipsWorldMap", "1.0", "Philips Worldmap Application Database", 20000000);
         this.db.transaction(
                 function(tx) {
-                    self.createCacheTable(tx);
+                    self.createSnapshotTable(tx);
                     self.createSettingsTable(tx);
                 },
                 function(error) {
@@ -19,10 +19,12 @@ var WebSqlStore = function(successCallback, errorCallback) {
         )
     }
 
-    this.createCacheTable = function(tx) {
-        var sql = "CREATE TABLE IF NOT EXISTS cache ( " +
-            "cachekey VARCHAR(250) PRIMARY KEY, " +
-            "value VARCHAR(1000000))";
+    this.createSnapshotTable = function(tx) {
+        var sql = "CREATE TABLE IF NOT EXISTS snapshot ( " +
+            "key VARCHAR(250), " +
+            "population INT, " +
+            "gdp INT, " +
+            "lives_improved INT)";
         tx.executeSql(sql, null,
                 function() {
                     console.log('Create table success');
@@ -115,15 +117,34 @@ var WebSqlStore = function(successCallback, errorCallback) {
         );        
     };
 
-    this.findCacheKey = function(key, callback) {
+    this.findCacheKey = function(key) {
         this.db.transaction(
             function(tx) {
 
                 var sql = "SELECT value " +
-                    "FROM cache " +
-                    "WHERE cachekey = ?";
+                    "FROM snapshot " +
+                    "WHERE key = ?";
 
                 tx.executeSql(sql, [key], function(tx, results) {
+                	//console.log(results);
+                    return(results);
+                });
+            },
+            function(error) {
+                return("Transaction Error: " + error.message);
+            }
+        );
+    };
+    
+    this.hasRecords = function(callback) {
+        this.db.transaction(
+            function(tx) {
+
+                var sql = "SELECT count(*) as count " +
+                    "FROM snapshot ";
+
+                tx.executeSql(sql, [], function(tx, results) {
+                	console.log(results);
                     callback(results);
                 });
             },
@@ -133,19 +154,19 @@ var WebSqlStore = function(successCallback, errorCallback) {
         );
     };
 
-    this.setCacheKey = function(key, value, callback) {
+    this.setCacheKey = function(key, population, gdp, lives_improved) {
         this.db.transaction(
             function(tx) {
 
-                var sql = "INSERT INTO cache (cachekey, value) " +
-                    "VALUES(:key, :value)";
+                var sql = "INSERT INTO snapshot (key, population, gdp, lives_improved) " +
+                    "VALUES(:key, :population, :gdp, :lives_improved)";
 
-                tx.executeSql(sql, [key, value], function(tx, results) {
-                    callback(results);
+                tx.executeSql(sql, [key, population, gdp, lives_improved], function(tx, results) {
+                    return results;
                 });
             },
             function(error) {
-                alert("Transaction Error: " + error.message);
+                return '';
             }
         );
     };

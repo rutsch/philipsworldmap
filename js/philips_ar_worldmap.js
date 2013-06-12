@@ -156,6 +156,7 @@ var worldmap = {
 
 			//fill the popup template with relevant data
 			var regionHtml = self.popupTemplate;
+
 			switch (self.mapVariation) {
 				case 'lives_improved':
 					regionHtml = regionHtml.replace(/\[country_name]/g, arrTranslations[regionData.name.toLowerCase()]);
@@ -197,6 +198,8 @@ var worldmap = {
 	generateColors: function (mapData) {
 		var self = this;
 		var colors = {}, key;
+
+	
 		// Loop through all regions in map
 		for (region in self.map.regions) {
 			// Get the region data from the mapData array
@@ -206,7 +209,11 @@ var worldmap = {
 			})[0];
 			// If we have regionData we can fill the colors object based on the total number for the region
 			if (regionData) {
-				colors[region] = regionData.color;
+				//debugger;
+				var percentageLI = (regionData.categories[0].value * 100) / regionData.value_total_population;
+				if(percentageLI> 99)percentageLI=99;
+				colors[region] = self.getColorForPercentage(percentageLI);
+					//self.increaseBrightness('#112233', percentageLI);
 			} else {
 				// No regionData for region found so set default color
 				colors[region] = self.mapForeGroundColor;
@@ -214,7 +221,49 @@ var worldmap = {
 		}
 		return colors;
 	},
+	getColorForPercentage: function(pct) {
+	    pct /= 100;
 
+	    var percentColors = [
+	            { pct: 0.01, color: { r: 0, g: 0, b: 255 } },
+	            { pct: 0.5, color: { r: 73, g: 90, b: 239 } },
+	            { pct: 1.0, color: { r: 118, g: 131, b: 239 }} ];
+
+	    for (var i = 0; i < percentColors.length; i++) {
+	        if (pct <= percentColors[i].pct) {
+	            var lower = percentColors[i - 1] || { pct: 0.1, color: { r: 0x0, g: 0x00, b: 0 } };
+	            var upper = percentColors[i];
+	            var range = upper.pct - lower.pct;
+	            var rangePct = (pct - lower.pct) / range;
+	            var pctLower = 1 - rangePct;
+	            var pctUpper = rangePct;
+	            var color = {
+	                r: Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper),
+	                g: Math.floor(lower.color.g * pctLower + upper.color.g * pctUpper),
+	                b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper)
+	            };
+	            return 'rgb(' + [color.r, color.g, color.b].join(',') + ')';
+	        }
+	    }
+	},
+	increaseBrightness: function(hex, percent){
+	    // strip the leading # if it's there
+	    hex = hex.replace(/^\s*#|\s*$/g, '');
+
+	    // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
+	    if(hex.length == 3){
+	        hex = hex.replace(/(.)/g, '$1$1');
+	    }
+
+	    var r = parseInt(hex.substr(0, 2), 16),
+	        g = parseInt(hex.substr(2, 2), 16),
+	        b = parseInt(hex.substr(4, 2), 16);
+
+	    return '#' +
+	       ((0|(1<<8) + r + (256 - r) * percent / 100).toString(16)).substr(1) +
+	       ((0|(1<<8) + g + (256 - g) * percent / 100).toString(16)).substr(1) +
+	       ((0|(1<<8) + b + (256 - b) * percent / 100).toString(16)).substr(1);		
+	},
 	// Gets the data for the map based on the mode ('grouped' or 'country')
 	getMapData: function (mode, cb) {
 		var self = this;
@@ -389,6 +438,8 @@ var worldmap = {
 				series: {
 					regions: [{
 						hoverColor: false
+						//,scale: ['#112233', '#009988']
+						//,attribute: 'fill'
 					}]
 				}
 			});
@@ -477,7 +528,16 @@ var worldmap = {
 	}
 }
 
-
+function percent(x, col) {
+    var factor;
+    //if (x < 50) {
+        factor = (100 - x) / 100;
+        return col[0].scale(factor).add(col[0].scale(1-factor));
+    //} else {
+    //    factor = (100 - x) / 50;
+    //    return col[1].scale(factor).add(col[0].scale(1-factor));
+    //}
+}
 
 function format(nStr) {
 	nStr += '';

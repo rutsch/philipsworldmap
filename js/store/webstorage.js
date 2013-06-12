@@ -29,10 +29,9 @@ var LocalStorageStore = function(successCallback, errorCallback) {
             var key = localStorage.key(i);
             if(key.indexOf('fav_') > -1 ){
             	arrResult.push(store.getItem(key));
-                                
             }
         }     	
-    	callback(arrResult);
+        callLater(callback(arrResult));
     }
     
     // Used to simulate async calls. This is done to provide a consistent interface with stores (like WebSqlStore)

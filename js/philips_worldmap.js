@@ -14,13 +14,15 @@ var app = {
     online: false,
     current_oru: '',
     signedin: true,
-    current_mru: 'Philips',
+    current_mru: 'philips',
     mapdata: {},
     window: {
     	width: 0,
     	height: 0,
     	optionswidth: '0px'
     },
+    orudata: {},
+    snapshotdata: {},
     $producttree: $('#producttree'),
     $producttreetemp: $('#producttree_temp'),
     $selectoru: $('#select-oru'),
@@ -164,10 +166,10 @@ var app = {
     // Deviceready event handler
     onDeviceReady: function() {
     	var self = this;
-    	if(self.signedin){
+    	if(app.signedin){
     		// hide signin panel
-    		self.$signin.hide();
-    		self.$signedin.show();
+    		app.$signin.hide();
+    		app.$signedin.show();
     		// show signout and favourites
     		//self.$favourites.show();
     	}    	
@@ -178,7 +180,7 @@ var app = {
         app.openDatabase(function(){
         	app.getArrTranslations(function(result){
             	$('body').append('<script>'+result+'</script>');
-            	// get producttree for generating the filter component
+            	// get mru tree for generating the filter component
             	app.getMruData(function(result){
                 	app.$producttreetemp.html(result);
                 	// render the top level of the tree
@@ -187,10 +189,30 @@ var app = {
                 	
                     $('#menu').css({
                     	width: app.window.optionswidth
-                    });        		
+                    });    
+                	// get the oru json data
+                	app.getOruData(function(result){
+                    	// get the snapshot data
+                		app.orudata = result;
+                    	app.getSnapShotData(function(result2){
+                    		//debugger;
+                    		app.snapshotdata = result2;
+                            // Load worldmap
+                            // Get selected filter
+                            app.current_oru = $('div.oru-button.selected').attr('data-value');
+                            app.current_mru = $('#current_filter').html();
+                            // Get worldmapdata and call showpage to show the homescreen
+                            app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
+                            	//debugger;
+                                app.mapdata = data;
+                                app.onResize();              
+                            });    		
+                    	});     		
+                	});                       
             	});
-            	self.arrfavourites = self.store.findFavourites(function(result){
-            		self.renderFavourites(result);
+            	
+            	self.arrfavourites = app.store.findFavourites(function(result){
+            		app.renderFavourites(result);
             	});            	
                 app.$bottomcarousel.iosSlider({
         			snapToChildren: true,
@@ -209,14 +231,7 @@ var app = {
                 app.store.getUserSettings(function(results){
                 	// TODO: Load favourites screen with result
                 	
-                    // Load worldmap
-                    // Get selected filter
-                    app.current_oru = $('div.oru-button.selected').attr('data-value');
-                    // Get worldmapdata and call showpage to show the homescreen
-                    app.getWorldmapData(app.current_oru, app.current_oru, function(err, data){
-                        app.mapdata = data;
-                        app.onResize();              
-                    });
+
                 });          		
         	});
 
@@ -235,8 +250,10 @@ var app = {
         app.window.height = $(window).height();
         app.window.width = $(window).width();   
         //alert('width: ' + app.window.width + ' height: ' + app.window.height);
-        app.window.optionswidth = app.window.width - ($("a.showMenu").width() + 20) + 'px';
-        app.window.intoptionswidth = app.window.width - ($("a.showMenu").width() + 20);
+        var temp = app.window.width - ($("a.showMenu").width() + 20);
+        app.window.intoptionswidth = temp > 400 ? 400 : temp;
+        app.window.optionswidth = app.window.intoptionswidth + 'px';
+        
         // Re-init worldmap to rescale the svg
         app.initMap();
     	
@@ -298,6 +315,8 @@ var app = {
     openDatabase: function(cb){
         // Init localstorage
         app.store = new LocalStorageStore();
+        app.sql = new WebSqlStore();
+        
         // Database opened - Check availability of new data on server
         app.checkNewData(function(err, hasNewData){
             // if new data clear cache table-webkit-transition: right 0.3s ease-in-out;
@@ -352,41 +371,55 @@ var app = {
                 }else{
                     cb('');
                 }
-   
             }
         });
     },    
     // Get data for worldmap (if present in localstorage then serve that, else do ajax call)
-    getWorldmapData: function(key, filters, cb){
-        // Check localstorage first 
-        app.store.findCacheKey(key, function(result){
-            
-            if(result){
-                cb(null, JSON.parse(result));
-            }else{
-                // if not found in cache
-                if(app.online){
-                    $.ajax({
-                        type: "GET",
-                        url: config.general.data_url,
-                        dataType: 'jsonp',
-                        data: {
-                            filters: filters
-                        }
-                    }).done(function( result ) {
-                        app.store.setCacheKey(key, JSON.stringify(result.data), function(){
-                            cb(null, result.data);
-                        });
-                        
-                    }).fail(function(xhr, err){
-                        cb(err);
-                    });                                
-                }else{
-                    cb(null, []);
-                }
-   
-            }
-        });
+    getWorldmapData: function(oru, mru, cb){
+    	var self = this;
+        // get countries from oru json based on passed oru level
+    	//var result = jF('*[guid=dach]', app.orudata).get();
+    	var arrRegions = [];
+    	// [{"name":"DACH","color":"#d5eff0","value_total_population":"98","value_total_gdp":"4384","code":["DE","AT","CH"],"categories":[{"name":"Philips","code":"PH","value":"87"}]}]
+    	var arrUnits = jsonPath(app.orudata, '$..subunits[?(@.level=='+oru+')]');
+    	$.each(arrUnits, function(index, region){
+    		var objRegion = {
+    	    		name: region.name,
+    	    		color: '#112233',
+    	    		value_total_population: 0,
+    	    		value_total_gdp: 0,
+    	    		code: [],
+    	    		categories: [{
+    	    			name: 'Philips',
+    	    			code: 'PH',
+    	    			value: 0
+    	    		}]
+    	    	}; 
+    		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
+    		objRegion.code = jsonPath(region, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
+    		var guid = 'lives-improved_' + mru + '_' + region.guid;
+    		console.log(guid);
+    		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
+    		
+    		if(data){
+    			objRegion.categories[0].value = data.lives_improved;
+    			objRegion.value_total_population = data.population;
+    			objRegion.value_total_gdp = data.gdp;   			
+    		}
+
+
+	
+			arrRegions.push(objRegion);
+	    		
+
+			if(arrRegions.length == arrUnits.length){
+				console.log('processed all');
+				cb(null, arrRegions);
+			}
+    		
+    	});
+
+
     },
     getMruData: function(cb){
         // Check localstorage first 
@@ -416,10 +449,88 @@ var app = {
    
             }
         });
-    },    
+    },  
+    getOruData: function(cb){
+        // Check localstorage first 
+        app.store.findCacheKey('oru_tree', function(result){
+            
+            if(result){
+            	
+                cb(JSON.parse(result));
+            }else{
+                // if not found in cache
+                if(app.online){
+                    $.ajax({
+                        type: "GET",
+                        url: config.general.oru_url,
+                        dataType: 'jsonp'
+                    }).done(function( result ) {
+                        app.store.setCacheKey('oru_tree', JSON.stringify(result), function(){
+                            cb(result);
+                        });
+                        
+                    }).fail(function(xhr, err){
+                        cb(err);
+                    });                                
+                }else{
+                    cb({});
+                }
+   
+            }
+        });    	
+    },
+    getSnapShotData: function(cb){
+        // Check localstorage first 
+        app.store.findCacheKey('snapshot', function(result){
+            
+            if(result){
+                cb(JSON.parse(result));
+            }else{
+                // if not found in cache
+                if(app.online){
+                    $.ajax({
+                        type: "GET",
+                        url: config.general.snapshot_url,
+                        dataType: 'jsonp'
+                    }).done(function( result ) {
+                    	var objSnapshot = {};
+                    	$.each(result, function(index, el){
+                    		var population, gdp, lives_improved;
+                    		
+                			$.each(el.periods[0].values, function(index, val){
+                				if(val.type == 'lives-improved'){
+                					lives_improved = val.value;
+                				}else if(val.type == 'population'){
+                					population = val.value;
+                				}else if(val.type == 'gdp'){
+                					gdp = val.value;
+                				}
+                			});                  
+                			objSnapshot[el.guid] = {
+                				lives_improved: lives_improved,
+                				population: population,
+                				gdp: gdp
+                			}
+
+                    	});                    	
+                        app.store.setCacheKey('snapshot', JSON.stringify(objSnapshot), function(){
+                            cb(objSnapshot);
+                        });
+                        
+                    }).fail(function(xhr, err){
+                        cb(err);
+                    });                                
+                }else{
+                    cb({});
+                }
+   
+            }
+        }); 
+   	
+    },
     // Shows a page (div element with class "page") based on an ID
     initMap: function(){
-        worldmap.mapVariation = app.current_oru;
+        worldmap.mapVariation = 'lives_improved';
         worldmap.mapData = app.mapdata;
         worldmap.init(app.window.width, app.window.height);
         $('#menu, #favourites').css({
@@ -448,8 +559,8 @@ var app = {
          * When currentfilter becomes object we need to create a function that 
          * generates a key based on a object and send that as first param to getWorldmapData
          */
-        app.getWorldmapData(app.current_oru, app.current_oru, function(err, data){
-            worldmap.mapVariation = app.current_oru;
+        app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
+            worldmap.mapVariation = 'lives_improved';
             worldmap.mapData = data;
           
             worldmap.init(app.window.width, app.window.height);  
@@ -472,6 +583,12 @@ var app = {
         		elClicked.removeClass('checked');
         	//}
         }
+        app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
+            worldmap.mapVariation = 'lives_improved';
+            worldmap.mapData = data;
+          
+            worldmap.init(app.window.width, app.window.height);  
+        });    	        
     },
     renderSelectList: function(selector, showBackbutton){
     	var self = this,
@@ -560,19 +677,25 @@ var app = {
     	});
     },
     addFavourite: function(key, value){   	
+    	var self= this;
     	key = 'fav_' + key;
         app.store.setCacheKey(key, value, function(){
-            
+        	self.arrfavourites = self.store.findFavourites(function(result){
+        		self.renderFavourites(result);
+        	});                
         });    	
     },
     removeFavourite: function(){
         app.store.removeCacheKey(key); 	
     },
     renderFavourites: function(arrFavs){
-    	var self = this;
+    	var self = this,
+    		html= '';
     	for(var i=0;i<arrFavs.length;i++){
-    		self.$favourites.append(arrFavs[i] + '<br/>');
+    		html += arrFavs[i] + '<br/>'
+    		
     	}
+    	self.$favourites.find('div.menu_inner').html(html);
     }
 };
 function applyFilter(){}
