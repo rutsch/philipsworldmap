@@ -64,8 +64,9 @@ var worldmap = {
 	objmapfocus: {
 		x: 0.5,
 		y: 0.5,
-		scale: 3,
-		baseScale: 1
+		scale: 1,
+		baseScale: 1,
+		maxScale: 10
 	},
 	// Helper Functions	
 
@@ -82,8 +83,11 @@ var worldmap = {
 	handleRegionMouseOver: function (e, code) {
 		var self = this;
 		self.map.clearSelectedRegions();
+		debugger;
 		for (var i = 0; i < self.mapData.length; i++) {
-			if ($.inArray(code, self.mapData[i].code) > -1) {
+			//console.log(self.mapData[i].code);
+			//debugger;
+			if ($.inArray(code, self.mapData[i].code) > -1 || self.mapData[i].code === code) {
 				//debugger;
 				self.map.setSelectedRegions(self.getMapCodes(self.mapData[i].code));
 				break;
@@ -97,6 +101,11 @@ var worldmap = {
 		//console.log(dataArray);
 		var outputArray = [];
 		//debugger;
+		if(!$.isArray(dataArray)){
+			var temp = [];
+			temp.push(dataArray);
+			dataArray=temp;
+		}
 
 		if (self.availableCountryCodes.length == 0) self.availableCountryCodes = self.getAvailableCountryCodes()
 
@@ -128,6 +137,7 @@ var worldmap = {
 	// Overrides the default country popup (renders html based on data from the countriesData object)				
 	showCountryDetails: function (e, el, code) {
 		var self = this;
+		//debugger;
 		// Helper function to render details for each category in the found region
 		function getCategoryDetails(categories) {
 			var arrTemp = [];
@@ -145,7 +155,7 @@ var worldmap = {
 		var regionData = null;
 		$.each(self.mapData, function (index, obj) {
 			//console.log(obj);
-			if ($.inArray(code, obj.code) > -1) {
+			if ($.inArray(code, obj.code) > -1 || obj.code == code) {
 				regionData = obj;
 				return false;
 			}
@@ -159,7 +169,8 @@ var worldmap = {
 
 			switch (self.mapVariation) {
 				case 'lives_improved':
-					regionHtml = regionHtml.replace(/\[country_name]/g, arrTranslations[regionData.name.toLowerCase()]);
+					
+					regionHtml = regionHtml.replace(/\[country_name]/g, regionData.name);// arrTranslations[regionData.name.toLowerCase()]);
 					regionHtml = regionHtml.replace(/\[total_value]/g, format(self.getCategoriesTotal(regionData.categories)));
 					//regionHtml = regionHtml.replace(/\[category_details]/g, getCategoryDetails(regionData.categories));
 					regionHtml = regionHtml.replace(/\[population_total]/g, format(Math.round(regionData.value_total_population)));
@@ -180,7 +191,8 @@ var worldmap = {
 			}
 
 			$('#region-details').html(regionHtml);
-			$('#region-filter').html('<div class="btn" onclick="app.addFavourite(\''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\', \''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\');"><div class="btn_inner">'+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'</div></div>');
+			app.renderFavouritePanel(regionData.name.toLowerCase());
+			//$('#region-filter').html('<div class="btn" onclick="app.addFavourite(\''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\', \''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\');"><div class="btn_inner">'+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'</div></div>');
 	
 			$('#info').animate({
 				bottom: 0
@@ -198,36 +210,55 @@ var worldmap = {
 	generateColors: function (mapData) {
 		var self = this;
 		var colors = {}, key;
-
-	
+		Object.size = function(obj) {
+		    var size = 0, key;
+		    for (key in obj) {
+		        if (obj.hasOwnProperty(key)) size++;
+		    }
+		    return size;
+		};
+		var size = Object.size(self.map.regions);
+		//debugger;
 		// Loop through all regions in map
+		//debugger;
 		for (region in self.map.regions) {
 			// Get the region data from the mapData array
 			var regionData = $.grep(mapData, function (obj, index) {
 				// Found when map.regions.key is in the regionData.code array
-				return $.inArray(region, obj.code) > -1;
+				return $.inArray(region, obj.code) > -1 || region === obj.code;
 			})[0];
 			// If we have regionData we can fill the colors object based on the total number for the region
 			if (regionData) {
+				//console.log(regionData);
 				//debugger;
-				var percentageLI = (regionData.categories[0].value * 100) / regionData.value_total_population;
+				var percentageLI = (regionData.categories[0].value * 100) / regionData.value_total_population || 0;
 				if(percentageLI> 99)percentageLI=99;
-				colors[region] = self.getColorForPercentage(percentageLI);
+				if(percentageLI< 1)percentageLI=1;
+				if(regionData.color){
+					colors[region] = self.getColorForPercentage(percentageLI, regionData.color.low, regionData.color.middle, regionData.color.high);
+				}else{
+					colors[region] = self.mapForeGroundColor;
+				}
+				
 					//self.increaseBrightness('#112233', percentageLI);
 			} else {
+				//debugger;
 				// No regionData for region found so set default color
 				colors[region] = self.mapForeGroundColor;
 			}
 		}
+
 		return colors;
 	},
-	getColorForPercentage: function(pct) {
+	getColorForPercentage: function(pct, low_color, middle_color, high_color) {
+		var self = this;
 	    pct /= 100;
 
 	    var percentColors = [
-	            { pct: 0.01, color: { r: 0, g: 0, b: 255 } },
-	            { pct: 0.5, color: { r: 73, g: 90, b: 239 } },
-	            { pct: 1.0, color: { r: 118, g: 131, b: 239 }} ];
+	            { pct: 0.01, color: self.rgbFromHex(low_color) },
+	            { pct: 0.5, color: self.rgbFromHex(middle_color) },
+	            { pct: 1.0, color: self.rgbFromHex(high_color) } 
+	        ];
 
 	    for (var i = 0; i < percentColors.length; i++) {
 	        if (pct <= percentColors[i].pct) {
@@ -245,6 +276,17 @@ var worldmap = {
 	            return 'rgb(' + [color.r, color.g, color.b].join(',') + ')';
 	        }
 	    }
+	},
+	rgbFromHex: function(hex){
+		function hexToR(h) {return parseInt((cutHex(h)).substring(0,2),16)}
+		function hexToG(h) {return parseInt((cutHex(h)).substring(2,4),16)}
+		function hexToB(h) {return parseInt((cutHex(h)).substring(4,6),16)}
+		function cutHex(h) {return (h.charAt(0)=="#") ? h.substring(1,7):h}
+		return {
+			r: hexToR(hex),
+			g: hexToG(hex),
+			b: hexToB(hex)
+		}
 	},
 	increaseBrightness: function(hex, percent){
 	    // strip the leading # if it's there
@@ -528,7 +570,9 @@ var worldmap = {
 	}
 }
 
+
 function percent(x, col) {
+	
     var factor;
     //if (x < 50) {
         factor = (100 - x) / 100;

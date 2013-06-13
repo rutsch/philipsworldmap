@@ -174,16 +174,87 @@ var app = {
     		//self.$favourites.show();
     	}    	
 
+    	console.log('getting snapshot data');
+    	
+    	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFS, app.fail);
+   
         // Open local database
-    	app.myScroll = new iScroll('menu', {lockDirection: true }); 
+    	  
+    },
+    gotFS:  function(fileSystem) {
+    	app.fileSystem = fileSystem;
+        fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntry, app.fail);
+    },
+    gotFSforWriting:  function(fileSystem) {
+    	
+    },
+    gotFileEntry: function(fileEntry) {
+        fileEntry.file(app.gotFile, app.fail);
+    },
+
+    gotFile: function(file){
+        //readDataUrl(file);
+        app.readAsText(file);
+    },
+    gotFileWriter: function(writer){
+        if(app.online){
+            $.ajax({
+                type: "GET",
+                url: config.general.snapshot_url,
+                dataType: 'jsonp'
+            }).done(function( result ) {
+            	
+            	writer.write(result);
+            	app.snapshotdata = result;
+            	app.process();
+            }).fail(function(xhr, err){
+                cb(err);
+            });                                
+        }else{
+            cb({});
+        }    
+    },    
+    gotFileEntryForWriting: function(fileEntry){
+    	fileEntry.createWriter(app.gotFileWriter, app.fail);
+    },
+    readDataUrl: function(file) {
+        var reader = new FileReader();
+        reader.onloadend = function(evt) {
+            console.log("Read as data URL");
+            console.log(evt.target.result);
+        };
+        reader.readAsDataURL(file);
+    },
+
+    readAsText: function(file) {
+        var reader = new FileReader();
+        reader.onloadend = function(evt) {
+            if(!evt.target.result){
+            	//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFSforWriting, app.fail);
+            	
+            	app.fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntryForWriting, app.fail);
+            }else{
+            	app.snapshotdata = JSON.parse(evt.target.result);
+            	app.process();
+            }
+               
+        };
+        reader.readAsText(file);
+    },
+    process: function(){
+    	//console.log(app.snapshotdata['lives-improved_PD0200_world'].g);
+        app.myScroll = new iScroll('menu', {lockDirection: true }); 
     	
         app.openDatabase(function(){
+        	//console.log('openend database');
         	app.getArrTranslations(function(result){
+        		//console.log('got translations');
             	$('body').append('<script>'+result+'</script>');
             	// get mru tree for generating the filter component
             	app.getMruData(function(result){
                 	app.$producttreetemp.html(result);
                 	// render the top level of the tree
+                	//console.log('got mru');
                 	var selector = 'li#philips >ul > li';
                 	app.renderSelectList(selector, false);
                 	
@@ -192,14 +263,16 @@ var app = {
                     });    
                 	// get the oru json data
                 	app.getOruData(function(result){
+                		//console.log('got oru');
                     	// get the snapshot data
                 		app.orudata = result;
                     	app.getSnapShotData(function(result2){
+                    		//console.log('got snapshot');
                     		//debugger;
-                    		app.snapshotdata = result2;
+                    		//app.snapshotdata = result2;
                             // Load worldmap
                             // Get selected filter
-                            app.current_oru = $('div.oru-button.selected').attr('data-value');
+                            app.current_oru = 3;
                             app.current_mru = $('#current_filter').html();
                             // Get worldmapdata and call showpage to show the homescreen
                             app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
@@ -235,8 +308,12 @@ var app = {
                 });          		
         	});
 
-        });   
+        });                  	
     },
+    fail: function(evt) {
+    	debugger;
+        console.log(evt);
+    },      
     // Online event handler
     onOnline: function() {
         app.online = true;
@@ -255,7 +332,7 @@ var app = {
         app.window.optionswidth = app.window.intoptionswidth + 'px';
         
         // Re-init worldmap to rescale the svg
-        app.initMap();
+        
     	
 
         app.$menu.css({
@@ -292,11 +369,12 @@ var app = {
 		
         app.$producttree.corner();
         $('.btn').corner();
+        $('#current_favourite').corner();
         $('div.oru-button.left').corner('left');
         $('div.oru-button.right').corner('right');
         
-
-      
+        app.initMap();
+        
     },
     resizeSlider: function(){
 
@@ -315,13 +393,14 @@ var app = {
     openDatabase: function(cb){
         // Init localstorage
         app.store = new LocalStorageStore();
-        app.sql = new WebSqlStore();
+        //app.sql = new WebSqlStore();
         
         // Database opened - Check availability of new data on server
         app.checkNewData(function(err, hasNewData){
             // if new data clear cache table-webkit-transition: right 0.3s ease-in-out;
             if(hasNewData){
-                app.store.clearCache(cb);    
+                app.store.clearCache(cb);   
+                //app.sql.clearCache(cb);
             }else{
                 cb();
             }
@@ -379,13 +458,52 @@ var app = {
     	var self = this;
         // get countries from oru json based on passed oru level
     	//var result = jF('*[guid=dach]', app.orudata).get();
+
     	var arrRegions = [];
+    	var colors = {
+    		'europe': {
+    			low: '#99EAF0',
+    			middle: '#5BCCD4',
+    			high: '#30B6BF'
+    		},
+    		'asia': {
+    			low: '#BE67E9',
+    			middle: '#A359C8',
+    			high: '#8737B0'    			
+    		},
+    		'north_america_region': {
+    			low: '#7DABF1',
+    			middle: '#5C95EA',
+    			high: '#3D7FDF'    			
+    		},
+    		'north america_bmc': {
+    			low: '#7DABF1',
+    			middle: '#5C95EA',
+    			high: '#3D7FDF'    			
+    		},    		
+    		'south_america': {
+    			low: '#CBF277',
+    			middle: '#A6D542',
+    			high: '#98C833'    			
+    		},
+    		'latin_america': {
+    			low: '#CBF277',
+    			middle: '#A6D542',
+    			high: '#98C833'    			
+    		}
+    	};
+    	//debugger;
     	// [{"name":"DACH","color":"#d5eff0","value_total_population":"98","value_total_gdp":"4384","code":["DE","AT","CH"],"categories":[{"name":"Philips","code":"PH","value":"87"}]}]
-    	var arrUnits = jsonPath(app.orudata, '$..subunits[?(@.level=='+oru+')]');
-    	$.each(arrUnits, function(index, region){
+    	if(oru == 1){
+    		var region = app.orudata.unit;
+    		var color = {
+    			low: '#BE67E9',
+    			middle: '#A359C8',
+    			high: '#8737B0' 
+    		}
     		var objRegion = {
     	    		name: region.name,
-    	    		color: '#112233',
+    	    		color: color,
     	    		value_total_population: 0,
     	    		value_total_gdp: 0,
     	    		code: [],
@@ -396,28 +514,109 @@ var app = {
     	    		}]
     	    	}; 
     		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
-    		objRegion.code = jsonPath(region, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
+    		if(oru < 4){
+    			objRegion.code = jsonPath(region, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
+    		}else{
+    			objRegion.code = region.guid.toUpperCase();
+    		}
+    		
     		var guid = 'lives-improved_' + mru + '_' + region.guid;
-    		console.log(guid);
+    		//console.log(guid);
     		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
     		
     		if(data){
-    			objRegion.categories[0].value = data.lives_improved;
-    			objRegion.value_total_population = data.population;
-    			objRegion.value_total_gdp = data.gdp;   			
+    			objRegion.categories[0].value = data.l;
+    			objRegion.value_total_population = data.p;
+    			objRegion.value_total_gdp = data.g;   			
     		}
 
 
 	
-			arrRegions.push(objRegion);
-	    		
+			arrRegions.push(objRegion);    		
+    	}else{
+        	var regions = jsonPath(app.orudata, '$..subunits[?(@.level==2)]');
+        	$.each(regions, function(index, el){
+        		console.log(el.guid);
+        		var color = colors[el.guid];
+        		//console.log(color);
+        		var arrUnits = jsonPath(el, '$..subunits[?(@.level=='+oru+')]');
+        		if(arrUnits){
+    	        	$.each(arrUnits, function(index, region){
+    	        		
+    	        		var objRegion = {
+    	        	    		name: region.name,
+    	        	    		color: color,
+    	        	    		value_total_population: 0,
+    	        	    		value_total_gdp: 0,
+    	        	    		code: [],
+    	        	    		categories: [{
+    	        	    			name: 'Philips',
+    	        	    			code: 'PH',
+    	        	    			value: 0
+    	        	    		}]
+    	        	    	}; 
+    	        		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
+    	        		if(oru < 4){
+    	        			objRegion.code = jsonPath(region, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
+    	        		}else{
+    	        			objRegion.code = region.guid.toUpperCase();
+    	        		}
+    	        		
+    	        		var guid = 'lives-improved_' + mru + '_' + region.guid;
+    	        		console.log(guid);
+    	        		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
+    	        		
+    	        		if(data){
+    	        			objRegion.categories[0].value = data.l;
+    	        			objRegion.value_total_population = data.p;
+    	        			objRegion.value_total_gdp = data.g;   			
+    	        		}
+    	
+    	
+    	    	
+    	    			arrRegions.push(objRegion);
+    	    	    		
+    	
+    	
+    	        		
+    	        	}); 
+        		}else{
+            		var objRegion = {
+            	    		name: el.name,
+            	    		color: color,
+            	    		value_total_population: 0,
+            	    		value_total_gdp: 0,
+            	    		code: [],
+            	    		categories: [{
+            	    			name: 'Philips',
+            	    			code: 'PH',
+            	    			value: 0
+            	    		}]
+            	    	}; 
+            		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
+            		objRegion.code = jsonPath(el, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
+            		var guid = 'lives-improved_' + mru + '_' + el.guid;
+            		console.log(guid);
+            		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
+            		
+            		if(data){
+            			objRegion.categories[0].value = data.lives_improved;
+            			objRegion.value_total_population = data.population;
+            			objRegion.value_total_gdp = data.gdp;   			
+            		}
 
-			if(arrRegions.length == arrUnits.length){
-				console.log('processed all');
-				cb(null, arrRegions);
-			}
-    		
-    	});
+
+        	
+        			arrRegions.push(objRegion);    			
+        		}
+        	});    		
+    	}
+
+    	//debugger;
+		//if(arrRegions.length == arrUnits.length){
+			console.log('processed all');
+			cb(null, arrRegions);
+		//}   	
 
 
     },
@@ -480,11 +679,14 @@ var app = {
         });    	
     },
     getSnapShotData: function(cb){
+    	//window.resolveLocalFileSystemURI("file:///snapshotdata.json", gotFileEntry, fail);
+ 	
+        /*
         // Check localstorage first 
-        app.store.findCacheKey('snapshot', function(result){
-            
-            if(result){
-                cb(JSON.parse(result));
+        app.sql.findCacheKey('snapshot', function(result){
+            //debugger;
+            if(result.rows.length > 0){
+                cb(JSON.parse(result.rows.item(0).value));
             }else{
                 // if not found in cache
                 if(app.online){
@@ -493,7 +695,9 @@ var app = {
                         url: config.general.snapshot_url,
                         dataType: 'jsonp'
                     }).done(function( result ) {
-                    	var objSnapshot = {};
+                    	//debugger;
+                    	var objSnapshot = result;
+                    	console.log(result['lives-improved_PD0200_world']);
                     	$.each(result, function(index, el){
                     		var population, gdp, lives_improved;
                     		
@@ -512,8 +716,9 @@ var app = {
                 				gdp: gdp
                 			}
 
-                    	});                    	
-                        app.store.setCacheKey('snapshot', JSON.stringify(objSnapshot), function(){
+                    	});             
+                    	debugger;
+                        app.sql.setCacheKey('snapshot', JSON.stringify(objSnapshot), function(){
                             cb(objSnapshot);
                         });
                         
@@ -525,11 +730,12 @@ var app = {
                 }
    
             }
-        }); 
-   	
+        }); */
+    	cb();
     },
     // Shows a page (div element with class "page") based on an ID
     initMap: function(){
+    	//debugger;
         worldmap.mapVariation = 'lives_improved';
         worldmap.mapData = app.mapdata;
         worldmap.init(app.window.width, app.window.height);
@@ -696,6 +902,11 @@ var app = {
     		
     	}
     	self.$favourites.find('div.menu_inner').html(html);
+    },
+    renderFavouritePanel: function(regionName){
+    	var key = 'lives-improved_'+app.current_mru+'_'+regionName,
+    		groupedBy = 'BMC';
+    	
     }
 };
 function applyFilter(){}

@@ -358,7 +358,7 @@ select, input[type=submit]{
 }
 .panel_header{
 	border-bottom: 1px solid #ccc;
-	text-align: left!important;;
+	text-align: left;
 }
 span#current_filter{
 	display: inline-block!important;
@@ -426,6 +426,7 @@ fieldset{
 	padding: 0px 0px 20px 0px;
 	border: none;
 }
+
 .menu_inner ul{
 	margin: 0px;
 	padding: 0px;
@@ -528,4 +529,26 @@ fieldset{
 }
 .height_auto{
 
+}
+
+#current_favourite{
+	margin: 0px;
+	padding: 0px;
+	border: 1px solid #999;
+	overflow: hidden;
+}
+#current_favourite li{
+	overflow: hidden;
+	list-style-type: none;
+	position: relative;
+	height: 40px;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ededed));	
+	border-bottom: 1px solid #999;
+}
+#current_favourite li:last-child{
+	border: none;
+	border-radius: 0 0 9px 9px;
+}
+#current_favourite li:first-child{
+	border-radius: 9px 9px 0 0;
 }
