@@ -175,15 +175,29 @@ var app = {
     	}    	
 
     	console.log('getting snapshot data');
+    	if (window.cordova) {
+    		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFS, app.fail);
+    	}else{
+            $.ajax({
+                type: "GET",
+                url: config.general.snapshot_url,
+                dataType: 'jsonp'
+            }).done(function( result ) {
+            	
+
+            	app.snapshotdata = result;
+            	app.process();
+            }).fail(function(xhr, err){
+                cb(err);
+            });     		
+    	}
     	
-    	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFS, app.fail);
-   
         // Open local database
     	  
     },
     gotFS:  function(fileSystem) {
     	app.fileSystem = fileSystem;
-        fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntry, app.fail);
+        fileSystem.root.getFile("snapshotdata.json", null, app.gotFileEntry, app.fail);
     },
     gotFSforWriting:  function(fileSystem) {
     	
@@ -311,8 +325,7 @@ var app = {
         });                  	
     },
     fail: function(evt) {
-    	debugger;
-        console.log(evt);
+    	app.fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntryForWriting, app.fail);
     },      
     // Online event handler
     onOnline: function() {
