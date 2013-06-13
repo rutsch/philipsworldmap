@@ -66,7 +66,7 @@ var worldmap = {
 		y: 0.5,
 		scale: 1,
 		baseScale: 1,
-		maxScale: 10
+		maxScale: 20
 	},
 	// Helper Functions	
 

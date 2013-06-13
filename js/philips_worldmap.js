@@ -175,41 +175,85 @@ var app = {
     	}    	
 
     	console.log('getting snapshot data');
-    	
-    	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFS, app.fail);
-   
-        // Open local database
-    	  
-    },
-    gotFS:  function(fileSystem) {
-    	app.fileSystem = fileSystem;
-        fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntry, app.fail);
-    },
-    gotFSforWriting:  function(fileSystem) {
-    	
-    },
-    gotFileEntry: function(fileEntry) {
-        fileEntry.file(app.gotFile, app.fail);
-    },
-
-    gotFile: function(file){
-        //readDataUrl(file);
-        app.readAsText(file);
-    },
-    gotFileWriter: function(writer){
-        if(app.online){
+    	if (window.cordova) {
+    		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFS, app.fail);
+    	}else{
             $.ajax({
                 type: "GET",
                 url: config.general.snapshot_url,
                 dataType: 'jsonp'
             }).done(function( result ) {
             	
-            	writer.write(result);
+
             	app.snapshotdata = result;
             	app.process();
             }).fail(function(xhr, err){
                 cb(err);
-            });                                
+            });     		
+    	}
+    	
+        // Open local database
+    	  
+    },
+    gotFS:  function(fileSystem) {
+    	app.fileSystem = fileSystem;
+        fileSystem.root.getFile("snapshotdata.json", null, app.gotFileEntry, app.failOpenSnapshot);
+    },
+    gotFileEntry: function(fileEntry) {
+        fileEntry.file(app.gotFile, app.fail);
+    },
+
+    gotFile: function(file){
+        app.readAsText(file);
+    },
+    gotFileWriter: function(writer){
+        writer.onwriteend = function(evt) {
+        	app.process();
+        };	
+        //test comment
+        if(app.online){
+        	var objData = {};
+            var objRequest = $.ajax({
+                type: "GET",
+                url: config.general.snapshot_url,
+                dataType: 'jsonp',
+                data: objData,
+                cache: false,
+                timeout: 40000
+            });
+
+            objRequest.done(function (response) {
+                //alert('in done');
+                console.log('in ajax done');
+                writer.write(JSON.stringify(response));
+                console.log('after writer.write');
+                app.snapshotdata = response;
+                app.process();
+            });
+
+            objRequest.fail(function (objRequestStatus) {
+                //500 status from server, timeout of request or json parse error
+                //console.log('fail - ' + JSON.stringify(objRequestStatus));
+
+                var strErrorMessage;
+                switch (objRequestStatus.status) {
+                    case 0:
+                        //timeout
+                        strErrorMessage = 'Timeout has occurred while retrieving: ' + strUrl;
+                        break;
+                    case 200:
+                        //json parse error
+                        strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
+                        break;
+                    default:
+                        //server error
+                        strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
+                        break;
+                }
+                //alert("strErrorMessage="+strErrorMessage);
+                //show the error message
+                console.log(strErrorMessage);
+            });                             
         }else{
             cb({});
         }    
@@ -217,15 +261,6 @@ var app = {
     gotFileEntryForWriting: function(fileEntry){
     	fileEntry.createWriter(app.gotFileWriter, app.fail);
     },
-    readDataUrl: function(file) {
-        var reader = new FileReader();
-        reader.onloadend = function(evt) {
-            console.log("Read as data URL");
-            console.log(evt.target.result);
-        };
-        reader.readAsDataURL(file);
-    },
-
     readAsText: function(file) {
         var reader = new FileReader();
         reader.onloadend = function(evt) {
@@ -310,9 +345,11 @@ var app = {
 
         });                  	
     },
+    failOpenSnapshot: function(evt) {
+    	app.fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntryForWriting, app.fail);
+    },      
     fail: function(evt) {
-    	debugger;
-        console.log(evt);
+    	console.log(evt);
     },      
     // Online event handler
     onOnline: function() {
@@ -520,7 +557,7 @@ var app = {
     			objRegion.code = region.guid.toUpperCase();
     		}
     		
-    		var guid = 'lives-improved_' + mru + '_' + region.guid;
+    		var guid = mru + '_' + region.guid;
     		//console.log(guid);
     		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
     		
@@ -562,7 +599,7 @@ var app = {
     	        			objRegion.code = region.guid.toUpperCase();
     	        		}
     	        		
-    	        		var guid = 'lives-improved_' + mru + '_' + region.guid;
+    	        		var guid = mru + '_' + region.guid;
     	        		console.log(guid);
     	        		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
     	        		
@@ -595,7 +632,7 @@ var app = {
             	    	}; 
             		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
             		objRegion.code = jsonPath(el, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
-            		var guid = 'lives-improved_' + mru + '_' + el.guid;
+            		var guid = mru + '_' + el.guid;
             		console.log(guid);
             		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
             		
