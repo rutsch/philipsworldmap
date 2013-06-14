@@ -83,7 +83,7 @@ var worldmap = {
 	handleRegionMouseOver: function (e, code) {
 		var self = this;
 		self.map.clearSelectedRegions();
-		debugger;
+		//debugger;
 		for (var i = 0; i < self.mapData.length; i++) {
 			//console.log(self.mapData[i].code);
 			//debugger;
@@ -191,7 +191,7 @@ var worldmap = {
 			}
 
 			$('#region-details').html(regionHtml);
-			app.renderFavouritePanel(regionData.name.toLowerCase());
+			app.renderFavouritePanel(regionData);
 			//$('#region-filter').html('<div class="btn" onclick="app.addFavourite(\''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\', \''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\');"><div class="btn_inner">'+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'</div></div>');
 	
 			$('#info').animate({
@@ -199,7 +199,7 @@ var worldmap = {
 			});
 			//console.log(code);
 			//console.log(self.zoom);
-			//$('.interactive_graph').vectorMap('set', 'focus', regionData.code, 1);
+			self.$mapPlaceholder.vectorMap('set', 'focus', regionData.code, 1);
 		} else {
 			// Country not found, prevent popup from showing
 			e.preventDefault();
@@ -287,24 +287,6 @@ var worldmap = {
 			g: hexToG(hex),
 			b: hexToB(hex)
 		}
-	},
-	increaseBrightness: function(hex, percent){
-	    // strip the leading # if it's there
-	    hex = hex.replace(/^\s*#|\s*$/g, '');
-
-	    // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
-	    if(hex.length == 3){
-	        hex = hex.replace(/(.)/g, '$1$1');
-	    }
-
-	    var r = parseInt(hex.substr(0, 2), 16),
-	        g = parseInt(hex.substr(2, 2), 16),
-	        b = parseInt(hex.substr(4, 2), 16);
-
-	    return '#' +
-	       ((0|(1<<8) + r + (256 - r) * percent / 100).toString(16)).substr(1) +
-	       ((0|(1<<8) + g + (256 - g) * percent / 100).toString(16)).substr(1) +
-	       ((0|(1<<8) + b + (256 - b) * percent / 100).toString(16)).substr(1);		
 	},
 	// Gets the data for the map based on the mode ('grouped' or 'country')
 	getMapData: function (mode, cb) {

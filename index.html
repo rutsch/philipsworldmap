@@ -75,13 +75,15 @@
 			</div>
 		</div>
 		<div id="favourites">
-			<div class="panel_header">
-				<div class="btn_small left" onclick="app.hideFavourites();">			    	
-		    		<div class="btn_inner">back</div>
-	    		</div>
-			</div>
-			<div class="menu_inner">
-				Favourites
+			<div>
+				<div class="panel_header">
+					<div class="btn_small left" onclick="app.hideFavourites();">			    	
+			    		<div class="btn_inner">back</div>
+		    		</div>
+				</div>
+				<div class="menu_inner" id="favouritesinner">
+					Favourites
+				</div>
 			</div>
 		</div>
 
@@ -91,22 +93,29 @@
 			<a href="#" class="showMenu"></a>		
 			<div class="wrapper"></div>
 			<div id="info" class="">
+				<div class = "slideSelectors">
+					<div class = 'item selected'></div>							
+					<div class = 'item'></div>							
+					<!-- <div class = 'item'></div>-->							
+				</div>					
 				<div class="close_button" onclick="app.closeInfoPanel();"></div>
 				<div id="carousel-single-image" class="minimal-light">       
-					<div class="slider">
+					<div class="slider">		
 						<div class="item" id="region-details"></div>		
-						<div class="item" id="region-history">historic graph</div>
+						<!-- <div class="item" id="region-history">historic graph</div>-->
 						<div class="item" id="region-filter">
 							<h3>Current selection</h3>
-							<ul id="current_favourite">
-								<li>Dach</li>
-								<li>Grouped by BMC</li>
-								<li>Filtered by Healthcare</li>
-							</ul>
+							<div id="current_favourite" >
+								<div class="favourite_wrapper">
+									<div class="add_favourite" onclick="app.addFavourite(this);"></div>
+									<ul class="ulfavourite">
+		
+									</ul>								
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>					
-
 			</div>				
 		</div>
 		<!-- /content -->

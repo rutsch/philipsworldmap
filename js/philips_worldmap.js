@@ -35,6 +35,7 @@ var app = {
     $selectoru: $('#select-oru'),
     $infopanel: $('#info'),
     $showmenu: $('.showMenu'),
+    $currentfilter: $('#current_favourite ul'),
     // Application Constructor
     initialize: function() {
         var self = this;
@@ -98,7 +99,7 @@ var app = {
              * generates a key based on a object and send that as first param to getWorldmapData
              */
             app.getWorldmapData(app.current_oru, app.current_oru, function(err, data){
-                worldmap.mapVariation = app.current_oru;
+                worldmap.mapVariation = 'lives_improved';
                 worldmap.mapData = data;
               
                 worldmap.init(app.window.width, app.window.height);  
@@ -153,10 +154,7 @@ var app = {
         		//app.menuStatus = "0px"
         	});
         }); 
-        /*
-         * TODO: Johan, you can add event listeners for hierarchy navigation click events here
-         * all html for the navigation should be in the options panel div
-         */
+
     },
     // Load event handler
     onLoad: function(){
@@ -279,6 +277,7 @@ var app = {
     process: function(){
     	//console.log(app.snapshotdata['lives-improved_PD0200_world'].g);
         app.myScroll = new iScroll('menu', {lockDirection: true }); 
+        app.myScrollFavs = new iScroll('favourites', {lockDirection: true });
     	
         app.openDatabase(function(){
         	//console.log('openend database');
@@ -307,14 +306,9 @@ var app = {
                     		//app.snapshotdata = result2;
                             // Load worldmap
                             // Get selected filter
-                            app.current_oru = 3;
-                            app.current_mru = $('#current_filter').html();
+                    		app.current_oru = 3;
                             // Get worldmapdata and call showpage to show the homescreen
-                            app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
-                            	//debugger;
-                                app.mapdata = data;
-                                app.onResize();              
-                            });    		
+                            app.onResize();    		
                     	});     		
                 	});                       
             	});
@@ -385,6 +379,7 @@ var app = {
         });		
 
         app.myScroll.refresh();
+        app.myScrollFavs.refresh();
         //app.menuStatus = '0px';
         
         app.$bottomcarousel.iosSlider('destroy');
@@ -392,6 +387,8 @@ var app = {
             app.$bottomcarousel.iosSlider({
     			snapToChildren: true,
                 scrollbar: false,
+        		navSlideSelector: '.slideSelectors .item',
+        		onSlideChange: slideChange,                
                 desktopClickDrag: true,
                 keyboardControls: true,
                 responsiveSlideContainer: true,
@@ -399,18 +396,35 @@ var app = {
                 onSliderResize: app.resizeSlider
     		}); 
     	}, 200);
-    	
+
+    	$('.slideSelectors').css({
+    		left: (app.window.width / 2) - 35
+    	});
+    	function slideChange(args) {
+    				
+    		$('.slideSelectors .item').removeClass('selected');
+    		$('.slideSelectors .item:eq(' + (args.currentSlideNumber - 1) + ')').addClass('selected');
+
+    	}
 		$('div.oru-button').css({
     	    width: ((app.window.intoptionswidth - 40) / 3)  -1
         });
 		
         app.$producttree.corner();
         $('.btn').corner();
-        $('#current_favourite').corner();
+        $('.ulfavourite').corner();
         $('div.oru-button.left').corner('left');
         $('div.oru-button.right').corner('right');
+
+        // Get worldmapdata and call showpage to show the homescreen
+        app.current_oru = $('div.oru-button.selected').attr('data-value');
+        app.current_mru = $('#current_filter').html();        
+        app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
+        	//debugger;
+            app.mapdata = data;
+            app.initMap();             
+        });            
         
-        app.initMap();
         
     },
     resizeSlider: function(){
@@ -540,6 +554,7 @@ var app = {
     		}
     		var objRegion = {
     	    		name: region.name,
+    	    		guid: region.guid,
     	    		color: color,
     	    		value_total_population: 0,
     	    		value_total_gdp: 0,
@@ -579,9 +594,10 @@ var app = {
         		var arrUnits = jsonPath(el, '$..subunits[?(@.level=='+oru+')]');
         		if(arrUnits){
     	        	$.each(arrUnits, function(index, region){
-    	        		
+    	        		//debugger;
     	        		var objRegion = {
     	        	    		name: region.name,
+    	        	    		guid: region.guid,
     	        	    		color: color,
     	        	    		value_total_population: 0,
     	        	    		value_total_gdp: 0,
@@ -620,6 +636,7 @@ var app = {
         		}else{
             		var objRegion = {
             	    		name: el.name,
+            	    		guid: el.guid,
             	    		color: color,
             	    		value_total_population: 0,
             	    		value_total_gdp: 0,
@@ -885,7 +902,7 @@ var app = {
     closeInfoPanel: function(){
     	worldmap.map.clearSelectedRegions();
     	$('#info').animate({
-    		bottom: "-200px"
+    		bottom: "-220px"
     	}, 300, function(){
     		//app.menuStatus = "0px"
     		
@@ -909,6 +926,7 @@ var app = {
     		//app.menuStatus = "0px"
     		
     	});
+    	self.myScrollFavs.refresh();
     },
     hideFavourites: function(){
     	var self = this;
@@ -919,17 +937,33 @@ var app = {
     		
     	});
     },
-    addFavourite: function(key, value){   	
+    addFavourite: function(el){   	
     	var self= this;
-    	key = 'fav_' + key;
-        app.store.setCacheKey(key, value, function(){
+    	var $el = $(el);
+    	//debugger;
+    	if($el.hasClass('selected')){
+    		var key = $el.parent('div').find('ul li.selected_region').attr('data-key');
+    		app.removeFavourite(key);
         	self.arrfavourites = self.store.findFavourites(function(result){
         		self.renderFavourites(result);
-        	});                
-        });    	
+        	});     
+    	}else{
+        	$el.addClass('selected');
+        	var selected_region = $('#current_favourite li.selected_region').attr('data-guid');
+        	var key = app.current_oru+'_'+app.current_mru+'_'+selected_region; 	
+        	key = 'fav_' + key;
+        	var value = $('#current_favourite').html();
+            app.store.setCacheKey(key, value, function(){
+            	self.arrfavourites = self.store.findFavourites(function(result){
+            		self.renderFavourites(result);
+            	});                
+            });      		
+    	}
+  	
     },
-    removeFavourite: function(){
-        app.store.removeCacheKey(key); 	
+    removeFavourite: function(key){
+        app.store.removeCacheKey(key); 
+        $('li[data-key='+key+']').parent().parent().find('div.add_favourite').removeClass('selected');
     },
     renderFavourites: function(arrFavs){
     	var self = this,
@@ -939,11 +973,51 @@ var app = {
     		
     	}
     	self.$favourites.find('div.menu_inner').html(html);
-    },
-    renderFavouritePanel: function(regionName){
-    	var key = 'lives-improved_'+app.current_mru+'_'+regionName,
-    		groupedBy = 'BMC';
+    	self.$favourites.find('.add_favourite').addClass('selected');
+    	self.myScrollFavs.refresh();
     	
+    	// attach click event to each stored favourite
+    	self.$favourites.find('div.favourite_wrapper').click(function(){
+    		var key = $(this).find('li.selected_region').attr('data-key');
+    		key = key.replace('fav_', '');
+    		var arr = key.split('_');
+    		var oru = arr[0];
+    		var mru = arr[1];
+    		var arrTemp = [];
+    		for(var i=2;i<arr.length;i++){
+    			arrTemp.push(arr[i]);
+    		}
+    		var region = arrTemp.join('_');
+    		app.current_oru = oru;
+    		app.current_mru = mru;
+            app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
+                worldmap.mapVariation = 'lives_improved';
+                worldmap.mapData = data;
+              
+                worldmap.init(app.window.width, app.window.height);  
+                //debugger;
+            });   
+    	});
+    	//self.$favourites.    	
+    },
+    checkFavouriteSelected: function(){
+    	var key = app.$currentfilter.find('li.selected_region').attr('data-key');
+    	if($('#favourites').find('li.selected_region[data-key='+key+']').length > 0){
+    		app.$currentfilter.parent().find('div.add_favourite').addClass('selected');
+    	}
+    },
+    renderFavouritePanel: function(regionData){
+    	var key = 'fav_' +app.current_oru+'_'+app.current_mru+'_'+regionData.guid,
+    		groupedBy = $('div.oru-button.selected').html(),
+    		filterdBy = $('#current_filter').html();
+    	//debugger;
+    	app.$currentfilter.parent().find('div.add_favourite').removeClass('selected');
+    	
+    	app.$currentfilter.html('');
+    	app.$currentfilter.append('<li class="selected_region" data-key="'+key+'" data-guid="'+regionData.guid+'">'+regionData.name+'</li>');
+    	app.$currentfilter.append('<li>Grouped by '+groupedBy+'</li>');
+    	app.$currentfilter.append('<li>Filtered by '+filterdBy+'</li>');
+    	app.checkFavouriteSelected();
     }
 };
 function applyFilter(){}
