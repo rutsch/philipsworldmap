@@ -349,7 +349,17 @@ label{
 	-webkit-transition: right 0.5s ease-in-out;
 }
 #favourites .menu_inner{
+	position: relative;
+	right: 0;
+	top: 0;
 	display: block;
+
+}
+#favourites div{
+	position: relative;
+	right: 0;
+	top: 0;
+	display: block;	
 }
 #menu{
 	
@@ -561,8 +571,8 @@ fieldset{
 	border-radius: 9px 9px 0 0;
 }
 .add_favourite{
-	position: absolute;
-	right: 10px;
+	position: absolute!important;
+	right: 10px!important;
 	top: 42px;
 	width: 35px;
 	height: 55px;
