@@ -580,7 +580,7 @@ fieldset{
 	width: 35px;
 	height: 55px;
 	background: url('../img/favourite.png') no-repeat 50% 50%;
-	z-index: 5;
+	z-index: 1;
 }
 .add_favourite.selected{
 	background: url('../img/favourite_selected.png') no-repeat 50% 50%;

@@ -996,6 +996,10 @@ var app = {
     		var region = arrTemp.join('_');
     		app.current_oru = oru;
     		app.current_mru = mru;
+    		$('.oru-button').removeClass('selected');
+    		$('.oru-button[data-value='+app.current_oru+']').addClass('selected');
+    		$('#current_filter').html(app.current_mru);
+    		//debugger;
             app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
                 worldmap.mapVariation = 'lives_improved';
                 worldmap.mapData = data;
@@ -1011,6 +1015,7 @@ var app = {
 					worldmap.handleRegionMouseOver(null, code);
 					worldmap.showCountryDetails(null, null, code);	
 					app.$showmenu.click();
+					app.$bottomcarousel.iosSlider('goToSlide', 1);					
                 }
     			/*if ($.inArray(code, worldmap.mapData[i].code) > -1 || self.mapData[i].code === code) {
     				//debugger;
