@@ -1009,7 +1009,8 @@ var app = {
                 if(regionData){
                 	var code = regionData.code[0];
 					worldmap.handleRegionMouseOver(null, code);
-					worldmap.showCountryDetails(null, null, code);		
+					worldmap.showCountryDetails(null, null, code);	
+					app.$showmenu.click();
                 }
     			/*if ($.inArray(code, worldmap.mapData[i].code) > -1 || self.mapData[i].code === code) {
     				//debugger;
