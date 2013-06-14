@@ -403,7 +403,7 @@ var app = {
     	}, 200);
 
     	$('.slideSelectors').css({
-    		left: (app.window.width / 2) - 35
+    		left: (app.window.width / 2) - 17
     	});
     	function slideChange(args) {
     				
@@ -1025,7 +1025,10 @@ var app = {
     },
     checkFavouriteSelected: function(){
     	var key = app.$currentfilter.find('li.selected_region').attr('data-key');
-    	if($('#favourites').find('li.selected_region[data-key='+key+']').length > 0){
+    	var $favs = $('#favourites')
+    	if($favs.find('li.selected_region[data-key='+key+']').length > 0){
+    		$favs.find('.ulfavourite').removeClass('selected');
+    		$favs.find('li.selected_region[data-key='+key+']').parent().addClass('selected');
     		app.$currentfilter.parent().find('div.add_favourite').addClass('selected');
     	}
     },
