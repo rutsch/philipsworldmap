@@ -1025,9 +1025,10 @@ var app = {
     },
     checkFavouriteSelected: function(){
     	var key = app.$currentfilter.find('li.selected_region').attr('data-key');
-    	var $favs = $('#favourites')
+    	var $favs = $('#favourites');
+    	$favs.find('.ulfavourite').removeClass('selected');
     	if($favs.find('li.selected_region[data-key='+key+']').length > 0){
-    		$favs.find('.ulfavourite').removeClass('selected');
+    		
     		$favs.find('li.selected_region[data-key='+key+']').parent().addClass('selected');
     		app.$currentfilter.parent().find('div.add_favourite').addClass('selected');
     	}
