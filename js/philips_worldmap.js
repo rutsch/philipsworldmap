@@ -146,7 +146,12 @@ var app = {
 			});
 			self.menuStatus = 'closed'
         });        
-        
+        app.$favourites.on("swiperight", function(){
+			$("#wrapper").css({
+				marginLeft: "0px",
+			});
+			self.menuStatus = 'closed'
+        });          
         app.$infopanel.on("swipedown", function(){
         	$(this).animate({
         		bottom: "-200px"
@@ -669,6 +674,7 @@ var app = {
     	//debugger;
 		//if(arrRegions.length == arrUnits.length){
 			console.log('processed all');
+			//debugger;
 			cb(null, arrRegions);
 		//}   	
 
@@ -996,6 +1002,22 @@ var app = {
               
                 worldmap.init(app.window.width, app.window.height);  
                 //debugger;
+    			var regionData = $.grep(worldmap.mapData, function (obj, index) {
+    				// Found when map.regions.key is in the regionData.code array
+    				return obj.guid == region;
+    			})[0];                
+                if(regionData){
+                	var code = regionData.code[0];
+					worldmap.handleRegionMouseOver(null, code);
+					worldmap.showCountryDetails(null, null, code);		
+                }
+    			/*if ($.inArray(code, worldmap.mapData[i].code) > -1 || self.mapData[i].code === code) {
+    				//debugger;
+    				self.map.setSelectedRegions(self.getMapCodes(self.mapData[i].code));
+    				break;
+    			} */               
+                //
+               //debugger;
             });   
     	});
     	//self.$favourites.    	
