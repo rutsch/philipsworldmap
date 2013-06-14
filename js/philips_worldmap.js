@@ -177,7 +177,7 @@ var app = {
     		//self.$favourites.show();
     	}    	
 
-    	console.log('getting snapshot data');
+    	//console.log('getting snapshot data');
     	if (window.cordova) {
     		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFS, app.fail);
     	}else{
@@ -227,9 +227,9 @@ var app = {
 
             objRequest.done(function (response) {
                 //alert('in done');
-                console.log('in ajax done');
+                //console.log('in ajax done');
                 writer.write(JSON.stringify(response));
-                console.log('after writer.write');
+                //console.log('after writer.write');
                 app.snapshotdata = response;
                 app.process();
             });
@@ -255,7 +255,7 @@ var app = {
                 }
                 //alert("strErrorMessage="+strErrorMessage);
                 //show the error message
-                console.log(strErrorMessage);
+                //console.log(strErrorMessage);
             });                             
         }else{
             cb({});
@@ -348,7 +348,7 @@ var app = {
     	app.fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntryForWriting, app.fail);
     },      
     fail: function(evt) {
-    	console.log(evt);
+    	//console.log(evt);
     },      
     // Online event handler
     onOnline: function() {
@@ -593,7 +593,7 @@ var app = {
     	}else{
         	var regions = jsonPath(app.orudata, '$..subunits[?(@.level==2)]');
         	$.each(regions, function(index, el){
-        		console.log(el.guid);
+        		//console.log(el.guid);
         		var color = colors[el.guid];
         		//console.log(color);
         		var arrUnits = jsonPath(el, '$..subunits[?(@.level=='+oru+')]');
@@ -621,7 +621,7 @@ var app = {
     	        		}
     	        		
     	        		var guid = mru + '_' + region.guid;
-    	        		console.log(guid);
+    	        		//console.log(guid);
     	        		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
     	        		
     	        		if(data){
@@ -655,7 +655,7 @@ var app = {
             		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
             		objRegion.code = jsonPath(el, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
             		var guid = mru + '_' + el.guid;
-            		console.log(guid);
+            		//console.log(guid);
             		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
             		
             		if(data){
@@ -673,7 +673,7 @@ var app = {
 
     	//debugger;
 		//if(arrRegions.length == arrUnits.length){
-			console.log('processed all');
+			//console.log('processed all');
 			//debugger;
 			cb(null, arrRegions);
 		//}   	
@@ -879,6 +879,8 @@ var app = {
     		}
     	});      
 
+    	$('div[data-value='+app.current_mru+'].cbxoverlay').addClass('checked');    
+    	
         var event = "ontouchend" in document ? 'tap' : 'click';        
 		$('.cbxoverlay').bind(event, function(e) {
 			app.mruSelected($(this));
@@ -889,7 +891,7 @@ var app = {
     showNextLevel: function(clicked_id){
     	var self = this,
     		selector = 'li#'+clicked_id+ ' >ul > li';
-    	
+    
     	self.renderSelectList(selector, true);
     },
     showPreviousLevel: function(){
@@ -898,12 +900,16 @@ var app = {
     		id = $($("#producttree").find('li')[1]).attr('data-id'),
 	    	// find first parent ul of parent ul in temp producttree
     		selector = $('#producttree_temp li#'+id).parent('ul').parents('ul').first().find('>li');
+    	
 
+    	
     	if($('#producttree_temp li#'+id).parent('ul').parents('ul').first().find('>li').first().parent('ul').parents('ul').first().find('>li').length > 1){
     		self.renderSelectList(selector, true);
     	}else{
     		self.renderSelectList(selector, false);
     	}
+    	//app.$producttree.find('.cbxoverlay').removeClass('checked');
+    		
     },
     closeInfoPanel: function(){
     	worldmap.map.clearSelectedRegions();
@@ -996,9 +1002,11 @@ var app = {
     		var region = arrTemp.join('_');
     		app.current_oru = oru;
     		app.current_mru = mru;
+    		
     		$('.oru-button').removeClass('selected');
     		$('.oru-button[data-value='+app.current_oru+']').addClass('selected');
     		$('#current_filter').html(app.current_mru);
+    		$('div[data-value='+app.current_mru+'].cbxoverlay').addClass('checked'); 
     		//debugger;
             app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
                 worldmap.mapVariation = 'lives_improved';
@@ -1008,10 +1016,12 @@ var app = {
                 //debugger;
     			var regionData = $.grep(worldmap.mapData, function (obj, index) {
     				// Found when map.regions.key is in the regionData.code array
-    				return obj.guid == region;
+    				return obj.guid.toUpperCase() == region.toUpperCase();
     			})[0];                
                 if(regionData){
                 	var code = regionData.code[0];
+                	if(code.length == 1) code = regionData.code;
+                	
 					worldmap.handleRegionMouseOver(null, code);
 					worldmap.showCountryDetails(null, null, code);	
 					app.$showmenu.click();
