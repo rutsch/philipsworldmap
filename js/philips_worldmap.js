@@ -23,6 +23,7 @@ var app = {
     },
     orudata: {},
     snapshotdata: {},
+    //JT: shouldn't we do something like objPageElements (in AR) and fill this object onload with very specific selectors?
     $producttree: $('#producttree'),
     $producttreetemp: $('#producttree_temp'),
     $selectoru: $('#select-oru'),
@@ -69,7 +70,9 @@ var app = {
 			document.addEventListener("deviceready", self.onDeviceReady, false);
 			document.addEventListener("offline", self.onOffline, false);
 			document.addEventListener("online", self.onOnline, false);
-			$(window).bind('resize', self.onResize);
+			
+            //JT: this statement needs to execute in both "if" and "else" statements...
+            $(window).bind('resize', self.onResize);
 		} else {
 		    // Regular browser
 		    // Restyle
@@ -113,7 +116,8 @@ var app = {
         app.$showmenu.click(function(){
 
             if(self.menuStatus == 'closed'){
-            	$("#wrapper").css({
+            	//JT: selector should be made generic (and more specific) to improve performance
+                $("#wrapper").css({
             		marginLeft: "-" + app.window.optionswidth
 	            });
 	            self.menuStatus = 'open'
@@ -128,6 +132,7 @@ var app = {
         });
      
         app.$showmenu.on("swipeleft", function(){
+            //JT: selector should be made generic (and more specific) to improve performance
         	$("#wrapper").css({
         		marginLeft: "-" + app.window.optionswidth
             });
@@ -135,6 +140,7 @@ var app = {
         });
      
         app.$showmenu.on("swiperight", function(){
+            //JT: selector should be made generic (and more specific) to improve performance
 			$("#wrapper").css({
 				marginLeft: "0px",
 			});
@@ -142,19 +148,22 @@ var app = {
         });
         
         app.$menu.on("swiperight", function(){
+            //JT: selector should be made generic (and more specific) to improve performance
 			$("#wrapper").css({
 				marginLeft: "0px",
 			});
 			self.menuStatus = 'closed'
         });        
         app.$favourites.on("swiperight", function(){
+            //JT: selector should be made generic (and more specific) to improve performance
 			$("#wrapper").css({
 				marginLeft: "0px",
 			});
 			self.menuStatus = 'closed'
         });          
         app.$infopanel.on("swipedown", function(){
-        	$(this).animate({
+        	//JT: should we consider a css3 animation here to improve performance
+            $(this).animate({
         		bottom: "-200px"
         	}, 300, function(){
         		//app.menuStatus = "0px"
@@ -171,7 +180,8 @@ var app = {
     onDeviceReady: function() {
     	var self = this;
     	if(app.signedin){
-    		// hide signin panel
+    		//JT: signin functionality/fields need to be added...
+            // hide signin panel
     		app.$signin.hide();
     		app.$signedin.show();
     		// show signout and favourites
@@ -182,6 +192,8 @@ var app = {
     	if (window.cordova) {
     		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFS, app.fail);
     	}else{
+            //JT: implement timeout etc that we implemented for the mobile load
+            //JT: can we implement a generic "load" function? The one inside "gotFileWriter()" looks very similar...
             $.ajax({
                 type: "GET",
                 url: config.general.snapshot_url,
@@ -192,6 +204,7 @@ var app = {
             	app.snapshotdata = result;
             	app.process();
             }).fail(function(xhr, err){
+                //JT: decent error handing needs to be inserted and handled here - common error handling routine is missing
                 cb(err);
             });     		
     	}
@@ -254,6 +267,9 @@ var app = {
                         strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
                         break;
                 }
+
+                //JT: error handling needs to be implemented here...
+
                 //alert("strErrorMessage="+strErrorMessage);
                 //show the error message
                 //console.log(strErrorMessage);
@@ -271,6 +287,7 @@ var app = {
             if(!evt.target.result){
             	//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFSforWriting, app.fail);
             	
+                //JT: filenames need to be made specific for a snapshot... Think we need to add logic to the generation of the filename below.
             	app.fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntryForWriting, app.fail);
             }else{
             	app.snapshotdata = JSON.parse(evt.target.result);
@@ -287,17 +304,21 @@ var app = {
     	
         app.openDatabase(function(){
         	//console.log('openend database');
+
+            //JT: we can retrieve this array one time only - should be stored in a generic variable "onload" - assuming that this routine will be called multiple times this will improve performance
         	app.getArrTranslations(function(result){
         		//console.log('got translations');
             	$('body').append('<script>'+result+'</script>');
             	// get mru tree for generating the filter component
-            	app.getMruData(function(result){
+            	//JT: we can retrieve this data one time only - "onload"?
+                app.getMruData(function(result){
                 	app.$producttreetemp.html(result);
                 	// render the top level of the tree
                 	//console.log('got mru');
                 	var selector = 'li#philips >ul > li';
                 	app.renderSelectList(selector, false);
                 	
+                    //JT: create a generic selector "onload"
                     $('#menu').css({
                     	width: app.window.optionswidth
                     });    
@@ -306,7 +327,9 @@ var app = {
                 		//console.log('got oru');
                     	// get the snapshot data
                 		app.orudata = result;
-                    	app.getSnapShotData(function(result2){
+                    	
+                        //JT: "result2" should be "resultnested"
+                        app.getSnapShotData(function(result2){
                     		//console.log('got snapshot');
                     		//debugger;
                     		//app.snapshotdata = result2;
@@ -338,7 +361,7 @@ var app = {
                  */
                 app.store.getUserSettings(function(results){
                 	// TODO: Load favourites screen with result
-                	
+                	//JT: this works already??
 
                 });          		
         	});
@@ -349,6 +372,7 @@ var app = {
     	app.fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntryForWriting, app.fail);
     },      
     fail: function(evt) {
+        //JT: handle errors here?
     	//console.log(evt);
     },      
     // Online event handler
@@ -407,16 +431,18 @@ var app = {
     		left: (app.window.width / 2) - 17
     	});
     	function slideChange(args) {
-    				
+    		//JT: elements need to be found "onload"	
     		$('.slideSelectors .item').removeClass('selected');
     		$('.slideSelectors .item:eq(' + (args.currentSlideNumber - 1) + ')').addClass('selected');
 
     	}
+        //JT: elements need to be found "onload"
 		$('div.oru-button').css({
     	    width: ((app.window.intoptionswidth - 40) / 3)  -1
         });
 		
         app.$producttree.corner();
+        //JT: elements need to be found "onload"
         $('.btn').corner();
         $('.ulfavourite').corner();
         $('div.oru-button.left').corner('left');
@@ -492,6 +518,7 @@ var app = {
             }else{
                 // if not found in cache
                 if(app.online){
+                    //JT: implement improved ajax call structure here - the one with proper error handling
                     $.ajax({
                         type: "GET",
                         url: config.general.js_url,
@@ -517,6 +544,8 @@ var app = {
     	//var result = jF('*[guid=dach]', app.orudata).get();
 
     	var arrRegions = [];
+
+        //colors to be defined in config.js? or maybe even in base_configuration.xml on the server (that might avoid the need to publish the app each time tis changes...)
     	var colors = {
     		'europe': {
     			low: '#99EAF0',
@@ -573,7 +602,8 @@ var app = {
     	    	}; 
     		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
     		if(oru < 4){
-    			objRegion.code = jsonPath(region, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
+    			//JT: join and then split?
+                objRegion.code = jsonPath(region, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
     		}else{
     			objRegion.code = region.guid.toUpperCase();
     		}
@@ -593,6 +623,8 @@ var app = {
 			arrRegions.push(objRegion);    		
     	}else{
         	var regions = jsonPath(app.orudata, '$..subunits[?(@.level==2)]');
+
+            //JT: here we need to be careful: loops within loops can be a performance killer... the "smallest" loop needs to be the nested loop...
         	$.each(regions, function(index, el){
         		//console.log(el.guid);
         		var color = colors[el.guid];
@@ -691,6 +723,7 @@ var app = {
             }else{
                 // if not found in cache
                 if(app.online){
+                    //JT: use improved ajax call here and include proper error handling
                     $.ajax({
                         type: "GET",
                         url: config.general.mru_url,
@@ -720,6 +753,7 @@ var app = {
             }else{
                 // if not found in cache
                 if(app.online){
+                    //JT: use improved ajax call here and include proper error handling
                     $.ajax({
                         type: "GET",
                         url: config.general.oru_url,
@@ -800,6 +834,7 @@ var app = {
         worldmap.mapVariation = 'lives_improved';
         worldmap.mapData = app.mapdata;
         worldmap.init(app.window.width, app.window.height);
+        //JT: use globally defined selectors here
         $('#menu, #favourites').css({
         	display: 'block'
         });
@@ -861,6 +896,7 @@ var app = {
     	var self = this,
     		backbutton = '<a id="btn_back" onclick="app.showPreviousLevel();" href="#"></a></div>';
     	
+        //JT: destroy() here? do not quite remember, but you probably want to make sure that the associated events are killed as well
     	app.$producttree.find('li').remove();
     	//$('.cbxoverlay').remove();
     	if(!showBackbutton){
@@ -882,7 +918,8 @@ var app = {
 
     	$('div[data-value='+app.current_mru+'].cbxoverlay').addClass('checked');    
     	
-        var event = "ontouchend" in document ? 'tap' : 'click';        
+        var event = "ontouchend" in document ? 'tap' : 'click';   
+        //JT: selector can be much more specific i think     
 		$('.cbxoverlay').bind(event, function(e) {
 			app.mruSelected($(this));
 		});	        
@@ -898,6 +935,7 @@ var app = {
     showPreviousLevel: function(){
     	var self = this,
     		// get id from second item from current list (first one is the header)
+            //JT: can we use globally defined selector here?
     		id = $($("#producttree").find('li')[1]).attr('data-id'),
 	    	// find first parent ul of parent ul in temp producttree
     		selector = $('#producttree_temp li#'+id).parent('ul').parents('ul').first().find('>li');
@@ -914,6 +952,7 @@ var app = {
     },
     closeInfoPanel: function(){
     	worldmap.map.clearSelectedRegions();
+        //JT: consider using CSS3 animation here to improve performance?
     	$('#info').animate({
     		bottom: "-220px"
     	}, 300, function(){
@@ -933,6 +972,7 @@ var app = {
     },
     showFavourites: function(){
     	var self = this;
+        //JT: consider using CSS3 animation here to improve performance?
     	self.$favourites.css({
     		right: 0
     	}, 300, function(){
@@ -943,6 +983,7 @@ var app = {
     },
     hideFavourites: function(){
     	var self = this;
+        //JT: consider using CSS3 animation here to improve performance?
     	self.$favourites.css({
     		right: - self.window.intoptionswidth 
     	}, 300, function(){
