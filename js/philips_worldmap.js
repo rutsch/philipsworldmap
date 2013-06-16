@@ -36,6 +36,7 @@ var app = {
     $infopanel: $('#info'),
     $showmenu: $('.showMenu'),
     $currentfilter: $('#current_favourite ul'),
+    $btnaddfavourite: $('div.add_favourite'),
     // Application Constructor
     initialize: function() {
         var self = this;
@@ -949,9 +950,10 @@ var app = {
     		
     	});
     },
-    addFavourite: function(el){   	
+    addFavourite: function(){   	
     	var self= this;
-    	var $el = $(el);
+    	var $el = app.$btnaddfavourite;
+        //console.log('in addFavourite - '+$el);
     	//debugger;
     	if($el.hasClass('selected')){
     		var key = $el.parent('div').find('ul li.selected_region').attr('data-key');
