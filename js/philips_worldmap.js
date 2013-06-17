@@ -31,7 +31,13 @@ var app = {
     $menu: $('#menu'),
     $signin: $('#signin'),
     $signedin: $('#signedin'),
+    $slideselectors: $('.slideSelectors'),
+    $buttons: $('.btn'),
+    $orubuttons: $('div.oru-button'),
+    $orubtnleft: $('div.oru-button.left'),
+    $orubtnright: $('div.oru-button.right'),
     $favourites: $('#favourites'),
+    $ulfavourites: $('.ulfavourite'),
     $worldmappage: $('#wrapper'),
     $selectoru: $('#select-oru'),
     $infopanel: $('#info'),
@@ -70,27 +76,20 @@ var app = {
 			document.addEventListener("deviceready", self.onDeviceReady, false);
 			document.addEventListener("offline", self.onOffline, false);
 			document.addEventListener("online", self.onOnline, false);
-			
-            //JT: this statement needs to execute in both "if" and "else" statements...
-            $(window).bind('resize', self.onResize);
 		} else {
 		    // Regular browser
-		    // Restyle
+		    // Restyle for web
 		    self.restyleForWeb();
 		    // Assume browser is online
 		    self.online = true;
-		    // Bind resize event
-		    $(window).bind('resize', self.onResize);
+
 		    // Kickoff device ready (dont't have to call any "dom ready" event 
 		    // because all JS is loaded in the bottom of the page so the dom is loaded before the JS )
 			self.onDeviceReady();                                                                    
 		}
-
+        // Bind to resize event always because we're not using onOrientationChanged for the app now
+        $(window).bind('resize', self.onResize);
 		// Bind filter change event, refreshes the worldmap
-		/*
-		 * TODO: maybe don't call this at input changed in future when more filter options are added
-		 * Should be called then when the close button on the filter screen has been clicked
-		 */
         app.$selectoru.change(function() {
             /*
              * For now currentfilter is only a string value, this has to be extended to become a whole object 
@@ -117,13 +116,13 @@ var app = {
 
             if(self.menuStatus == 'closed'){
             	//JT: selector should be made generic (and more specific) to improve performance
-                $("#wrapper").css({
+                app.$worldmappage.css({
             		marginLeft: "-" + app.window.optionswidth
 	            });
 	            self.menuStatus = 'open'
 	            return false;
         	} else {
-				$("#wrapper").css({
+				app.$worldmappage.css({
 					marginLeft: "0px",
 				});
 				self.menuStatus = 'closed'
@@ -133,7 +132,7 @@ var app = {
      
         app.$showmenu.on("swipeleft", function(){
             //JT: selector should be made generic (and more specific) to improve performance
-        	$("#wrapper").css({
+        	app.$worldmappage.css({
         		marginLeft: "-" + app.window.optionswidth
             });
             self.menuStatus = 'open'
@@ -141,7 +140,7 @@ var app = {
      
         app.$showmenu.on("swiperight", function(){
             //JT: selector should be made generic (and more specific) to improve performance
-			$("#wrapper").css({
+			app.$worldmappage.css({
 				marginLeft: "0px",
 			});
 			self.menuStatus = 'closed'
@@ -149,14 +148,14 @@ var app = {
         
         app.$menu.on("swiperight", function(){
             //JT: selector should be made generic (and more specific) to improve performance
-			$("#wrapper").css({
+			app.$worldmappage.css({
 				marginLeft: "0px",
 			});
 			self.menuStatus = 'closed'
         });        
         app.$favourites.on("swiperight", function(){
             //JT: selector should be made generic (and more specific) to improve performance
-			$("#wrapper").css({
+			app.$worldmappage.css({
 				marginLeft: "0px",
 			});
 			self.menuStatus = 'closed'
@@ -184,29 +183,22 @@ var app = {
             // hide signin panel
     		app.$signin.hide();
     		app.$signedin.show();
-    		// show signout and favourites
-    		//self.$favourites.show();
     	}    	
 
     	//console.log('getting snapshot data');
     	if (window.cordova) {
     		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFS, app.fail);
     	}else{
-            //JT: implement timeout etc that we implemented for the mobile load
-            //JT: can we implement a generic "load" function? The one inside "gotFileWriter()" looks very similar...
-            $.ajax({
-                type: "GET",
-                url: config.general.snapshot_url,
-                dataType: 'jsonp'
-            }).done(function( result ) {
-            	
+    		app.getSnapShotData(function(err, data){
+    			if(err){
+    				//JT: decent error handing needs to be inserted and handled here - common error handling routine is missing
+    			}else{
+    				////debugger;
+                	app.snapshotdata = data;
+                	app.process();   				
+    			}
+    		});
 
-            	app.snapshotdata = result;
-            	app.process();
-            }).fail(function(xhr, err){
-                //JT: decent error handing needs to be inserted and handled here - common error handling routine is missing
-                cb(err);
-            });     		
     	}
     	
         // Open local database
@@ -214,82 +206,99 @@ var app = {
     },
     gotFS:  function(fileSystem) {
     	app.fileSystem = fileSystem;
+    	console.log('got file system');
         fileSystem.root.getFile("snapshotdata.json", null, app.gotFileEntry, app.failOpenSnapshot);
     },
     gotFileEntry: function(fileEntry) {
+    	console.log('got file entry');
         fileEntry.file(app.gotFile, app.fail);
     },
 
     gotFile: function(file){
+    	console.log('got file');
         app.readAsText(file);
     },
     gotFileWriter: function(writer){
+    	console.log('got file writer');
         writer.onwriteend = function(evt) {
+        	console.log('written to end');
         	app.process();
         };	
         //test comment
         if(app.online){
-        	var objData = {};
-            var objRequest = $.ajax({
-                type: "GET",
-                url: config.general.snapshot_url,
-                dataType: 'jsonp',
-                data: objData,
-                cache: false,
-                timeout: 40000
-            });
-
-            objRequest.done(function (response) {
-                //alert('in done');
-                //console.log('in ajax done');
-                writer.write(JSON.stringify(response));
+        	app.getSnapShotData(function(err, data){
+        		if(err){
+        			cb(err);
+        		}
+                writer.write(JSON.stringify(data));
                 //console.log('after writer.write');
-                app.snapshotdata = response;
-                app.process();
-            });
-
-            objRequest.fail(function (objRequestStatus) {
-                //500 status from server, timeout of request or json parse error
-                //console.log('fail - ' + JSON.stringify(objRequestStatus));
-
-                var strErrorMessage;
-                switch (objRequestStatus.status) {
-                    case 0:
-                        //timeout
-                        strErrorMessage = 'Timeout has occurred while retrieving: ' + strUrl;
-                        break;
-                    case 200:
-                        //json parse error
-                        strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
-                        break;
-                    default:
-                        //server error
-                        strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
-                        break;
-                }
-
-                //JT: error handling needs to be implemented here...
-
-                //alert("strErrorMessage="+strErrorMessage);
-                //show the error message
-                //console.log(strErrorMessage);
-            });                             
+                app.snapshotdata = data;
+                app.process();        		
+        	});
+        	
+                            
         }else{
             cb({});
         }    
     },    
     gotFileEntryForWriting: function(fileEntry){
+    	console.log('got file entry for writing');
     	fileEntry.createWriter(app.gotFileWriter, app.fail);
+    },
+    getSnapShotData: function(cb){
+    	console.log('getting snapshot data');
+    	var objData = {};
+        var objRequest = $.ajax({
+            type: "GET",
+            url: config.general.snapshot_url,
+            dataType: 'jsonp',
+            data: objData,
+            cache: false,
+            timeout: 40000
+        });
+
+        objRequest.done(function (response) {
+        	console.log('getting snapshot data complete');
+        	cb(null, response);
+        });
+
+        objRequest.fail(function (objRequestStatus) {
+            //500 status from server, timeout of request or json parse error
+            //console.log('fail - ' + JSON.stringify(objRequestStatus));
+        	//debugger;
+            var strErrorMessage;
+            switch (objRequestStatus.status) {
+                case 0:
+                    //timeout
+                    strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.snapshot_url;
+                    break;
+                case 200:
+                    //json parse error
+                    strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
+                    break;
+                default:
+                    //server error
+                    strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
+                    break;
+            }
+            cb(strErrorMessage);
+            //JT: error handling needs to be implemented here...
+
+            //alert("strErrorMessage="+strErrorMessage);
+            //show the error message
+            //console.log(strErrorMessage);
+        });     	
     },
     readAsText: function(file) {
         var reader = new FileReader();
         reader.onloadend = function(evt) {
             if(!evt.target.result){
             	//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFSforWriting, app.fail);
-            	
+            	console.log('read to end failed');
                 //JT: filenames need to be made specific for a snapshot... Think we need to add logic to the generation of the filename below.
             	app.fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntryForWriting, app.fail);
             }else{
+            	console.log('read to end');
             	app.snapshotdata = JSON.parse(evt.target.result);
             	app.process();
             }
@@ -308,13 +317,13 @@ var app = {
             //JT: we can retrieve this array one time only - should be stored in a generic variable "onload" - assuming that this routine will be called multiple times this will improve performance
         	app.getArrTranslations(function(result){
         		//console.log('got translations');
-            	$('body').append('<script>'+result+'</script>');
+            	$('body').append('<script type="text/javascript">'+result+'</script>');
             	// get mru tree for generating the filter component
             	//JT: we can retrieve this data one time only - "onload"?
                 app.getMruData(function(result){
                 	app.$producttreetemp.html(result);
                 	// render the top level of the tree
-                	//console.log('got mru');
+                	console.log('got mru');
                 	var selector = 'li#philips >ul > li';
                 	app.renderSelectList(selector, false);
                 	
@@ -324,21 +333,13 @@ var app = {
                     });    
                 	// get the oru json data
                 	app.getOruData(function(result){
-                		//console.log('got oru');
+                		console.log('got oru');
                     	// get the snapshot data
                 		app.orudata = result;
                     	
-                        //JT: "result2" should be "resultnested"
-                        app.getSnapShotData(function(result2){
-                    		//console.log('got snapshot');
-                    		//debugger;
-                    		//app.snapshotdata = result2;
-                            // Load worldmap
-                            // Get selected filter
-                    		app.current_oru = 3;
-                            // Get worldmapdata and call showpage to show the homescreen
-                            app.onResize();    		
-                    	});     		
+                		app.current_oru = 3;
+                        // Get worldmapdata and call showpage to show the homescreen
+                        app.onResize();   		
                 	});                       
             	});
             	
@@ -360,9 +361,8 @@ var app = {
                  * some more options. 
                  */
                 app.store.getUserSettings(function(results){
-                	// TODO: Load favourites screen with result
                 	//JT: this works already??
-
+                	// Idea for version 2 might be to store the user's last zoom settings, last selected country etc in a json objct that we can then pass to the worldmap init function
                 });          		
         	});
 
@@ -427,32 +427,33 @@ var app = {
     		}); 
     	}, 200);
 
-    	$('.slideSelectors').css({
+    	app.$slideselectors.css({
     		left: (app.window.width / 2) - 17
     	});
     	function slideChange(args) {
     		//JT: elements need to be found "onload"	
-    		$('.slideSelectors .item').removeClass('selected');
-    		$('.slideSelectors .item:eq(' + (args.currentSlideNumber - 1) + ')').addClass('selected');
+    		app.$slideselectors.find('.item').removeClass('selected');
+    		app.$slideselectors.find('.item:eq(' + (args.currentSlideNumber - 1) + ')').addClass('selected');
 
     	}
         //JT: elements need to be found "onload"
-		$('div.oru-button').css({
+		app.$orubuttons.css({
     	    width: ((app.window.intoptionswidth - 40) / 3)  -1
         });
 		
         app.$producttree.corner();
         //JT: elements need to be found "onload"
-        $('.btn').corner();
-        $('.ulfavourite').corner();
-        $('div.oru-button.left').corner('left');
-        $('div.oru-button.right').corner('right');
+        app.$buttons.corner();
+        app.$ulfavourites.corner();
+        app.$orubtnleft.corner('left');
+        app.$orubtnright.corner('right');
 
         // Get worldmapdata and call showpage to show the homescreen
         app.current_oru = $('div.oru-button.selected').attr('data-value');
         app.current_mru = $('#current_filter').html();        
+        console.log('before get worldmap data');
         app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
-        	//debugger;
+        	////debugger;
             app.mapdata = data;
             app.initMap();             
         });            
@@ -470,7 +471,6 @@ var app = {
          * Can be extended later
          */
         
-        $('#header').addClass('ui-bar-b').removeClass('ui-bar-a');
     },
     // Opens the database and checks for new data. If found, clears the local storage cache before proceeding
     openDatabase: function(cb){
@@ -518,24 +518,50 @@ var app = {
             }else{
                 // if not found in cache
                 if(app.online){
-                    //JT: implement improved ajax call structure here - the one with proper error handling
-                    $.ajax({
+                	var objData = {};
+                    var objRequest = $.ajax({
                         type: "GET",
                         url: config.general.js_url,
-                        dataType: 'text'
-                    }).done(function( result ) {
-                        app.store.setCacheKey('arr_translations', result, function(){
-                            cb(result);
+                        dataType: 'text',
+                        data: objData
+                    });
+
+                    objRequest.done(function (response) {
+                    	////debugger;
+                        app.store.setCacheKey('arr_translations', response, function(){
+                            cb(response);
                         });
+                    });
+
+                    objRequest.fail(function (objRequestStatus) {
+                        //500 status from server, timeout of request or json parse error
+                        //console.log('fail - ' + JSON.stringify(objRequestStatus));
+                    	////debugger;
+                        var strErrorMessage;
+                        switch (objRequestStatus.status) {
+                            case 0:
+                                //timeout
+                                strErrorMessage = 'Timeout has occurred while retrieving: ' + objRequest.url;
+                                break;
+                            case 200:
+                                //json parse error
+                                strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
+                                break;
+                            default:
+                                //server error
+                                strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
+                                break;
+                        }      
                         
-                    }).fail(function(xhr, err){
-                        cb(err);
-                    });                                
+                        cb(strErrorMessage);
+                    });    
+                               
                 }else{
                     cb('');
                 }
             }
         });
+
     },    
     // Get data for worldmap (if present in localstorage then serve that, else do ajax call)
     getWorldmapData: function(oru, mru, cb){
@@ -578,7 +604,7 @@ var app = {
     			high: '#98C833'    			
     		}
     	};
-    	//debugger;
+    	////debugger;
     	// [{"name":"DACH","color":"#d5eff0","value_total_population":"98","value_total_gdp":"4384","code":["DE","AT","CH"],"categories":[{"name":"Philips","code":"PH","value":"87"}]}]
     	if(oru == 1){
     		var region = app.orudata.unit;
@@ -603,6 +629,7 @@ var app = {
     		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
     		if(oru < 4){
     			//JT: join and then split?
+    			//Don't know of another way to convert a whole array to uppercase ;-)
                 objRegion.code = jsonPath(region, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
     		}else{
     			objRegion.code = region.guid.toUpperCase();
@@ -632,7 +659,7 @@ var app = {
         		var arrUnits = jsonPath(el, '$..subunits[?(@.level=='+oru+')]');
         		if(arrUnits){
     	        	$.each(arrUnits, function(index, region){
-    	        		//debugger;
+    	        		////debugger;
     	        		var objRegion = {
     	        	    		name: region.name,
     	        	    		guid: region.guid,
@@ -704,10 +731,10 @@ var app = {
         	});    		
     	}
 
-    	//debugger;
+    	////debugger;
 		//if(arrRegions.length == arrUnits.length){
 			//console.log('processed all');
-			//debugger;
+			////debugger;
 			cb(null, arrRegions);
 		//}   	
 
@@ -723,19 +750,46 @@ var app = {
             }else{
                 // if not found in cache
                 if(app.online){
-                    //JT: use improved ajax call here and include proper error handling
-                    $.ajax({
+                	var objData = {};
+                    var objRequest = $.ajax({
                         type: "GET",
                         url: config.general.mru_url,
-                        dataType: 'html'
-                    }).done(function( result ) {
-                        app.store.setCacheKey('mru_tree', result, function(){
-                            cb(result);
+                        dataType: 'html',
+                        data: objData,
+                        cache: false,
+                        timeout: 40000
+                    });
+
+                    objRequest.done(function (response) {
+                    	//debugger;
+                        app.store.setCacheKey('mru_tree', response, function(){
+                            cb(response);
                         });
+                    });
+
+                    objRequest.fail(function (objRequestStatus) {
+                        //500 status from server, timeout of request or json parse error
+                        //console.log('fail - ' + JSON.stringify(objRequestStatus));
+                    	////debugger;
+                        var strErrorMessage;
+                        switch (objRequestStatus.status) {
+                            case 0:
+                                //timeout
+                                strErrorMessage = 'Timeout has occurred while retrieving: ' + objRequest.url;
+                                break;
+                            case 200:
+                                //json parse error
+                                strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
+                                break;
+                            default:
+                                //server error
+                                strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
+                                break;
+                        }      
                         
-                    }).fail(function(xhr, err){
-                        cb(err);
-                    });                                
+                        cb(strErrorMessage);
+                    });                    	
+                               
                 }else{
                     cb('');
                 }
@@ -753,19 +807,46 @@ var app = {
             }else{
                 // if not found in cache
                 if(app.online){
-                    //JT: use improved ajax call here and include proper error handling
-                    $.ajax({
+                	var objData = {};
+                    var objRequest = $.ajax({
                         type: "GET",
                         url: config.general.oru_url,
-                        dataType: 'jsonp'
-                    }).done(function( result ) {
-                        app.store.setCacheKey('oru_tree', JSON.stringify(result), function(){
-                            cb(result);
+                        dataType: 'jsonp',
+                        data: objData,
+                        cache: false,
+                        timeout: 40000
+                    });
+
+                    objRequest.done(function (response) {
+                    	//debugger;
+                        app.store.setCacheKey('oru_tree', JSON.stringify(response), function(){
+                            cb(response);
                         });
+                    });
+
+                    objRequest.fail(function (objRequestStatus) {
+                        //500 status from server, timeout of request or json parse error
+                        //console.log('fail - ' + JSON.stringify(objRequestStatus));
+                    	////debugger;
+                        var strErrorMessage;
+                        switch (objRequestStatus.status) {
+                            case 0:
+                                //timeout
+                                strErrorMessage = 'Timeout has occurred while retrieving: ' + objRequest.url;
+                                break;
+                            case 200:
+                                //json parse error
+                                strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
+                                break;
+                            default:
+                                //server error
+                                strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
+                                break;
+                        }      
                         
-                    }).fail(function(xhr, err){
-                        cb(err);
-                    });                                
+                        cb({err: strErrorMessage});
+                    });                 	
+                                
                 }else{
                     cb({});
                 }
@@ -773,69 +854,17 @@ var app = {
             }
         });    	
     },
-    getSnapShotData: function(cb){
-    	//window.resolveLocalFileSystemURI("file:///snapshotdata.json", gotFileEntry, fail);
- 	
-        /*
-        // Check localstorage first 
-        app.sql.findCacheKey('snapshot', function(result){
-            //debugger;
-            if(result.rows.length > 0){
-                cb(JSON.parse(result.rows.item(0).value));
-            }else{
-                // if not found in cache
-                if(app.online){
-                    $.ajax({
-                        type: "GET",
-                        url: config.general.snapshot_url,
-                        dataType: 'jsonp'
-                    }).done(function( result ) {
-                    	//debugger;
-                    	var objSnapshot = result;
-                    	console.log(result['lives-improved_PD0200_world']);
-                    	$.each(result, function(index, el){
-                    		var population, gdp, lives_improved;
-                    		
-                			$.each(el.periods[0].values, function(index, val){
-                				if(val.type == 'lives-improved'){
-                					lives_improved = val.value;
-                				}else if(val.type == 'population'){
-                					population = val.value;
-                				}else if(val.type == 'gdp'){
-                					gdp = val.value;
-                				}
-                			});                  
-                			objSnapshot[el.guid] = {
-                				lives_improved: lives_improved,
-                				population: population,
-                				gdp: gdp
-                			}
-
-                    	});             
-                    	debugger;
-                        app.sql.setCacheKey('snapshot', JSON.stringify(objSnapshot), function(){
-                            cb(objSnapshot);
-                        });
-                        
-                    }).fail(function(xhr, err){
-                        cb(err);
-                    });                                
-                }else{
-                    cb({});
-                }
-   
-            }
-        }); */
-    	cb();
-    },
     // Shows a page (div element with class "page") based on an ID
     initMap: function(){
-    	//debugger;
+    	////debugger;'
+    	console.log('init map');
         worldmap.mapVariation = 'lives_improved';
         worldmap.mapData = app.mapdata;
         worldmap.init(app.window.width, app.window.height);
-        //JT: use globally defined selectors here
-        $('#menu, #favourites').css({
+        app.$menu.css({
+        	display: 'block'
+        });
+        app.$favourites.css({
         	display: 'block'
         });
     },
@@ -856,11 +885,7 @@ var app = {
     	$el.parent().find('div').removeClass('selected');
     	$el.addClass('selected');
     	app.current_oru = $el.attr('data-value');
-        /* 
-         * Because currentfilter is string, now send it for key and value
-         * When currentfilter becomes object we need to create a function that 
-         * generates a key based on a object and send that as first param to getWorldmapData
-         */
+
         app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
             worldmap.mapVariation = 'lives_improved';
             worldmap.mapData = data;
@@ -879,11 +904,9 @@ var app = {
     		app.current_mru = elClicked.attr('data-value');
     		$spancurrentfilter.html(app.current_mru); 
         }else{
-        	//if($spancurrentfilter.html() == elClicked.attr('data-value')) {
-        		app.current_mru = 'philips';
-        		$spancurrentfilter.html(app.current_mru);
-        		elClicked.removeClass('checked');
-        	//}
+    		app.current_mru = 'philips';
+    		$spancurrentfilter.html(app.current_mru);
+    		elClicked.removeClass('checked');
         }
         app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
             worldmap.mapVariation = 'lives_improved';
@@ -895,7 +918,7 @@ var app = {
     renderSelectList: function(selector, showBackbutton){
     	var self = this,
     		backbutton = '<a id="btn_back" onclick="app.showPreviousLevel();" href="#"></a></div>';
-    	
+    	//debugger;
         //JT: destroy() here? do not quite remember, but you probably want to make sure that the associated events are killed as well
     	app.$producttree.find('li').remove();
     	//$('.cbxoverlay').remove();
@@ -952,8 +975,7 @@ var app = {
     },
     closeInfoPanel: function(){
     	worldmap.map.clearSelectedRegions();
-        //JT: consider using CSS3 animation here to improve performance?
-    	$('#info').animate({
+    	app.$infopanel.css({
     		bottom: "-220px"
     	}, 300, function(){
     		//app.menuStatus = "0px"
@@ -973,6 +995,7 @@ var app = {
     showFavourites: function(){
     	var self = this;
         //JT: consider using CSS3 animation here to improve performance?
+    	//This is a css3 animation.....
     	self.$favourites.css({
     		right: 0
     	}, 300, function(){
@@ -984,6 +1007,7 @@ var app = {
     hideFavourites: function(){
     	var self = this;
         //JT: consider using CSS3 animation here to improve performance?
+    	//This is a css3 animation.....
     	self.$favourites.css({
     		right: - self.window.intoptionswidth 
     	}, 300, function(){
@@ -995,7 +1019,7 @@ var app = {
     	var self= this;
     	var $el = app.$btnaddfavourite;
         //console.log('in addFavourite - '+$el);
-    	//debugger;
+    	////debugger;
     	if($el.hasClass('selected')){
     		var key = $el.parent('div').find('ul li.selected_region').attr('data-key');
     		app.removeFavourite(key);
@@ -1050,19 +1074,20 @@ var app = {
     		$('.oru-button[data-value='+app.current_oru+']').addClass('selected');
     		$('#current_filter').html(app.current_mru);
     		$('div[data-value='+app.current_mru+'].cbxoverlay').addClass('checked'); 
-    		//debugger;
+    		////debugger;
             app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
                 worldmap.mapVariation = 'lives_improved';
                 worldmap.mapData = data;
               
                 worldmap.init(app.window.width, app.window.height);  
-                //debugger;
+                ////debugger;
     			var regionData = $.grep(worldmap.mapData, function (obj, index) {
     				// Found when map.regions.key is in the regionData.code array
     				return obj.guid.toUpperCase() == region.toUpperCase();
     			})[0];                
                 if(regionData){
                 	var code = regionData.code[0];
+                	
                 	if(code.length == 1) code = regionData.code;
                 	
 					worldmap.handleRegionMouseOver(null, code);
@@ -1071,12 +1096,12 @@ var app = {
 					app.$bottomcarousel.iosSlider('goToSlide', 1);					
                 }
     			/*if ($.inArray(code, worldmap.mapData[i].code) > -1 || self.mapData[i].code === code) {
-    				//debugger;
+    				////debugger;
     				self.map.setSelectedRegions(self.getMapCodes(self.mapData[i].code));
     				break;
     			} */               
                 //
-               //debugger;
+               ////debugger;
             });   
     	});
     	//self.$favourites.    	
@@ -1085,9 +1110,9 @@ var app = {
     	var key = app.$currentfilter.find('li.selected_region').attr('data-key');
     	var $favs = $('#favourites');
     	$favs.find('.ulfavourite').removeClass('selected');
-    	if($favs.find('li.selected_region[data-key='+key+']').length > 0){
+    	if($favs.find('li.selected_region[data-key="'+key+'"]').length > 0){
     		
-    		$favs.find('li.selected_region[data-key='+key+']').parent().addClass('selected');
+    		$favs.find('li.selected_region[data-key="'+key+'"]').parent().addClass('selected');
     		app.$currentfilter.parent().find('div.add_favourite').addClass('selected');
     	}
     },
@@ -1095,7 +1120,7 @@ var app = {
     	var key = 'fav_' +app.current_oru+'_'+app.current_mru+'_'+regionData.guid,
     		groupedBy = $('div.oru-button.selected').html(),
     		filterdBy = $('#current_filter').html();
-    	//debugger;
+    	////debugger;
     	app.$currentfilter.parent().find('div.add_favourite').removeClass('selected');
     	
     	app.$currentfilter.html('');

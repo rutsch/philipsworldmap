@@ -118,6 +118,7 @@ body {
 	bottom: -220px;
 	font-family: GillSansAltOneWGLRegular;
 	font-size: 14px;
+	-webkit-transition: bottom 0.2s ease-in-out;	
 }
 #info span{
 	display: inline-block;

@@ -194,7 +194,7 @@ var worldmap = {
 			app.renderFavouritePanel(regionData);
 			//$('#region-filter').html('<div class="btn" onclick="app.addFavourite(\''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\', \''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\');"><div class="btn_inner">'+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'</div></div>');
 	
-			$('#info').animate({
+			$('#info').css({
 				bottom: 0
 			});
 			//console.log(code);
