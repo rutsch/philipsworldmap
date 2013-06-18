@@ -436,6 +436,7 @@ var worldmap = {
 						"fill-opacity": self.regionHoverOpacity						
 					}
 				},
+
 				onRegionClick: function(e, code){
 					e.preventDefault();
 					self.handleRegionMouseOver(e, code);
@@ -454,10 +455,6 @@ var worldmap = {
 				},
 				onRegionLabelShow: function (e, el, code) {
 					//self.showCountryDetails(e, el, code);
-				},
-				onViewportChange: function(e, zoom){
-					console.log(e);
-					self.zoom = zoom;
 				},
 				series: {
 					regions: [{
