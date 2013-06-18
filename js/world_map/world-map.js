@@ -70,7 +70,7 @@
  * @param {Function} params.onMarkerOut <code>(Event e, String code)</code> Will be called on marker mouse out event.
  * @param {Function} params.onMarkerClick <code>(Event e, String code)</code> Will be called on marker click event.
  * @param {Function} params.onMarkerSelected <code>(Event e, String code, Boolean isSelected, Array selectedMarkers)</code> Will be called when marker is (de)selected. <code>isSelected</code> parameter of the callback indicates whether marker is selected or not. <code>selectedMarkers</code> contains codes of all currently selected markers.
- * @param {Function} params.onZoom <code>(Event e, Number scale)</code> Triggered the map is zoomed.
+ * @param {Function} params.onViewportChange <code>(Event e, Number scale)</code> Triggered when the map's viewport is changed (map was panned or zoomed).
  */
 jvm.WorldMap = function(params) {
   var map = this,
@@ -200,11 +200,11 @@ jvm.WorldMap.prototype = {
    */
   reset: function() {
     var key,
-    i;
+        i;
 
     for (key in this.series) {
       for (i = 0; i < this.series[key].length; i++) {
-    this.series[key][i].clear();
+        this.series[key][i].clear();
       }
     }
     this.scale = this.baseScale;
@@ -215,9 +215,9 @@ jvm.WorldMap.prototype = {
 
   applyTransform: function() {
     var maxTransX,
-    maxTransY,
-    minTransX,
-    minTransY;
+        maxTransY,
+        minTransX,
+        minTransY;
 
     if (this.defaultWidth * this.scale <= this.width) {
       maxTransX = (this.width - this.defaultWidth * this.scale) / (2 * this.scale);
@@ -251,6 +251,8 @@ jvm.WorldMap.prototype = {
     if (this.markers) {
       this.repositionMarkers();
     }
+
+    this.container.trigger('viewportChange', [this.scale/this.baseScale, this.transX, this.transY]);
   },
 
   bindContainerEvents: function(){
@@ -283,7 +285,7 @@ jvm.WorldMap.prototype = {
 
     if (this.params.zoomOnScroll) {
       this.container.mousewheel(function(event, delta, deltaX, deltaY) {
-    var offset = jvm.$(map.container).offset(),
+        var offset = jvm.$(map.container).offset(),
             centerX = event.pageX - offset.left,
             centerY = event.pageY - offset.top,
             zoomStep = Math.pow(1.3, deltaY);
@@ -298,65 +300,75 @@ jvm.WorldMap.prototype = {
 
   bindContainerTouchEvents: function(){
     var touchStartScale,
-    touchStartDistance,
-    map = this,
-    touchX,
-    touchY,
-    centerTouchX,
-    centerTouchY,
-    lastTouchesLength,
-    handleTouchEvent = function(e){
-      var touches = e.originalEvent.touches,
-          scale;
-
-      if (e.type == 'touchstart') {
-        lastTouchesLength = 0;
-      }
-
-      if (touches.length == 1) {
-        if (lastTouchesLength == 1) {
-          map.transX -= (touchX - touches[0].pageX) / map.scale;
-          map.transY -= (touchY - touches[0].pageY) / map.scale;
-          map.applyTransform();
-          map.label.hide();
-          e.preventDefault();
-        }
-        touchX = touches[0].pageX;
-        touchY = touches[0].pageY;
-      } else if (touches.length == 2) {
-        if (lastTouchesLength == 2) {
-          scale = Math.sqrt(
-        Math.pow(touches[0].pageX - touches[1].pageX, 2) +
-        Math.pow(touches[0].pageY - touches[1].pageY, 2)
-          ) / touchStartDistance;
-          map.setScale(
-        touchStartScale * scale,
+        touchStartDistance,
+        map = this,
+        touchX,
+        touchY,
         centerTouchX,
-        centerTouchY
-          )
-          map.label.hide();
-          e.preventDefault();
-        } else {
-          if (touches[0].pageX > touches[1].pageX) {
-        centerTouchX = touches[1].pageX + (touches[0].pageX - touches[1].pageX) / 2;
-          } else {
-        centerTouchX = touches[0].pageX + (touches[1].pageX - touches[0].pageX) / 2;
-          }
-          if (touches[0].pageY > touches[1].pageY) {
-        centerTouchY = touches[1].pageY + (touches[0].pageY - touches[1].pageY) / 2;
-          } else {
-        centerTouchY = touches[0].pageY + (touches[1].pageY - touches[0].pageY) / 2;
-          }
-          touchStartScale = map.scale;
-          touchStartDistance = Math.sqrt(
-        Math.pow(touches[0].pageX - touches[1].pageX, 2) +
-        Math.pow(touches[0].pageY - touches[1].pageY, 2)
-          );
-        }
-      }
+        centerTouchY,
+        lastTouchesLength,
+        handleTouchEvent = function(e){
+          var touches = e.originalEvent.touches,
+              offset,
+              scale,
+              transXOld,
+              transYOld;
 
-      lastTouchesLength = touches.length;
-    };
+          if (e.type == 'touchstart') {
+            lastTouchesLength = 0;
+          }
+
+          if (touches.length == 1) {
+            if (lastTouchesLength == 1) {
+              transXOld = map.transX;
+              transYOld = map.transY;
+              map.transX -= (touchX - touches[0].pageX) / map.scale;
+              map.transY -= (touchY - touches[0].pageY) / map.scale;
+              map.applyTransform();
+              map.label.hide();
+              if (transXOld != map.transX || transYOld != map.transY) {
+                e.preventDefault();
+              }
+            }
+            touchX = touches[0].pageX;
+            touchY = touches[0].pageY;
+          } else if (touches.length == 2) {
+            if (lastTouchesLength == 2) {
+              scale = Math.sqrt(
+                Math.pow(touches[0].pageX - touches[1].pageX, 2) +
+                Math.pow(touches[0].pageY - touches[1].pageY, 2)
+              ) / touchStartDistance;
+              map.setScale(
+                touchStartScale * scale,
+                centerTouchX,
+                centerTouchY
+              )
+              map.label.hide();
+              e.preventDefault();
+            } else {
+              offset = jvm.$(map.container).offset();
+              if (touches[0].pageX > touches[1].pageX) {
+                centerTouchX = touches[1].pageX + (touches[0].pageX - touches[1].pageX) / 2;
+              } else {
+                centerTouchX = touches[0].pageX + (touches[1].pageX - touches[0].pageX) / 2;
+              }
+              if (touches[0].pageY > touches[1].pageY) {
+                centerTouchY = touches[1].pageY + (touches[0].pageY - touches[1].pageY) / 2;
+              } else {
+                centerTouchY = touches[0].pageY + (touches[1].pageY - touches[0].pageY) / 2;
+              }
+              centerTouchX -= offset.left;
+              centerTouchY -= offset.top;
+              touchStartScale = map.scale;
+              touchStartDistance = Math.sqrt(
+                Math.pow(touches[0].pageX - touches[1].pageX, 2) +
+                Math.pow(touches[0].pageY - touches[1].pageY, 2)
+              );
+            }
+          }
+
+          lastTouchesLength = touches.length;
+        };
 
     jvm.$(this.container).bind('touchstart', handleTouchEvent);
     jvm.$(this.container).bind('touchmove', handleTouchEvent);
@@ -374,13 +386,13 @@ jvm.WorldMap.prototype = {
        SVG handling, use with caution. */
     this.container.delegate("[class~='jvectormap-element']", 'mouseover mouseout', function(e){
       var path = this,
-      baseVal = jvm.$(this).attr('class').baseVal ? jvm.$(this).attr('class').baseVal : jvm.$(this).attr('class'),
-      type = baseVal.indexOf('jvectormap-region') === -1 ? 'marker' : 'region',
-      code = type == 'region' ? jvm.$(this).attr('data-code') : jvm.$(this).attr('data-index'),
-      element = type == 'region' ? map.regions[code].element : map.markers[code].element,
-      labelText = type == 'region' ? map.mapData.paths[code].name : (map.markers[code].config.name || ''),
-      labelShowEvent = jvm.$.Event(type+'LabelShow.jvectormap'),
-      overEvent = jvm.$.Event(type+'Over.jvectormap');
+          baseVal = jvm.$(this).attr('class').baseVal ? jvm.$(this).attr('class').baseVal : jvm.$(this).attr('class'),
+          type = baseVal.indexOf('jvectormap-region') === -1 ? 'marker' : 'region',
+          code = type == 'region' ? jvm.$(this).attr('data-code') : jvm.$(this).attr('data-index'),
+          element = type == 'region' ? map.regions[code].element : map.markers[code].element,
+          labelText = type == 'region' ? map.mapData.paths[code].name : (map.markers[code].config.name || ''),
+          labelShowEvent = jvm.$.Event(type+'LabelShow.jvectormap'),
+          overEvent = jvm.$.Event(type+'Over.jvectormap');
 
       if (e.type == 'mouseover') {
         map.container.trigger(overEvent, [code]);
@@ -412,19 +424,19 @@ jvm.WorldMap.prototype = {
        SVG handling, use with caution. */
     this.container.delegate("[class~='jvectormap-element']", 'mouseup', function(e){
       var path = this,
-      baseVal = jvm.$(this).attr('class').baseVal ? jvm.$(this).attr('class').baseVal : jvm.$(this).attr('class'),
-      type = baseVal.indexOf('jvectormap-region') === -1 ? 'marker' : 'region',
-      code = type == 'region' ? jvm.$(this).attr('data-code') : jvm.$(this).attr('data-index'),
-      clickEvent = jvm.$.Event(type+'Click.jvectormap'),
-      element = type == 'region' ? map.regions[code].element : map.markers[code].element;
+          baseVal = jvm.$(this).attr('class').baseVal ? jvm.$(this).attr('class').baseVal : jvm.$(this).attr('class'),
+          type = baseVal.indexOf('jvectormap-region') === -1 ? 'marker' : 'region',
+          code = type == 'region' ? jvm.$(this).attr('data-code') : jvm.$(this).attr('data-index'),
+          clickEvent = jvm.$.Event(type+'Click.jvectormap'),
+          element = type == 'region' ? map.regions[code].element : map.markers[code].element;
 
       if (!mouseMoved) {
         map.container.trigger(clickEvent, [code]);
         if ((type === 'region' && map.params.regionsSelectable) || (type === 'marker' && map.params.markersSelectable)) {
           if (!clickEvent.isDefaultPrevented()) {
-        if (map.params[type+'sSelectableOne']) {
-          map.clearSelected(type+'s');
-        }
+            if (map.params[type+'sSelectableOne']) {
+              map.clearSelected(type+'s');
+            }
             element.setSelected(!element.isSelected);
           }
         }
@@ -453,19 +465,19 @@ jvm.WorldMap.prototype = {
 
     this.container.mousemove(function(e){
       var left = e.pageX-15-map.labelWidth,
-      top = e.pageY-15-map.labelHeight;
+          top = e.pageY-15-map.labelHeight;
 
       if (left < 5) {
-    left = e.pageX + 15;
+        left = e.pageX + 15;
       }
       if (top < 5) {
-    top = e.pageY + 15;
+        top = e.pageY + 15;
       }
 
       if (map.label.is(':visible')) {
         map.label.css({
-      left: left,
-      top: top
+          left: left,
+          top: top
         })
       }
     });
@@ -473,7 +485,7 @@ jvm.WorldMap.prototype = {
 
   setScale: function(scale, anchorX, anchorY, isCentered) {
     var zoomStep,
-    viewportChangeEvent = jvm.$.Event('zoom.jvectormap');
+        viewportChangeEvent = jvm.$.Event('zoom.jvectormap');
 
     if (scale > this.params.zoomMax * this.baseScale) {
       scale = this.params.zoomMax * this.baseScale;
@@ -505,34 +517,34 @@ jvm.WorldMap.prototype = {
    */
   setFocus: function(scale, centerX, centerY){
     var bbox,
-    itemBbox,
-    newBbox,
-    codes,
-    i;
+        itemBbox,
+        newBbox,
+        codes,
+        i;
 
     if (jvm.$.isArray(scale) || this.regions[scale]) {
       if (jvm.$.isArray(scale)) {
-    codes = scale;
+        codes = scale;
       } else {
-    codes = [scale]
+        codes = [scale]
       }
       for (i = 0; i < codes.length; i++) {
-    if (this.regions[codes[i]]) {
-      itemBbox = this.regions[codes[i]].element.getBBox();
-      if (itemBbox) {
-        if (typeof bbox == 'undefined') {
-          bbox = itemBbox;
-        } else {
-          newBbox = {
-        x: Math.min(bbox.x, itemBbox.x),
-        y: Math.min(bbox.y, itemBbox.y),
-        width: Math.max(bbox.x + bbox.width, itemBbox.x + itemBbox.width) - Math.min(bbox.x, itemBbox.x),
-        height: Math.max(bbox.y + bbox.height, itemBbox.y + itemBbox.height) - Math.min(bbox.y, itemBbox.y)
+        if (this.regions[codes[i]]) {
+          itemBbox = this.regions[codes[i]].element.getBBox();
+          if (itemBbox) {
+            if (typeof bbox == 'undefined') {
+              bbox = itemBbox;
+            } else {
+              newBbox = {
+                x: Math.min(bbox.x, itemBbox.x),
+                y: Math.min(bbox.y, itemBbox.y),
+                width: Math.max(bbox.x + bbox.width, itemBbox.x + itemBbox.width) - Math.min(bbox.x, itemBbox.x),
+                height: Math.max(bbox.y + bbox.height, itemBbox.y + itemBbox.height) - Math.min(bbox.y, itemBbox.y)
+              }
+              bbox = newBbox;
+            }
           }
-          bbox = newBbox;
         }
-      }
-    }
       }
       this.setScale(
         Math.min(this.width / bbox.width, this.height / bbox.height),
@@ -583,11 +595,11 @@ jvm.WorldMap.prototype = {
 
     if (jvm.$.isArray(keys)) {
       for (i = 0; i < keys.length; i++) {
-    this[type][keys[i]].element.setSelected(true);
+        this[type][keys[i]].element.setSelected(true);
       }
     } else {
       for (i in keys) {
-    this[type][i].element.setSelected(!!keys[i]);
+        this[type][i].element.setSelected(!!keys[i]);
       }
     }
   },
@@ -610,8 +622,8 @@ jvm.WorldMap.prototype = {
 
   clearSelected: function(type){
     var select = {},
-    selected = this.getSelected(type),
-    i;
+        selected = this.getSelected(type),
+        i;
 
     for (i = 0; i < selected.length; i++) {
       select[selected[i]] = false;
@@ -657,16 +669,16 @@ jvm.WorldMap.prototype = {
 
     for (key in this.mapData.paths) {
       region = this.canvas.addPath({
-    d: this.mapData.paths[key].path,
-    "data-code": key
+        d: this.mapData.paths[key].path,
+        "data-code": key
       }, jvm.$.extend(true, {}, this.params.regionStyle));
       jvm.$(region.node).bind('selected', function(e, isSelected){
-    map.container.trigger('regionSelected.jvectormap', [jvm.$(this).attr('data-code'), isSelected, map.getSelectedRegions()]);
+        map.container.trigger('regionSelected.jvectormap', [jvm.$(this).attr('data-code'), isSelected, map.getSelectedRegions()]);
       });
       region.addClass('jvectormap-region jvectormap-element');
       this.regions[key] = {
-    element: region,
-    config: this.mapData.paths[key]
+        element: region,
+        config: this.mapData.paths[key]
       };
     }
   },
@@ -694,31 +706,31 @@ jvm.WorldMap.prototype = {
       point = this.getMarkerPosition( markerConfig );
 
       if (point !== false) {
-    marker = this.canvas.addCircle({
-      "data-index": i,
-      cx: point.x,
-      cy: point.y
-    }, jvm.$.extend(true, {}, this.params.markerStyle, {initial: markerConfig.style || {}}), this.markersGroup);
-    marker.addClass('jvectormap-marker jvectormap-element');
-    jvm.$(marker.node).bind('selected', function(e, isSelected){
-      map.container.trigger('markerSelected.jvectormap', [jvm.$(this).attr('data-index'), isSelected, map.getSelectedMarkers()]);
-    });
-    if (this.markers[i]) {
-      this.removeMarkers([i]);
-    }
-    this.markers[i] = {element: marker, config: markerConfig};
+        marker = this.canvas.addCircle({
+          "data-index": i,
+          cx: point.x,
+          cy: point.y
+        }, jvm.$.extend(true, {}, this.params.markerStyle, {initial: markerConfig.style || {}}), this.markersGroup);
+        marker.addClass('jvectormap-marker jvectormap-element');
+        jvm.$(marker.node).bind('selected', function(e, isSelected){
+          map.container.trigger('markerSelected.jvectormap', [jvm.$(this).attr('data-index'), isSelected, map.getSelectedMarkers()]);
+        });
+        if (this.markers[i]) {
+          this.removeMarkers([i]);
+        }
+        this.markers[i] = {element: marker, config: markerConfig};
       }
     }
   },
 
   repositionMarkers: function() {
     var i,
-    point;
+        point;
 
     for (i in this.markers) {
       point = this.getMarkerPosition( this.markers[i].config );
       if (point !== false) {
-    this.markers[i].element.setStyle({cx: point.x, cy: point.y});
+        this.markers[i].element.setStyle({cx: point.x, cy: point.y});
       }
     }
   },
@@ -728,8 +740,8 @@ jvm.WorldMap.prototype = {
       return this.latLngToPoint.apply(this, markerConfig.latLng || [0, 0]);
     } else {
       return {
-    x: markerConfig.coords[0]*this.scale + this.transX*this.scale,
-    y: markerConfig.coords[1]*this.scale + this.transY*this.scale
+        x: markerConfig.coords[0]*this.scale + this.transX*this.scale,
+        y: markerConfig.coords[1]*this.scale + this.transY*this.scale
       };
     }
   },
@@ -744,8 +756,8 @@ jvm.WorldMap.prototype = {
     var markers = {},
         data = [],
         values,
-    i,
-    seriesData = seriesData || [];
+        i,
+        seriesData = seriesData || [];
 
     markers[key] = marker;
 
@@ -843,13 +855,13 @@ jvm.WorldMap.prototype = {
    */
   pointToLatLng: function(x, y) {
     var proj = jvm.WorldMap.maps[this.params.map].projection,
-    centralMeridian = proj.centralMeridian,
-    insets = jvm.WorldMap.maps[this.params.map].insets,
-    i,
-    inset,
-    bbox,
-    nx,
-    ny;
+        centralMeridian = proj.centralMeridian,
+        insets = jvm.WorldMap.maps[this.params.map].insets,
+        i,
+        inset,
+        bbox,
+        nx,
+        ny;
 
     for (i = 0; i < insets.length; i++) {
       inset = insets[i];
@@ -862,7 +874,7 @@ jvm.WorldMap.prototype = {
       ny = (ny / (inset.height * this.scale)) * (bbox[1].y - bbox[0].y) + bbox[0].y;
 
       if (nx > bbox[0].x && nx < bbox[1].x && ny > bbox[0].y && ny < bbox[1].y) {
-    return jvm.Proj[proj.type + '_inv'](nx, -ny, centralMeridian);
+        return jvm.Proj[proj.type + '_inv'](nx, -ny, centralMeridian);
       }
     }
 
@@ -971,5 +983,5 @@ jvm.WorldMap.apiEvents = {
   onMarkerOut: 'markerOut',
   onMarkerClick: 'markerClick',
   onMarkerSelected: 'markerSelected',
-  onZoom: 'zoom'
+  onViewportChange: 'viewportChange'
 };

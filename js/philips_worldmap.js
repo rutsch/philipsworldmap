@@ -23,6 +23,7 @@ var app = {
     },
     orudata: {},
     snapshotdata: {},
+    snapshothistory: {},
     //JT: shouldn't we do something like objPageElements (in AR) and fill this object onload with very specific selectors?
     $producttree: $('#producttree'),
     $producttreetemp: $('#producttree_temp'),
@@ -162,7 +163,7 @@ var app = {
         });          
         app.$infopanel.on("swipedown", function(){
         	//JT: should we consider a css3 animation here to improve performance
-            $(this).animate({
+            $(this).css({
         		bottom: "-200px"
         	}, 300, function(){
         		//app.menuStatus = "0px"
@@ -245,6 +246,23 @@ var app = {
     	console.log('got file entry for writing');
     	fileEntry.createWriter(app.gotFileWriter, app.fail);
     },
+    readAsText: function(file) {
+        var reader = new FileReader();
+        reader.onloadend = function(evt) {
+            if(!evt.target.result){
+            	//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFSforWriting, app.fail);
+            	console.log('read to end failed');
+                //JT: filenames need to be made specific for a snapshot... Think we need to add logic to the generation of the filename below.
+            	app.fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntryForWriting, app.fail);
+            }else{
+            	console.log('read to end');
+            	app.snapshotdata = JSON.parse(evt.target.result);
+            	app.process();
+            }
+               
+        };
+        reader.readAsText(file);
+    },
     getSnapShotData: function(cb){
     	console.log('getting snapshot data');
     	var objData = {};
@@ -289,23 +307,7 @@ var app = {
             //console.log(strErrorMessage);
         });     	
     },
-    readAsText: function(file) {
-        var reader = new FileReader();
-        reader.onloadend = function(evt) {
-            if(!evt.target.result){
-            	//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.gotFSforWriting, app.fail);
-            	console.log('read to end failed');
-                //JT: filenames need to be made specific for a snapshot... Think we need to add logic to the generation of the filename below.
-            	app.fileSystem.root.getFile("snapshotdata.json", {create: true, exclusive: false}, app.gotFileEntryForWriting, app.fail);
-            }else{
-            	console.log('read to end');
-            	app.snapshotdata = JSON.parse(evt.target.result);
-            	app.process();
-            }
-               
-        };
-        reader.readAsText(file);
-    },
+
     process: function(){
     	//console.log(app.snapshotdata['lives-improved_PD0200_world'].g);
         app.myScroll = new iScroll('menu', {lockDirection: true }); 
@@ -315,6 +317,7 @@ var app = {
         	//console.log('openend database');
 
             //JT: we can retrieve this array one time only - should be stored in a generic variable "onload" - assuming that this routine will be called multiple times this will improve performance
+        	// This is done only once at startup
         	app.getArrTranslations(function(result){
         		//console.log('got translations');
             	$('body').append('<script type="text/javascript">'+result+'</script>');
@@ -324,7 +327,7 @@ var app = {
                 	app.$producttreetemp.html(result);
                 	// render the top level of the tree
                 	console.log('got mru');
-                	var selector = 'li#philips >ul > li';
+                	var selector = 'li#philips';//'li#philips >ul > li';
                 	app.renderSelectList(selector, false);
                 	
                     //JT: create a generic selector "onload"
@@ -428,7 +431,7 @@ var app = {
     	}, 200);
 
     	app.$slideselectors.css({
-    		left: (app.window.width / 2) - 17
+    		left: (app.window.width / 2) - 30
     	});
     	function slideChange(args) {
     		//JT: elements need to be found "onload"	
@@ -457,7 +460,7 @@ var app = {
             app.mapdata = data;
             app.initMap();             
         });            
-        
+        self.menuStatus = 'closed';
         
     },
     resizeSlider: function(){
@@ -867,6 +870,7 @@ var app = {
         app.$favourites.css({
         	display: 'block'
         });
+        if (window.cordova) window.cordova.exec(null, null, "SplashScreen", "hide", []);
     },
     /*
      * Helpers for the MRU navigation
@@ -927,6 +931,7 @@ var app = {
     	}else{
     		app.$producttree.append('<li data-theme="c" data-role="list-divider">'+backbutton+'<span id="current_filter">'+app.current_mru+'</span></li>');    	
     	}
+    	//debugger;
     	$.each($(selector), function(index, el){
     		var $el = $(el),
     			id = $el.attr('id'),

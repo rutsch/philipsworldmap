@@ -436,28 +436,17 @@ var worldmap = {
 						"fill-opacity": self.regionHoverOpacity						
 					}
 				},
-				onRegionClick: function(e, code){
-					e.preventDefault();
-					self.handleRegionMouseOver(e, code);
-					self.showCountryDetails(e, null, code);		
-				},
 				onRegionOver: function (e, code) {
-					//self.handleRegionMouseOver(e, code);
-
+					self.handleRegionMouseOver(e, code);
 				},
 				onRegionSelected: function (e, code, isSelected, selectedRegions) {
-			
-					//self.handleRegionSelected(e, code, isSelected, selectedRegions);
+					self.handleRegionSelected(e, code, isSelected, selectedRegions);
 				},
 				onRegionOut: function (e, code) {
-					//self.map.clearSelectedRegions();
+					self.map.clearSelectedRegions();
 				},
 				onRegionLabelShow: function (e, el, code) {
-					//self.showCountryDetails(e, el, code);
-				},
-				onViewportChange: function(e, zoom){
-					console.log(e);
-					self.zoom = zoom;
+					self.showCountryDetails(e, el, code);
 				},
 				series: {
 					regions: [{
@@ -475,7 +464,7 @@ var worldmap = {
 				generateModeSwitch(mode);
 			}
 			
-			if (window.cordova) window.cordova.exec(null, null, "SplashScreen", "hide", []);
+			
 		});
 	},
 
