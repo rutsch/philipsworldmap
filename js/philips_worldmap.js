@@ -103,6 +103,7 @@ var app = {
              * generates a key based on a object and send that as first param to getWorldmapData
              */
             app.getWorldmapData(app.current_oru, app.current_oru, function(err, data){
+            	worldmap.map.remove();
                 worldmap.mapVariation = 'lives_improved';
                 worldmap.mapData = data;
               
@@ -891,6 +892,7 @@ var app = {
     	app.current_oru = $el.attr('data-value');
 
         app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
+        	worldmap.map.remove();
             worldmap.mapVariation = 'lives_improved';
             worldmap.mapData = data;
           
@@ -913,6 +915,7 @@ var app = {
     		elClicked.removeClass('checked');
         }
         app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
+        	worldmap.map.remove();
             worldmap.mapVariation = 'lives_improved';
             worldmap.mapData = data;
           
@@ -1081,7 +1084,8 @@ var app = {
     		$('div[data-value='+app.current_mru+'].cbxoverlay').addClass('checked'); 
     		////debugger;
             app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
-                worldmap.mapVariation = 'lives_improved';
+            	worldmap.map.remove();
+            	worldmap.mapVariation = 'lives_improved';
                 worldmap.mapData = data;
               
                 worldmap.init(app.window.width, app.window.height);  
