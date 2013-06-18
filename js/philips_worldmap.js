@@ -970,7 +970,7 @@ var app = {
     	
 
     	
-    	if($('#producttree_temp li#'+id).parent('ul').parents('ul').first().find('>li').first().parent('ul').parents('ul').first().find('>li').length > 1){
+    	if($('#producttree_temp li#'+id).parent('ul').parents('ul').first().find('>li').first().parent('ul').first().find('>li').length > 1){
     		self.renderSelectList(selector, true);
     	}else{
     		self.renderSelectList(selector, false);
