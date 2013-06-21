@@ -160,7 +160,6 @@ var worldmap = {
 				return false;
 			}
 		});
-
 		//console.log(regionData);
 		if (regionData != null) {
 
@@ -223,6 +222,7 @@ var worldmap = {
 		//debugger;
 		for (region in self.map.regions) {
 			// Get the region data from the mapData array
+			//debugger;
 			var regionData = $.grep(mapData, function (obj, index) {
 				// Found when map.regions.key is in the regionData.code array
 				return $.inArray(region, obj.code) > -1 || region === obj.code;
@@ -235,6 +235,7 @@ var worldmap = {
 				if(percentageLI> 99)percentageLI=99;
 				if(percentageLI< 1)percentageLI=1;
 				if(regionData.color){
+					//debugger;
 					colors[region] = self.getColorForPercentage(percentageLI, regionData.color.low, regionData.color.middle, regionData.color.high);
 				}else{
 					colors[region] = self.mapForeGroundColor;
@@ -295,78 +296,7 @@ var worldmap = {
 		if (self.mapData != false) {
 			if (cb) cb(self.mapData);
 		} else {
-			var bolUseLocalUrl = true;
-			var strUrl = '/tools/dynamic_resources_cached_closed.aspx';
-			var strDataType = 'json';
-			if (location.search.indexOf('useremote') > 0) bolUseLocalUrl = false;
-			if (typeof (strPageId) === 'undefined') bolUseLocalUrl = false;
-
-
-			if (!bolUseLocalUrl) {
-				strUrl = 'http://www.annualreport2012.philips.com' + strUrl;
-				strDataType = 'jsonp';
-			}
-
-			var objData = {
-				method: 'getWorldmapData',
-				type: 'json',
-				datatype: self.mapVariation
-			}
-			if (typeof (strToken) === 'undefined') {
-				objData.token = '123';
-			} else {
-				objData.token = strToken;
-			}
-
-			var objRequest = $.ajax({
-				type: "GET",
-				dataType: strDataType,
-				url: strUrl,
-				data: objData,
-				cache: false,
-				timeout: 3000
-			});
-
-			objRequest.done(function (response) {
-				//console.log(response);
-				//debugger;
-
-				//fill the global mapData variable with a clone of the object we have just received
-				//mapData = jQuery.extend(true, {}, response);
-
-				//ouch.. this seems to be a better method....
-				self.mapData = JSON.parse(JSON.stringify(response));
-
-				if (cb) cb(self.mapData);
-			});
-
-			objRequest.fail(function (objRequestStatus) {
-				//500 status from server, timeout of request or json parse error
-				//console.log('fail - ' + JSON.stringify(objRequestStatus));
-
-				var strErrorMessage;
-				switch (objRequestStatus.status) {
-					case 0:
-						//timeout
-						strErrorMessage = 'Timeout has occurred while retrieving: ' + strUrl;
-						break;
-					case 200:
-						//json parse error
-						strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
-						break;
-					default:
-						//server error
-						strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
-						break;
-				}
-				//alert("strErrorMessage="+strErrorMessage);
-				//show the error message
-				if (typeof (strPageId) === 'undefined') {
-					alert(strErrorMessage);
-				} else {
-					handleError("There was an unexpected error while retrieving the data for the worldmap.");
-				}
-			});
+			cb([]);
 		}
 
 
@@ -464,7 +394,7 @@ var worldmap = {
 					}]
 				}
 			});
-			
+			//debugger;
 			// Set the colors for the regions
 			self.map.series.regions[0].setValues(self.generateColors(mapData));
 			// Add the mode switch buttons when needed

@@ -20,8 +20,9 @@ var LocalStorageStore = function(successCallback, errorCallback) {
         }       
         callLater(callback);    
     }
-    this.removeCacheKey = function(key){
+    this.removeCacheKey = function(key, callback){
     	store.removeItem(key);    
+    	callLater(callback, 'success');
     }
     this.findFavourites = function(callback){
     	var arrResult = [];
