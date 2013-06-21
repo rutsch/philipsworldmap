@@ -11,9 +11,9 @@ var app = {
     /*
      * Some global variables
      */
-    online: false,
+    online: true,
+    signedin: false,    
     current_oru: 3, // 1, 2, 3 or 4
-    signedin: true,
     current_mru: 'philips',
     mapdata: {},
     window: {
@@ -27,6 +27,7 @@ var app = {
     snapshothistory: {},
     //JT: shouldn't we do something like objPageElements (in AR) and fill this object onload with very specific selectors?
     $body: $('body'),
+    $page: $('#home'),
     $producttree: $('#producttree'),
     $producttreetemp: $('#producttree_temp'),
     $selectoru: $('#select-oru'),
@@ -120,7 +121,7 @@ var app = {
         app.$infopanel.on("swipedown", function(){
         	//JT: should we consider a css3 animation here to improve performance
             $(this).css({
-        		bottom: "-200px"
+        		bottom: "-250px"
         	}, 300, function(){
         		//app.menuStatus = "0px"
         	});
@@ -143,15 +144,12 @@ var app = {
     	var self = this;
     	/* Init plugins */
     	app.store = new LocalStorageStore();
+    	app.store.clearCache(function(){
+    		
+    	});
         app.myScroll = new iScroll('menu', {lockDirection: true }); 
         app.myScrollFavs = new iScroll('favourites', {lockDirection: true });
-        
-    	if(app.signedin){
-    		//JT: signin functionality/fields need to be added...
-            // hide signin panel
-    		app.$signin.hide();
-    		app.$signedin.show();
-    	}           
+     
 
     	// parallel async
     	async.parallel({
@@ -440,7 +438,7 @@ var app = {
     	var self = this;
     	app.getSnapshotData(oru, mru, function(err, result){
     		//console.log(result.arrRegions);
-    		app.snapshotdata = result.arrRegions;
+    		app.snapshotdata = result.snapshotdata;
             // get countries from oru json based on passed oru level
         	//var result = jF('*[guid=dach]', app.orudata).get();
 
@@ -634,33 +632,48 @@ var app = {
 			app.menuStatus = 'closed'
 			return false;
         }
-    },   
-    btnSignInClick: function(el){
-    	var $el = $(el),
-    		$loginScreen = $('#popupLogin');
-    	if($loginScreen.hasClass('open')){
-    		//handle actual login
-    		
-    	}else{
-    		$loginScreen.addClass('open');
-    		app.sizeElements();
-    	}
     }, 
-    oruSelected: function(el){
-    	app.$body.toggleClass('loading');
+    btnSignInClick: function(){
+    	// do the actual signin
+    	//when successfull
+    	app.signedin = true;
+		app.$signin.hide();
+		app.$signedin.show();
+		app.$orubuttons.removeClass('disabled');
+		app.renderSelectList('li#philips', false);
+		app.closeLoginScreen();
+    }, 
+    btnOpenSignInClick: function(){   	
+    	app.showLoginScreen();
+    }, 
+    signOut: function(){
+    	app.signedin = false;
+		app.$signin.show();
+		app.$signedin.hide();
+		app.$orubtnright.addClass('disabled');
+		app.renderSelectList('li#philips', false);    	
+    },
+    oruSelected: function(el){ 
+    	
     	var $el = $(el);
-    	$el.parent().find('div').removeClass('selected');
-    	$el.addClass('selected');
-    	app.current_oru = $el.attr('data-value');
+    	if(!$el.hasClass('disabled')){
+        	app.$body.toggleClass('loading');    	
+        	$el.parent().find('div').removeClass('selected');
+        	$el.addClass('selected');
+        	app.current_oru = $el.attr('data-value');
 
-        app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
-        	worldmap.map.remove();
-            worldmap.mapVariation = 'lives_improved';
-            worldmap.mapData = data;
-          
-            worldmap.init(app.window.width, app.window.height);  
-            app.$body.toggleClass('loading');
-        });    	
+            app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
+            	worldmap.map.remove();
+                worldmap.mapVariation = 'lives_improved';
+                worldmap.mapData = data;
+              
+                worldmap.init(app.window.width, app.window.height);  
+                app.$body.toggleClass('loading');
+            });       		
+    	}else{
+    		alert('Please sign in.')
+    	}
+ 	
     },
     mruSelected: function(el){
     	app.$body.toggleClass('loading');
@@ -762,13 +775,14 @@ var app = {
     		app.$producttree.append('<li data-theme="c" data-role="list-divider">'+backbutton+'<span id="current_filter">'+app.current_mru+'</span></li>');    	
     	}
     	//debugger;
+    	var cls = app.signedin ? '' : 'disabled';
     	$.each($(selector), function(index, el){
     		var $el = $(el),
     			id = $el.attr('id'),
     			name = $el.find('div').html();
     		
     		if(app.$producttreetemp.find('li[id="'+id+'"]').find('ul').length > 0){
-    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true"><div data-value="'+id+'" class="cbxoverlay" onclick="app.mruSelected(this);"></div><div class="li_name">'+name+'</div><div class="li_shownext" onclick="app.showNextLevel(\''+id+'\');"></div></li>');	
+    			app.$producttree.append('<li data-id="'+id+'" data-inverse="true"><div data-value="'+id+'" class="cbxoverlay" onclick="app.mruSelected(this);"></div><div class="li_name">'+name+'</div><div class="li_shownext '+cls+'" onclick="app.showNextLevel(\''+id+'\');"></div></li>');	
     		}else{
     			app.$producttree.append('<li data-id="'+id+'" data-icon="false"><div data-value="'+id+'" class="cbxoverlay" onclick="app.mruSelected(this);"></div><div class="li_name">'+name+'</div></li>');
     		}
@@ -889,8 +903,13 @@ var app = {
     showNextLevel: function(clicked_id){
     	var self = this,
     		selector = 'li#'+clicked_id+ ' >ul > li';
-    
-    	self.renderSelectList(selector, true);
+    	if(!app.$menu.find('li[data-id="'+clicked_id+'"]').find('div.li_shownext').hasClass('disabled')){
+    		
+    		self.renderSelectList(selector, true);
+    	}else{
+    		alert('Please sign in.')
+    	}
+    	
     },
     showPreviousLevel: function(){
     	var self = this,
@@ -919,6 +938,26 @@ var app = {
     		
     	});    	
     },   
+    showLoginScreen: function(){
+    	var $loginScreen = $('#popupLogin');
+    	$loginScreen.css({
+    		display: 'block',
+    		opacity: 1
+    	});
+    	app.$page.css({
+    		opacity: 0.2
+    	});
+    },
+    closeLoginScreen: function(){
+    	var $loginScreen = $('#popupLogin');
+    	$loginScreen.css({
+    		display: 'none',
+    		opacity: 0
+    	});
+    	app.$page.css({
+    		opacity: 1
+    	});
+    },    
     showFavourites: function(){
     	var self = this;
         //JT: consider using CSS3 animation here to improve performance?
@@ -947,7 +986,7 @@ var app = {
     	var self= this;
     	//var $el = app.$btnaddfavourite;
         //console.log('in addFavourite - '+$el);
-    	debugger;
+    	//debugger;
     	if($el.hasClass('selected')){
     		var key = $el.parent('div').find('ul li.selected_region').attr('data-key');
     		$el.removeClass('selected');
@@ -994,8 +1033,10 @@ var app = {
         app.$favourites.css({
         	display: 'block'
         });
-        worldmap.map.clearSelectedRegions();
+        app.$body.click().click().click();
         if (window.cordova) window.cordova.exec(null, null, "SplashScreen", "hide", []);
+        
+
     },
     /* Error handling */
     handleAppError: function(err){

@@ -173,7 +173,7 @@ var worldmap = {
 					
 					regionHtml = regionHtml.replace(/\[country_name]/g, regionData.name);// arrTranslations[regionData.name.toLowerCase()]);
 					regionHtml = regionHtml.replace(/\[total_value]/g, format(self.getCategoriesTotal(regionData.categories)));
-					//regionHtml = regionHtml.replace(/\[category_details]/g, getCategoryDetails(regionData.categories));
+					regionHtml = regionHtml.replace(/\[percentageLI]/g, 0);
 					regionHtml = regionHtml.replace(/\[population_total]/g, format(Math.round(regionData.value_total_population)));
 					regionHtml = regionHtml.replace(/\[gdp_total]/g, format(regionData.value_total_gdp));
 					break;
@@ -193,8 +193,41 @@ var worldmap = {
 
 			$('#region-details').html(regionHtml);
 			app.renderFavouritePanel(regionData);
+			//debugger;
 			//$('#region-filter').html('<div class="btn" onclick="app.addFavourite(\''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\', \''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\');"><div class="btn_inner">'+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'</div></div>');
-	
+	        $(".dial").each(function(){
+	            var $this = $(this);
+	            var myVal = Math.round(regionData.percentageLI);
+	            // alert(myVal);
+	            $this.knob({
+		        	readOnly:true,
+		        	width: 100,
+		        	height: 100,
+		        	cursor: false,
+		        	thickness: '.2',
+		        	fgColor: '#0b5ed7',
+		        	bgColor: '#ccc',
+		        	inputColor: '#0b5ed7'	 	                       	
+	            });
+
+
+
+
+	            $({
+	                value: 0
+	            }).animate({
+
+	                value: myVal
+	            }, {
+	                duration: 2000,
+	                easing: 'swing',
+	                step: function () {
+	                    $this.val(Math.ceil(this.value)).trigger('change').val(Math.ceil(this.value)+'%');
+
+	                }
+	            })	        	
+	        });
+       
 			$('#info').css({
 				bottom: 0
 			});
@@ -234,8 +267,9 @@ var worldmap = {
 				//console.log(regionData);
 				//debugger;
 				var percentageLI = (regionData.categories[0].value * 100) / regionData.value_total_population || 0;
-				if(percentageLI> 99)percentageLI=99;
+				if(percentageLI> 99)percentageLI=100;
 				if(percentageLI< 1)percentageLI=1;
+				regionData.percentageLI = percentageLI;
 				if(regionData.color){
 					//debugger;
 					colors[region] = self.getColorForPercentage(percentageLI, regionData.color.low, regionData.color.middle, regionData.color.high);
@@ -431,19 +465,27 @@ var worldmap = {
 			case 'lives_improved':
 				title = '<h3 class="wm_title gill_sans purple_base">' + arrTranslations['lives_improved_header'] + '</h3>';
 				footnote = '<em class="wm_footnote">' + arrTranslations['lives_improved_footer'] + '</em>';
-				self.popupTemplate = 	'<table id="details">' +
-											'<tr><td colspan="2"><h3>[country_name]</h3></td></tr>' +
-											'<tr><td colspan="2">' + arrTranslations['lives_improved'] + '</td></tr>' +
-											'<tr><td colspan="2"><div class="total_value">[total_value]</div><span>' + arrTranslations['million'] + '</span></td></tr>' +
-											'<tr>' +
-												'<td>' +
-													'<table>' +
+				self.popupTemplate = 	'<table id="details" style="position: absolute;">' +
+											'<tr><td colspan="3"><h3>[country_name]</h3></td></tr>' +
+											//'<tr><td colspan="3">Filtered By: <span class="span_filtered_by"></span>   Grouped By: <span class="span_grouped_by"></span></td></tr>' +
+
+											'<tr class="content">' +
+												'<td style="width: 33.3%">' +
+													'<table style="float: left">' +
 														'<tr><td>' + arrTranslations['population'] + '</td></tr>' +
 														'<tr><td><div class="country_total total_value">[population_total]</div><span>' + arrTranslations['million'] + '</span></td></tr>' +
+														'<tr></tr>' +
+														'<tr><td>' + arrTranslations['lives_improved'] + '</td></tr>' +
+														'<tr><td><div class="total_value">[total_value]</div><span>' + arrTranslations['million'] + '</span></td></tr>' +
 													'</table>' +
 												'</td>' +
-												'<td>' +
-													'<table>' +
+												'<td style="width: 33.3%">' +
+													'<table style="margin: 0px auto;">' +
+														'<tr><td><input data-skin="tron" type="text" value="[percentageLI]" class="dial"></td></tr>' +
+													'</table>' +
+												'</td>' +												
+												'<td style="width: 33.3%">' +
+													'<table style="float: right;">' +
 														'<tr><td>' + arrTranslations['gdp'] + '</td></tr>' +
 														'<tr><td><span class="dollar">$</span><div class="country_total total_value">[gdp_total]</div><span>' + arrTranslations['billion'] + '</span></td></tr>' +
 													'</table>' +

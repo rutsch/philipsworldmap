@@ -14,7 +14,20 @@
 	<title>Philips Sustainability WorldMap</title>
 </head>
 <body>
+	<div id="popupLogin" data-theme="c" class="btn">
+		<div class="close_button" onclick="app.closeLoginScreen();"></div>
+        <form class="btn_inner height_auto">
+            <div style="padding:10px 20px;">
+				<h3>Please sign in</h3>
+				<input type="text" name="user" id="un" value="" placeholder="username" data-theme="b" />
+				<input type="password" name="pass" id="pw" value="" placeholder="password" data-theme="b" />
 
+				<div class="btn" onclick="app.btnSignInClick();">			    	
+		    		<div class="btn_inner">Sign in</div>
+	    		</div>
+            </div>
+        </form>
+    </div>	
 	<div class="pages" id="home">
 		
 		<div id="menu" class="">
@@ -26,7 +39,7 @@
 							<div class="oru-button left" data-value="1" onclick="app.oruSelected(this);">World</div>
 							<div class="oru-button" data-value="2" onclick="app.oruSelected(this);">Region</div>
 							<div class="oru-button selected" data-value="3" onclick="app.oruSelected(this);">BMC</div>
-							<div class="oru-button right" data-value="4" onclick="app.oruSelected(this);">Country</div>
+							<div class="oru-button disabled right" data-value="4" onclick="app.oruSelected(this);">Country</div>
 					
 					</div>
 		
@@ -44,19 +57,9 @@
 						<label>Are you a Philips employee?<br/>
 							Sign in and unlock all the features of the application.
 						</label>						
-						<div id="popupLogin" data-theme="c" class="btn">
-					        <form class="btn_inner height_auto">
-					            <div style="padding:10px 20px;">
-					              <h3>Please sign in</h3>
-					              <input type="text" name="user" id="un" value="" placeholder="username" data-theme="b" />
-					              <input type="password" name="pass" id="pw" value="" placeholder="password" data-theme="b" />
-					
-					              <!-- <button type="submit" data-theme="c">Sign in</button>-->
-					            </div>
-					        </form>
-					    </div>	
+
 					    <br/>
-						<div class="btn" onclick="app.btnSignInClick(this);">			    	
+						<div class="btn" onclick="app.btnOpenSignInClick();">			    	
 				    		<div class="btn_inner">Sign in</div>
 			    		</div>
 					</fieldset>
@@ -65,7 +68,7 @@
 							<div class="btn" onclick="app.showFavourites();">			    	
 					    		<div class="btn_inner">Bookmarks</div>
 				    		</div>
-							<div class="btn" onclick="app.SignOut();">			    	
+							<div class="btn" onclick="app.signOut();">			    	
 					    		<div class="btn_inner">Log out</div>
 				    		</div>
 						</div>					
@@ -96,14 +99,16 @@
 			<div id="info" class="">
 				<div class = "slideSelectors">
 					<div class = 'item selected'></div>							
-					<div class = 'item'></div>							
+					<!-- <div class = 'item'></div>-->							
 					<div class = 'item'></div>					
 				</div>					
 				<div class="close_button" onclick="app.closeInfoPanel();"></div>
 				<div id="carousel-single-image" class="minimal-light">       
 					<div class="slider">		
 						<div class="item" id="region-details"></div>		
-						<div class="item" id="region-history"></div>
+						<!--<div class="item" id="region-history">
+							
+						</div>-->
 						<div class="item" id="region-filter">
 							<h3>Current selection</h3>
 							<div id="current_favourite" >
@@ -119,6 +124,7 @@
 				</div>					
 			</div>				
 		</div>
+
 		<!-- /content -->
 	</div>
 
@@ -132,6 +138,7 @@
 	<script type="text/javascript" src="js/jquery.js">//</script>
 	<script type="text/javascript" src="js/jquery.corner.js">//</script>
 	<script type="text/javascript" src="js/jquery.mobile-events.min.js">//</script>
+	<script type="text/javascript" src="js/jquery.knob.js">//</script>
 	<script type="text/javascript" src="js/ios-slider.js">//</script>
 	<script type="text/javascript" src="js/store/webstorage.js">//</script>
 	<script type="text/javascript" src="js/store/websql_store.js">//</script>
