@@ -176,19 +176,25 @@ var app = {
     			});
     	    },
     	    // get translations js
-    	    translationsJs: function(callback){
+    	    /*translationsJs: function(callback){
     			app.getTranslationsData(function(err, data){
     				//if(err) callback(err);
     				console.log(data);
     				callback(null, data);
     			});
+    	    },*/
+    	    snapshotConfig: function(callback){
+    	    	app.getSnapshotConfig(function(err, data){
+    	    		callback(null, data);
+    	    	});
     	    }
     	},
     	// all done
     	function(err, results) {
     		if(err) self.handleAppError(err);
     		// prepare html for the app (mru filter, bookmarks panel etc)
-    		app.appendTranslationsJS(results.translationsJs);
+    		app.snapshotconfig = results.snapshotConfig;
+    		//app.appendTranslationsJS(results.translationsJs);
     		app.renderProductTreeTemp(results.mruHtml);
         	var selector = 'li#philips';//'li#philips >ul > li';
         	app.renderSelectList(selector, false);    		
@@ -205,6 +211,41 @@ var app = {
     	});    		
     },
     /* Data functions */
+    getSnapshotConfig: function(cb){
+    	var self = this;
+    	var objData = {};
+    	var objRequest = $.ajax({
+            type: "POST",
+            url: config.general.auth_1_url,
+            dataType: 'jsonp',
+            data: objData,
+            cache: false,
+            timeout: 40000
+        });    
+    	objRequest.done(function (response) {
+
+    		cb(response.snapshotconfig);
+                  		
+    	});
+        objRequest.fail(function (objRequestStatus) {
+
+            var strErrorMessage;
+            switch (objRequestStatus.status) {
+                case 0:
+                    //timeout
+                    strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.snapshot_url;
+                    break;
+                case 200:
+                    //json parse error
+                    strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
+                    break;
+                default:
+                    //server error
+                    strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
+                    break;
+            }
+        }); 
+    },
     getBookmarksData: function(cb){
     	var self = this;
     	app.store.findFavourites(function(result){
@@ -225,7 +266,7 @@ var app = {
                     var objRequest = $.ajax({
                         type: "GET",
                         url: config.general.mru_url,
-                        dataType: 'html',
+                        dataType: 'jsonp',
                         data: objData,
                         cache: false,
                         timeout: 40000
@@ -233,8 +274,8 @@ var app = {
 
                     objRequest.done(function (response) {
                     	//debugger;
-                        app.store.setCacheKey('mru_tree', response, function(){
-                            cb(null, response);
+                        app.store.setCacheKey('mru_tree', response.html, function(){
+                            cb(null, response.html);
                         });
                     });
 
@@ -327,7 +368,7 @@ var app = {
     },
     getTranslationsData: function(cb){
         // Check localstorage first 
-        app.store.findCacheKey('arr_translations', function(result){
+        /*app.store.findCacheKey('arr_translations', function(result){
             
             if(result){
             	console.log('translations from cache');
@@ -379,13 +420,19 @@ var app = {
                     cb(null, '');
                 }
             }
-        });    	
+        }); */
+    	
+    	
+    	cb(null, arrTranslations);
     },
     getSnapshotData: function(oru, mru, cb){
     	console.log('getting worldmap data');
     	var objData = {
     		oru: oru,
-    		mru: mru
+    		mru: mru,
+    		token: app.token,
+    		type: 'json',
+    		snapshotid: 1
     	};         
     	var key = app.currentsnapshotid+'_'+oru+'_'+mru;
     	app.store.findCacheKey(key, function(result){
@@ -446,7 +493,7 @@ var app = {
 
             //colors to be defined in config.js? or maybe even in base_configuration.xml on the server (that might avoid the need to publish the app each time tis changes...)
         	var colors = {
-        		'europe': {
+        		'emea': {
         			low: '#99EAF0',
         			middle: '#5BCCD4',
         			high: '#30B6BF'
@@ -456,7 +503,7 @@ var app = {
         			middle: '#A359C8',
         			high: '#8737B0'    			
         		},
-        		'north_america_region': {
+        		'north_america': {
         			low: '#7DABF1',
         			middle: '#5C95EA',
         			high: '#3D7FDF'    			
@@ -466,7 +513,7 @@ var app = {
         			middle: '#5C95EA',
         			high: '#3D7FDF'    			
         		},    		
-        		'south_america': {
+        		'latam': {
         			low: '#CBF277',
         			middle: '#A6D542',
         			high: '#98C833'    			
@@ -635,15 +682,117 @@ var app = {
     }, 
     btnSignInClick: function(){
     	// do the actual signin
-    	//when successfull
-    	app.signedin = true;
-		app.$signin.hide();
-		app.$signedin.show();
-		app.$orubuttons.removeClass('disabled');
-		app.renderSelectList('li#philips', false);
-		app.closeLoginScreen();
+    	var un, pw;
+    	un = $('#un').val();
+    	pw = $('#pw').val();
+
+    	var objData = {};
+        var objRequest = $.ajax({
+            type: "GET",
+            url: config.general.auth_1_url,
+            dataType: 'jsonp',
+            data: objData,
+            cache: false,
+            timeout: 40000
+        });
+
+        objRequest.done(function (response) {
+        	objRequest = $.ajax({
+                type: "GET",
+                url: config.general.auth_2_url,
+                dataType: 'jsonp',
+                data: objData,
+                cache: false,
+                timeout: 40000
+            });    
+        	objRequest.done(function (response) {
+        		app.token = response.token;
+            	objData = {
+            		username: un,
+            		password: pw,
+            		url: '/index.aspx',
+            		token: response.token,
+            		type: 'json'
+            	};
+            	var objRequest2 = $.ajax({
+                    type: "POST",
+                    url: config.general.auth_3_url,
+                    dataType: 'jsonp',
+                    data: objData,
+                    cache: false,
+                    timeout: 40000
+                });    
+            	objRequest2.done(function (response) {
+            		app.token = response.token;
+                   	
+                	//when successfull
+                	app.signedin = true;
+            		app.$signin.hide();
+            		app.$signedin.show();
+            		app.$orubuttons.removeClass('disabled');
+            		app.renderSelectList('li#philips', false);
+            		app.closeLoginScreen();            		
+            	});
+                objRequest2.fail(function (objRequestStatus) {
+                    var strErrorMessage;
+                    switch (objRequestStatus.status) {
+                        case 0:
+                            //timeout
+                            strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.snapshot_url;
+                            break;
+                        case 200:
+                            //json parse error
+                            strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
+                            break;
+                        default:
+                            //server error
+                            strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
+                            break;
+                    }
+                });        		
+        	});
+            objRequest.fail(function (objRequestStatus) {
+                var strErrorMessage;
+                switch (objRequestStatus.status) {
+                    case 0:
+                        //timeout
+                        strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.snapshot_url;
+                        break;
+                    case 200:
+                        //json parse error
+                        strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
+                        break;
+                    default:
+                        //server error
+                        strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
+                        break;
+                }
+            });         	
+      	
+            
+        });
+
+        objRequest.fail(function (objRequestStatus) {
+            var strErrorMessage;
+            switch (objRequestStatus.status) {
+                case 0:
+                    //timeout
+                    strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.snapshot_url;
+                    break;
+                case 200:
+                    //json parse error
+                    strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
+                    break;
+                default:
+                    //server error
+                    strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
+                    break;
+            }
+        });    
+
     }, 
-    btnOpenSignInClick: function(){   	
+    btnOpenSignInClick: function(){
+    	
     	app.showLoginScreen();
     }, 
     signOut: function(){
