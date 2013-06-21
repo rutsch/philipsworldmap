@@ -368,6 +368,7 @@ var worldmap = {
 				},
 
 				onRegionClick: function(e, code){
+					console.log('Country clicked: ' + code);
 					e.preventDefault();
 					self.handleRegionMouseOver(e, code);
 					self.showCountryDetails(e, null, code);		
