@@ -260,6 +260,9 @@ body {
 	overflow-y: hidden;
     position: fixed;
 }
+body.loading{
+	opacity: 0.6;
+}
 i{
 	display: none!important;
 }

@@ -647,6 +647,7 @@ var app = {
     	}
     }, 
     oruSelected: function(el){
+    	app.$body.toggleClass('loading');
     	var $el = $(el);
     	$el.parent().find('div').removeClass('selected');
     	$el.addClass('selected');
@@ -658,9 +659,11 @@ var app = {
             worldmap.mapData = data;
           
             worldmap.init(app.window.width, app.window.height);  
+            app.$body.toggleClass('loading');
         });    	
     },
     mruSelected: function(el){
+    	app.$body.toggleClass('loading');
     	var $spancurrentfilter = app.$producttree.find('span#current_filter'),
     		$arrselect = app.$producttree.find('.cbxoverlay');
     	//alert(id);	
@@ -681,6 +684,7 @@ var app = {
             worldmap.mapData = data;
           
             worldmap.init(app.window.width, app.window.height);  
+            app.$body.toggleClass('loading');
         });    	        
     },    
     /* HTML functions */
@@ -706,6 +710,7 @@ var app = {
 		
 		// attach click event to each stored favourite
 		self.$favourites.find('div.favourite_wrapper li').click(function(){
+			app.$body.toggleClass('loading');
 			var key = $(this).parent().find('li.selected_region').attr('data-key');
 			key = key.replace('fav_', '');
 			var arr = key.split('_');
@@ -738,7 +743,8 @@ var app = {
 					worldmap.handleRegionMouseOver(null, code);
 					worldmap.showCountryDetails(null, null, code);	
 					app.$showmenu.click();
-					app.$bottomcarousel.iosSlider('goToSlide', 1);					
+					app.$bottomcarousel.iosSlider('goToSlide', 1);	
+					app.$body.toggleClass('loading');
                 }	        	
 	        });   
 		});    	
