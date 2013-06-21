@@ -90,6 +90,8 @@ var worldmap = {
 			if ($.inArray(code, self.mapData[i].code) > -1 || self.mapData[i].code === code) {
 				//debugger;
 				self.map.setSelectedRegions(self.getMapCodes(self.mapData[i].code));
+				
+				self.showCountryDetails(e, null, code);
 				break;
 			}
 		}
@@ -371,7 +373,7 @@ var worldmap = {
 					console.log('Country clicked: ' + code);
 					e.preventDefault();
 					self.handleRegionMouseOver(e, code);
-					self.showCountryDetails(e, null, code);		
+					
 				},
 				onRegionOver: function (e, code) {
 					//self.handleRegionMouseOver(e, code);

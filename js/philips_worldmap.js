@@ -994,6 +994,7 @@ var app = {
         app.$favourites.css({
         	display: 'block'
         });
+        worldmap.map.clearSelectedRegions();
         if (window.cordova) window.cordova.exec(null, null, "SplashScreen", "hide", []);
     },
     /* Error handling */
