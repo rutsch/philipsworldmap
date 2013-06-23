@@ -404,17 +404,27 @@ var worldmap = {
 				},
 
 				onRegionClick: function(e, code){
-					console.log('Country clicked: ' + code);
 					e.preventDefault();
-					self.handleRegionMouseOver(e, code);
+					console.log('Country code clicked: ' + code);
+					if(!isClickFunctionRunning){
+						console.log('Executing CLICK');
+						isClickFunctionRunning=true;
+						self.handleRegionMouseOver(e, code);
+					}
+					
 					
 				},
 				onRegionOver: function (e, code) {
 					//self.handleRegionMouseOver(e, code);
-
+					console.log('onRegionOver(e, "'+code+'")');
+					if(!isClickFunctionRunning){
+						console.log('Executing MOUSEOVER');
+						isClickFunctionRunning=true;
+						self.handleRegionMouseOver(e, code);
+					}
 				},
 				onRegionSelected: function (e, code, isSelected, selectedRegions) {
-			
+					//console.log('onRegionSelected(e, "'+code+'", '+isSelected+', "'+selectedRegions+'")');
 					//self.handleRegionSelected(e, code, isSelected, selectedRegions);
 				},
 				onRegionOut: function (e, code) {
@@ -547,3 +557,11 @@ function format(nStr) {
 	}
 	return x1 + x2;
 }
+
+//hack to allow first click on worldmap
+var isClickFunctionRunning=false;
+var timerId=window.setInterval(function(){
+	if(isClickFunctionRunning)isClickFunctionRunning=false;
+},1000);
+
+
