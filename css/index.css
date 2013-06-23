@@ -346,29 +346,20 @@ label{
 }
 
 /* right menu panel */
-.scroller_wrapper{
+#menu, #favourites {
 	position: fixed;
 	right: 0px;
 	bottom: 0px;
 	top: 0px;
 	height: 100%;
 	width: 250px;
-
-	background: #eaeaea;
-	z-index: 0;	
-	overflow: auto;
-}
-#menu, #favourites {
-	position: absolute;
-	height: auto;
-	width: 250px;
 	display: none;
 	background: #eaeaea;
 	z-index: 0;
-	-webkit-transition: right 0.2s ease-in-out;
 }
 #favourites {
 	z-index: 1;
+	-webkit-transition: right 0.2s ease-in-out;
 }
 #favourites .menu_inner{
 	position: relative;
@@ -464,6 +455,12 @@ div.oru-button.right{
 }
 div.oru-button.selected{
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#0b5ed7), color-stop(80%,#7a97d6), color-stop(99%,#7a97d6));
+	overflow: hidden;
+	color: #fff;
+}
+#popupLogin .btn_inner.selected{
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#0b5ed7), color-stop(80%,#7a97d6), color-stop(99%,#7a97d6));
+	box-shadow: inset 0 0 0px #999, inset 0 0 0px #999, inset 0 0 1px #666;
 	overflow: hidden;
 	color: #fff;
 }
@@ -569,12 +566,13 @@ td.dial_wrapper div{
 	margin-right: 22px;
 }
 #overlay{
-	position: absolute
+	position: absolute;
 	width: 100%!important;
 	height: 100%!important;
 	z-index: 100;
 	background: #000;
 	display: none;	
+	opacity: 0.5;
 }
 /* login popup */
 #popupLoginWrapper{
@@ -598,23 +596,39 @@ td.dial_wrapper div{
 	background: #ccc;
 	-webkit-transition: opacity 0.8s ease-in-out;	
 	cursor: default;
+	
+}
+.loginloader{
+	width: 100px;
+	height: 100px;
+	margin: 0px auto;
+	margin-top: 30px;
+	background: url('../img/ajax-loader.gif') no-repeat 50% 50%;
+}
+#popupLogin form{
+	position: absolute;
+	width: 100%;
+	top: 0px;
 }
 #popupLogin .btn{
-	margin: 10px 0 20px 0;
+	margin: 8px 0 20px 0;
+	font-size: 20px;
 }
 #popupLogin .btn_inner{
 	height: 100%;	
 }
 #popupLogin .btn_inner .btn_inner{
 	height: 30px;
+	
 }
 #popupLogin.open{
 	height: 160px;	
 }
 #popupLogin input{
 	width: 100%;
-	height: 20px;
-	padding-bottom: 10px;
+	height: 30px;
+	font-size: 20px;
+	line-height: 30px;
 	margin-bottom: 15px;
 }
 .height_auto{

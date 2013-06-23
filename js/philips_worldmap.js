@@ -50,6 +50,8 @@ var app = {
     $btnaddfavourite: $('div.add_favourite'),
     $overlay: $('#overlay'),
     $scrollerwrapper: $('.scroller_wrapper'),
+    $loginscreen: $('#popupLogin'),
+    $loginloader: $('.loginloader'),
     // Application Constructor
     initialize: function() {
         var self = this;
@@ -89,7 +91,7 @@ var app = {
         	app.addFavourite($(e.currentTarget));
         });
         app.$overlay.click(function(e){
-        	debugger;
+        	//debugger;
         	e.preventDefault();
         	e.stopPropagation();
         });
@@ -154,8 +156,8 @@ var app = {
     	app.store.clearCache(function(){
     		
     	});
-        //app.myScroll = new iScroll('menu', {lockDirection: true }); 
-        //app.myScrollFavs = new iScroll('favourites', {lockDirection: true });
+        app.myScroll = new iScroll('menu', {lockDirection: true }); 
+        app.myScrollFavs = new iScroll('favourites', {lockDirection: true });
      
 
     	// parallel async
@@ -694,100 +696,129 @@ var app = {
     	var un, pw;
     	un = $('#un').val();
     	pw = $('#pw').val();
-    	
-    	if(un.indexOf('code1\\') == -1 && un.indexOf('code1\\') == -1) un = 'code1\\'+un;
-
-        //call1 - get a session
-        var objData = {
-            type: 'json'
-        };        
-        var objRequest = $.ajax({
-            type: "GET",
-            url: config.general.auth_1_url,
-            dataType: 'jsonp',
-            data: objData,
-            cache: false,
-            timeout: 40000
-        });
-
-        objRequest.done(function (response) {
-        	
-            //call2 - get snapshot config data
-            var objDataNested = {
-                type: 'json',
-                stay: 'true'
-            }; 
-            var objRequestNested = $.ajax({
+    	if(un == "" || pw == "") {
+    		alert('Please enter a code1 account and a password');
+    	}else{
+    		app.$loginloader.show();
+    		app.$loginscreen.find('form').hide();
+    		if(un.toLowerCase().indexOf('code1\\') == -1) un = 'code1\\' + un;
+            //call1 - get a session
+            var objData = {
+                type: 'json'
+            };        
+            var objRequest = $.ajax({
                 type: "GET",
                 url: config.general.auth_1_url,
                 dataType: 'jsonp',
-                data: objDataNested,
+                data: objData,
                 cache: false,
                 timeout: 40000
-            });    
-        	objRequestNested.done(function (response) {
-        		app.token = response.token;
+            });
+
+            objRequest.done(function (response) {
             	
-                //call3 - get token
-                var objDataNestedNested = {
+                //call2 - get snapshot config data
+                var objDataNested = {
                     type: 'json',
-                    method: 'generatejsvarsjson'
+                    stay: 'true'
                 }; 
-                var objRequestNestedNested = $.ajax({
+                var objRequestNested = $.ajax({
                     type: "GET",
-                    url: config.general.auth_2_url,
+                    url: config.general.auth_1_url,
                     dataType: 'jsonp',
-                    data: objDataNestedNested,
+                    data: objDataNested,
                     cache: false,
                     timeout: 40000
-                });   
-                objRequestNestedNested.done(function(response){
-                    app.token = response.token;
-
-                    //call4 - perform authentication with the token we just retrieved
-                    var objDataAuthenticate = {
-                        username: un,
-                        password: pw,
-                        url: '/index.aspx',
-                        token: response.token,
-                        type: 'json'
+                });    
+            	objRequestNested.done(function (response) {
+            		app.token = response.token;
+                	
+                    //call3 - get token
+                    var objDataNestedNested = {
+                        type: 'json',
+                        method: 'generatejsvarsjson'
                     }; 
-                    console.log('before sending authentication request');
-                    var objAjax={
-                        type: "POST",
-                        url: config.general.auth_3_url,
-                        dataType: 'json',
-                        data: objDataAuthenticate,
+                    var objRequestNestedNested = $.ajax({
+                        type: "GET",
+                        url: config.general.auth_2_url,
+                        dataType: 'jsonp',
+                        data: objDataNestedNested,
                         cache: false,
-                        timeout: 40000                      
-                    }
-                    
-                    //this is not required when it's running the the app
-                    if (!window.cordova){
-                        objAjax.xhrFields={withCredentials: true};
-                        objAjax.crossDomain=true;
-                        objDataAuthenticate.fulldomain=location.protocol+"//"+location.hostname;                      
-                    }
-
-                    var objRequestAuthenticate = $.ajax(objAjax);
-                    objRequestAuthenticate.done(function (response) {
-                        //alert(JSON.stringify(response));
+                        timeout: 40000
+                    });   
+                    objRequestNestedNested.done(function(response){
                         app.token = response.token;
+
+                        //call4 - perform authentication with the token we just retrieved
+                        var objDataAuthenticate = {
+                            username: un,
+                            password: pw,
+                            url: '/index.aspx',
+                            token: response.token,
+                            type: 'json'
+                        }; 
+                        console.log('before sending authentication request');
+                        var objAjax={
+                            type: "POST",
+                            url: config.general.auth_3_url,
+                            dataType: 'json',
+                            data: objDataAuthenticate,
+                            cache: false,
+                            timeout: 40000                      
+                        }
                         
-                        //when successfull
-                        app.signedin = true;
-                        app.$signin.hide();
-                        app.$signedin.show();
-                        app.$orubuttons.removeClass('disabled');
-                        app.renderSelectList('li#philips', false);
-                        app.closeLoginScreen();                 
-                    });
-                    objRequestAuthenticate.fail(function (objRequestStatus) {
+                        //this is not required when it's running the the app
+                        if (!window.cordova){
+                            objAjax.xhrFields={withCredentials: true};
+                            objAjax.crossDomain=true;
+                            objDataAuthenticate.fulldomain=location.protocol+"//"+location.hostname;                      
+                        }
+
+                        var objRequestAuthenticate = $.ajax(objAjax);
+                        objRequestAuthenticate.done(function (response) {
+                            //alert(JSON.stringify(response));
+                            app.token = response.token;
+                            
+                            //when successfull
+                            app.signedin = true;
+                            app.$signin.hide();
+                            app.$signedin.show();
+                            app.$orubuttons.removeClass('disabled');
+                            app.renderSelectList('li#philips', false);
+                            app.closeLoginScreen();                 
+                        });
+                        objRequestAuthenticate.fail(function (objRequestStatus) {
+                            var strErrorMessage;
+                            switch (objRequestStatus.status) {
+                                case 0:
+                                    //timeout
+                                    strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.auth_3_url;
+                                    break;
+                                case 200:
+                                    //json parse error
+                                    strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
+                                    break;
+                                default:
+                                    //server error
+                                    strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
+                                    break;
+                            }
+                            //alert('authentication failed - '+strErrorMessage);
+                    		app.$loginloader.hide();
+                    		app.$loginscreen.find('form').show();
+                            console.log(objRequestStatus);
+                            
+                        });  
+
+                    })
+                    
+                    //call3 - failed
+                    objRequestNestedNested.fail(function(objRequestStatus){
                         var strErrorMessage;
                         switch (objRequestStatus.status) {
                             case 0:
                                 //timeout
-                                strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.auth_3_url;
+                                strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.auth_2_url;
                                 break;
                             case 200:
                                 //json parse error
@@ -797,20 +828,23 @@ var app = {
                                 //server error
                                 strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
                                 break;
-                        }
-                        console.log('authentication failed - '+strErrorMessage);
-                        console.log(objRequestStatus);
-                    });  
+                        }               
+                        //alert('authentication failed - '+strErrorMessage);
+                    })
 
-                })
-                
-                //call3 - failed
-                objRequestNestedNested.fail(function(objRequestStatus){
+
+
+
+
+            	});
+
+                //call2 - failed
+                objRequestNested.fail(function (objRequestStatus) {
                     var strErrorMessage;
                     switch (objRequestStatus.status) {
                         case 0:
                             //timeout
-                            strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.auth_2_url;
+                            strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.auth_1_url;
                             break;
                         case 200:
                             //json parse error
@@ -820,17 +854,15 @@ var app = {
                             //server error
                             strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
                             break;
-                    }                    
-                })
-
-
-
-
-
-        	});
-
-            //call2 - failed
-            objRequestNested.fail(function (objRequestStatus) {
+                    }
+                    //alert('authentication failed - '+strErrorMessage);
+                });         	
+          	
+                
+            });
+            
+            //call1 - failed
+            objRequest.fail(function (objRequestStatus) {
                 var strErrorMessage;
                 switch (objRequestStatus.status) {
                     case 0:
@@ -846,29 +878,11 @@ var app = {
                         strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
                         break;
                 }
-            });         	
-      	
-            
-        });
-        
-        //call1 - failed
-        objRequest.fail(function (objRequestStatus) {
-            var strErrorMessage;
-            switch (objRequestStatus.status) {
-                case 0:
-                    //timeout
-                    strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.auth_1_url;
-                    break;
-                case 200:
-                    //json parse error
-                    strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
-                    break;
-                default:
-                    //server error
-                    strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
-                    break;
-            }
-        });    
+                //alert('authentication failed - '+strErrorMessage);
+                
+            });     		
+    	}
+    	   
 
     }, 
     btnOpenSignInClick: function(){
@@ -951,7 +965,7 @@ var app = {
 		
 		self.$favourites.find('div.menu_inner').html(html);
 		self.$favourites.find('.add_favourite').addClass('selected');
-		//self.myScrollFavs.refresh();
+		self.myScrollFavs.refresh();
 		
 		// attach click event to each stored favourite
 		self.$favourites.find('div.favourite_wrapper li').click(function(){
@@ -1029,7 +1043,7 @@ var app = {
     	
         var event = "ontouchend" in document ? 'tap' : 'click';     
         
-    	//self.myScroll.refresh(); 
+    	self.myScroll.refresh(); 
     },
     renderFavouritePanel: function(regionData){
     	var self = this;
@@ -1085,8 +1099,8 @@ var app = {
         });		
         app.menuStatus = 'closed';
 
-        //app.myScroll.refresh();
-        //app.myScrollFavs.refresh();
+        app.myScroll.refresh();
+        app.myScrollFavs.refresh();
         
         app.$bottomcarousel.iosSlider('destroy');
 		app.$bottomcarousel.iosSlider({
@@ -1184,8 +1198,7 @@ var app = {
     },   
     showLoginScreen: function(){
     	app.$overlay.show();
-    	var $loginScreen = $('#popupLogin');
-    	$loginScreen.css({
+    	app.$loginscreen.css({
     		display: 'block',
     		opacity: 1
     	});
@@ -1195,8 +1208,7 @@ var app = {
     },
     closeLoginScreen: function(){
     	app.$overlay.hide();
-    	var $loginScreen = $('#popupLogin');
-    	$loginScreen.css({
+    	app.$loginscreen.css({
     		display: 'none',
     		opacity: 0
     	});
@@ -1214,13 +1226,7 @@ var app = {
     		//app.menuStatus = "0px"
     		
     	});
-    	self.$menu.css({
-    		right: - self.window.intoptionswidth
-    	}, 300, function(){
-    		//app.menuStatus = "0px"
-    		
-    	});    	
-    	//self.myScrollFavs.refresh();
+    	self.myScrollFavs.refresh();
     },
     hideFavourites: function(){
     	var self = this;
@@ -1232,12 +1238,6 @@ var app = {
     		//app.menuStatus = "0px"
     		
     	});
-    	self.$menu.css({
-    		right: 0
-    	}, 300, function(){
-    		//app.menuStatus = "0px"
-    		
-    	});    	
     },
     addFavourite: function($el){
 

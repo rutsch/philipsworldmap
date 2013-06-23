@@ -59,15 +59,16 @@
 	<div id="overlay"></div>
 
 	<div id="popupLogin" data-theme="c" class="btn">
+		<div class="loginloader"></div>
 		<div class="close_button" onclick="app.closeLoginScreen();"></div>
         <form class="btn_inner height_auto">
             <div style="padding:10px 20px;">
 				<h3>Please sign in</h3>
 				<input type="text" name="user" id="un" value="" placeholder="CODE1 account" data-theme="b" />
-				<input type="password" name="pass" id="pw" value="" placeholder="password" data-theme="b" />
+				<input type="password" name="pass" id="pw" value="" placeholder="Password" data-theme="b" />
 
 				<div class="btn" onclick="app.btnSignInClick();">			    	
-		    		<div class="btn_inner">Sign in</div>
+		    		<div class="btn_inner selected">Sign in</div>
 	    		</div>
             </div>
         </form>
@@ -81,12 +82,10 @@
 				<div class="menu_inner">
 					<label >Group data by</label>
 					<div id="select-oru">
-					
-							<div class="oru-button left" data-value="1" onclick="app.oruSelected(this);">World</div>
-							<div class="oru-button" data-value="2" onclick="app.oruSelected(this);">Region</div>
-							<div class="oru-button selected" data-value="3" onclick="app.oruSelected(this);">BMC</div>
-							<div class="oru-button disabled right" data-value="4" onclick="app.oruSelected(this);">Country</div>
-					
+						<div class="oru-button left" data-value="1" onclick="app.oruSelected(this);">World</div>
+						<div class="oru-button" data-value="2" onclick="app.oruSelected(this);">Region</div>
+						<div class="oru-button selected" data-value="3" onclick="app.oruSelected(this);">BMC</div>
+						<div class="oru-button right" data-value="4" onclick="app.oruSelected(this);">Country</div>
 					</div>
 		
 					<label class="select">Filter data by</label>
@@ -197,8 +196,8 @@
 	<script type="text/javascript" src="js/async.js">//</script>
 	<!-- needed to retrieve translations - this needs to be hosted/served by the same server that generates the content (NodeJS?) -->
 	
-	<!--<script type="text/javascript" src="js/iscroll.js">//</script>
-	<script src="js/jquery.nicescroll.js"></script> -->
+	<script type="text/javascript" src="js/iscroll.js">//</script>
+	<!--<script src="js/jquery.nicescroll.js"></script> -->
 	<script type="text/javascript" src="js/world_map/swipeupdown.js">//</script>
 	<script type="text/javascript" src="js/world_map/jquery-jvectormap.js">//</script>
 	<script type="text/javascript" src="js/world_map/jquery-mousewheel.js">//</script>
