@@ -596,7 +596,6 @@ td.dial_wrapper div{
 	background: #ccc;
 	-webkit-transition: opacity 0.8s ease-in-out;	
 	cursor: default;
-	
 }
 .loginloader{
 	width: 100px;
@@ -626,7 +625,7 @@ td.dial_wrapper div{
 }
 #popupLogin input{
 	position: relative;
-	width: 100%;
+	width: 235px;
 	height: 30px;
 	font-size: 20px;
 	line-height: 30px;

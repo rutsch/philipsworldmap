@@ -452,6 +452,7 @@ var app = {
                 cb(null, JSON.parse(result));
                 
             }else{
+
                 var objRequest = $.ajax({
                     type: "GET",
                     url: config.general.snapshot_url,
@@ -900,7 +901,7 @@ var app = {
     	
     	var $el = $(el);
     	if(!$el.hasClass('disabled')){
-        	app.$body.toggleClass('loading');    	
+        	app.$overlay.show();//.$body.toggleClass('loading');    	
         	$el.parent().find('div').removeClass('selected');
         	$el.addClass('selected');
         	app.current_oru = $el.attr('data-value');
@@ -914,7 +915,7 @@ var app = {
                 worldmap.mapData = data;
               
                 worldmap.init(app.window.width, app.window.height);  
-                app.$body.toggleClass('loading');
+                app.$overlay.hide();// $body.toggleClass('loading');
             });       		
     	}else{
     		alert('Please sign in.')
@@ -922,7 +923,7 @@ var app = {
  	
     },
     mruSelected: function(el){
-    	app.$body.toggleClass('loading');
+    	app.$overlay.show();//app.$body.toggleClass('loading');
     	var $spancurrentfilter = app.$producttree.find('span#current_filter'),
     		$arrselect = app.$producttree.find('.cbxoverlay');
     	//alert(id);	
@@ -943,7 +944,7 @@ var app = {
             worldmap.mapData = data;
           
             worldmap.init(app.window.width, app.window.height);  
-            app.$body.toggleClass('loading');
+            app.$overlay.hide();//app.$body.toggleClass('loading');
         });    	        
     },    
     /* HTML functions */
@@ -969,7 +970,7 @@ var app = {
 		
 		// attach click event to each stored favourite
 		self.$favourites.find('div.favourite_wrapper li').click(function(){
-			app.$body.toggleClass('loading');
+			app.$overlay.show();//app.$body.toggleClass('loading');
 			var key = $(this).parent().find('li.selected_region').attr('data-key');
 			key = key.replace('fav_', '');
 			var arr = key.split('_');
@@ -1008,7 +1009,7 @@ var app = {
 					app.$slideselectors.find('div').removeClass('selected');
 					app.$slideselectors.find('div').first().addClass('selected');				
 					
-					app.$body.toggleClass('loading');
+					app.$overlay.hide();//app.$body.toggleClass('loading');
                 }	        	
 	        });   
 		});    	
@@ -1026,7 +1027,7 @@ var app = {
     		app.$producttree.append('<li data-theme="c" data-role="list-divider">'+backbutton+'<span id="current_filter">'+app.current_mru+'</span></li>');    	
     	}
     	//debugger;
-    	var cls = app.signedin ? '' : '';
+    	var cls = app.signedin ? '' : 'disabled';
     	$.each($(selector), function(index, el){
     		var $el = $(el),
     			id = $el.attr('id'),
