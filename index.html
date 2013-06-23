@@ -56,6 +56,8 @@
 	<title>Philips Sustainability WorldMap</title>
 </head>
 <body>
+	<div id="overlay"></div>
+
 	<div id="popupLogin" data-theme="c" class="btn">
 		<div class="close_button" onclick="app.closeLoginScreen();"></div>
         <form class="btn_inner height_auto">
@@ -69,9 +71,10 @@
 	    		</div>
             </div>
         </form>
-    </div>	
+    </div>		
+
+
 	<div class="pages" id="home">
-		
 		<div id="menu" class="">
 			<div class="">
 				<div class="menu_inner">
@@ -93,7 +96,11 @@
 							</ul>
 						</div>						
 					</fieldset>		
-
+					<fieldset>
+						<div class="btn" onclick="app.showFavourites();">			    	
+				    		<div class="btn_inner">Bookmarks</div>
+			    		</div>
+					</fieldset>		
 
 					<fieldset class="ui-icon-alt" id="signin">
 						<label>Are you a Philips employee?<br/>
@@ -107,14 +114,13 @@
 					</fieldset>
 					<fieldset class="ui-icon-alt" id="signedin">
 						<div class="">
-							<div class="btn" onclick="app.showFavourites();">			    	
-					    		<div class="btn_inner">Bookmarks</div>
-				    		</div>
+
 							<div class="btn" onclick="app.signOut();">			    	
 					    		<div class="btn_inner">Log out</div>
 				    		</div>
 						</div>					
 					</fieldset>
+	    		
 				</div>
 		
 			</div>
@@ -189,6 +195,7 @@
 	<!-- needed to retrieve translations - this needs to be hosted/served by the same server that generates the content (NodeJS?) -->
 	
 	<script type="text/javascript" src="js/iscroll.js">//</script>
+	<!--<script src="js/jquery.nicescroll.js"></script> -->
 	<script type="text/javascript" src="js/world_map/swipeupdown.js">//</script>
 	<script type="text/javascript" src="js/world_map/jquery-jvectormap.js">//</script>
 	<script type="text/javascript" src="js/world_map/jquery-mousewheel.js">//</script>

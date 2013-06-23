@@ -48,6 +48,7 @@ var app = {
     $showmenu: $('.showMenu'),
     $currentfilter: $('#current_favourite ul'),
     $btnaddfavourite: $('div.add_favourite'),
+    $overlay: $('#overlay'),
     // Application Constructor
     initialize: function() {
         var self = this;
@@ -639,9 +640,9 @@ var app = {
                 		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
                 		
                 		if(data){
-                			objRegion.categories[0].value = data.lives_improved;
-                			objRegion.value_total_population = data.population;
-                			objRegion.value_total_gdp = data.gdp;   			
+                			objRegion.categories[0].value = data.l;
+                			objRegion.value_total_population = data.p;
+                			objRegion.value_total_gdp = data.g;   			
                 		}
 
 
@@ -810,6 +811,9 @@ var app = {
         	$el.parent().find('div').removeClass('selected');
         	$el.addClass('selected');
         	app.current_oru = $el.attr('data-value');
+        	
+        	worldmap.map.clearSelectedRegions();
+        	app.$infopanel.trigger('swipedown');
 
             app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
             	worldmap.map.remove();
@@ -905,7 +909,12 @@ var app = {
 					worldmap.handleRegionMouseOver(null, code);
 					worldmap.showCountryDetails(null, null, code);	
 					app.$showmenu.click();
-					app.$bottomcarousel.iosSlider('goToSlide', 1);	
+
+					app.$bottomcarousel.iosSlider('goToSlide', 1);
+
+					app.$slideselectors.find('div').removeClass('selected');
+					app.$slideselectors.find('div').first().addClass('selected');				
+					
 					app.$body.toggleClass('loading');
                 }	        	
 	        });   
@@ -968,6 +977,8 @@ var app = {
             responsiveSlides: true,
             onSliderResize: app.resizeSlider
 		}); 
+		app.$slideselectors.find('div').removeClass('selected');
+		app.$slideselectors.find('div').first().addClass('selected');
 		    	
     } ,   
     sizeElements: function(){
@@ -1007,6 +1018,8 @@ var app = {
             responsiveSlides: true,
             onSliderResize: app.resizeSlider
 		}); 
+		app.$slideselectors.find('div').removeClass('selected');
+		app.$slideselectors.find('div').first().addClass('selected');
 		
         app.$slideselectors.css({
     		left: (app.window.width / 2) - 30
@@ -1088,6 +1101,7 @@ var app = {
     	});    	
     },   
     showLoginScreen: function(){
+    	app.$overlay.show();
     	var $loginScreen = $('#popupLogin');
     	$loginScreen.css({
     		display: 'block',
@@ -1098,6 +1112,7 @@ var app = {
     	});
     },
     closeLoginScreen: function(){
+    	app.$overlay.hide();
     	var $loginScreen = $('#popupLogin');
     	$loginScreen.css({
     		display: 'none',

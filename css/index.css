@@ -556,11 +556,27 @@ fieldset{
 	display: none;
 }
 
-
+td.dial_wrapper div{
+	margin-right: 22px;
+}
+#overlay{
+	position: absolute
+	width: 100%!important;
+	height: 100%!important;
+	z-index: 100;
+	background: #000;	
+}
 /* login popup */
+#popupLoginWrapper{
+	position: absolute;
+	width: 100%!important;
+	height: 100%!important;
+	z-index: 101;
+	background: #000;
+}
 #popupLogin{
 	margin: 0px auto;
-	z-index: 20;
+	z-index: 102;
 	height: 250px;
 	width: 94%;
 	top: 30px;

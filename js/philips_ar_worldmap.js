@@ -201,8 +201,8 @@ var worldmap = {
 	            // alert(myVal);
 	            $this.knob({
 		        	readOnly:true,
-		        	width: 100,
-		        	height: 100,
+		        	width: 75,
+		        	height: 75,
 		        	cursor: false,
 		        	thickness: '.2',
 		        	fgColor: '#0b5ed7',
@@ -479,7 +479,7 @@ var worldmap = {
 														'<tr><td><div class="total_value">[total_value]</div><span>' + arrTranslations['million'] + '</span></td></tr>' +
 													'</table>' +
 												'</td>' +
-												'<td style="width: 33.3%">' +
+												'<td class="dial_wrapper" style="width: 33.3%">' +
 													'<table style="margin: 0px auto;">' +
 														'<tr><td><input data-skin="tron" type="text" value="[percentageLI]" class="dial"></td></tr>' +
 													'</table>' +
