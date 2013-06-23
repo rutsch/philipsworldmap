@@ -214,7 +214,9 @@ var app = {
     /* Data functions */
     getSnapshotConfig: function(cb){
     	var self = this;
-    	var objData = {};
+    	var objData = {
+            type: 'json'
+        };
     	var objRequest = $.ajax({
             type: "POST",
             url: config.general.auth_1_url,
@@ -687,7 +689,10 @@ var app = {
     	un = $('#un').val();
     	pw = $('#pw').val();
 
-    	var objData = {};
+        //call1 - get a session
+        var objData = {
+            type: 'json'
+        };        
         var objRequest = $.ajax({
             type: "GET",
             url: config.general.auth_1_url,
@@ -698,48 +703,106 @@ var app = {
         });
 
         objRequest.done(function (response) {
-        	objRequest = $.ajax({
+        	
+            //call2 - get snapshot config data
+            var objDataNested = {
+                type: 'json',
+                stay: 'true'
+            }; 
+            var objRequestNested = $.ajax({
                 type: "GET",
-                url: config.general.auth_2_url,
+                url: config.general.auth_1_url,
                 dataType: 'jsonp',
-                data: objData,
+                data: objDataNested,
                 cache: false,
                 timeout: 40000
             });    
-        	objRequest.done(function (response) {
+        	objRequestNested.done(function (response) {
         		app.token = response.token;
-            	objData = {
-            		username: un,
-            		password: pw,
-            		url: '/index.aspx',
-            		token: response.token,
-            		type: 'json'
-            	};
-            	var objRequest2 = $.ajax({
-                    type: "POST",
-                    url: config.general.auth_3_url,
+            	
+                //call3 - get token
+                var objDataNestedNested = {
+                    type: 'json',
+                    method: 'generatejsvarsjson'
+                }; 
+                var objRequestNestedNested = $.ajax({
+                    type: "GET",
+                    url: config.general.auth_2_url,
                     dataType: 'jsonp',
-                    data: objData,
+                    data: objDataNestedNested,
                     cache: false,
                     timeout: 40000
-                });    
-            	objRequest2.done(function (response) {
-            		app.token = response.token;
-                   	
-                	//when successfull
-                	app.signedin = true;
-            		app.$signin.hide();
-            		app.$signedin.show();
-            		app.$orubuttons.removeClass('disabled');
-            		app.renderSelectList('li#philips', false);
-            		app.closeLoginScreen();            		
-            	});
-                objRequest2.fail(function (objRequestStatus) {
+                });   
+                objRequestNestedNested.done(function(response){
+                    app.token = response.token;
+
+                    //call4 - perform authentication with the token we just retrieved
+                    var objDataAuthenticate = {
+                        username: un,
+                        password: pw,
+                        url: '/index.aspx',
+                        token: response.token,
+                        type: 'json'
+                    }; 
+                    console.log('before sending authentication request');
+                    var objAjax={
+                        type: "POST",
+                        url: config.general.auth_3_url,
+                        dataType: 'json',
+                        data: objDataAuthenticate,
+                        cache: false,
+                        timeout: 40000                      
+                    }
+                    
+                    //this is not required when it's running the the app
+                    if (!window.cordova){
+                        objAjax.xhrFields={withCredentials: true};
+                        objAjax.crossDomain=true;
+                        objDataAuthenticate.fulldomain=location.protocol+"//"+location.hostname;                      
+                    }
+
+                    var objRequestAuthenticate = $.ajax(objAjax);
+                    objRequestAuthenticate.done(function (response) {
+                        //alert(JSON.stringify(response));
+                        app.token = response.token;
+                        
+                        //when successfull
+                        app.signedin = true;
+                        app.$signin.hide();
+                        app.$signedin.show();
+                        app.$orubuttons.removeClass('disabled');
+                        app.renderSelectList('li#philips', false);
+                        app.closeLoginScreen();                 
+                    });
+                    objRequestAuthenticate.fail(function (objRequestStatus) {
+                        var strErrorMessage;
+                        switch (objRequestStatus.status) {
+                            case 0:
+                                //timeout
+                                strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.auth_3_url;
+                                break;
+                            case 200:
+                                //json parse error
+                                strErrorMessage = 'JSON parse error has occurred. raw= ' + objRequestStatus.responseText;
+                                break;
+                            default:
+                                //server error
+                                strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
+                                break;
+                        }
+                        console.log('authentication failed - '+strErrorMessage);
+                        console.log(objRequestStatus);
+                    });  
+
+                })
+                
+                //call3 - failed
+                objRequestNestedNested.fail(function(objRequestStatus){
                     var strErrorMessage;
                     switch (objRequestStatus.status) {
                         case 0:
                             //timeout
-                            strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.snapshot_url;
+                            strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.auth_2_url;
                             break;
                         case 200:
                             //json parse error
@@ -749,15 +812,22 @@ var app = {
                             //server error
                             strErrorMessage = 'server error has occured. Details' + objRequestStatus.responseText;
                             break;
-                    }
-                });        		
+                    }                    
+                })
+
+
+
+
+
         	});
-            objRequest.fail(function (objRequestStatus) {
+
+            //call2 - failed
+            objRequestNested.fail(function (objRequestStatus) {
                 var strErrorMessage;
                 switch (objRequestStatus.status) {
                     case 0:
                         //timeout
-                        strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.snapshot_url;
+                        strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.auth_1_url;
                         break;
                     case 200:
                         //json parse error
@@ -772,13 +842,14 @@ var app = {
       	
             
         });
-
+        
+        //call1 - failed
         objRequest.fail(function (objRequestStatus) {
             var strErrorMessage;
             switch (objRequestStatus.status) {
                 case 0:
                     //timeout
-                    strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.snapshot_url;
+                    strErrorMessage = 'Timeout has occurred while retrieving: ' + config.general.auth_1_url;
                     break;
                 case 200:
                     //json parse error
