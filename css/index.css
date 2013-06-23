@@ -625,6 +625,7 @@ td.dial_wrapper div{
 	height: 160px;	
 }
 #popupLogin input{
+	position: relative;
 	width: 100%;
 	height: 30px;
 	font-size: 20px;

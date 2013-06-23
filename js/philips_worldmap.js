@@ -1026,7 +1026,7 @@ var app = {
     		app.$producttree.append('<li data-theme="c" data-role="list-divider">'+backbutton+'<span id="current_filter">'+app.current_mru+'</span></li>');    	
     	}
     	//debugger;
-    	var cls = app.signedin ? '' : 'disabled';
+    	var cls = app.signedin ? '' : '';
     	$.each($(selector), function(index, el){
     		var $el = $(el),
     			id = $el.attr('id'),
