@@ -468,7 +468,7 @@ var worldmap = {
 				self.popupTemplate = 	'<table id="details" style="position: absolute;">' +
 											'<tr><td colspan="3"><h3>[country_name]</h3></td></tr>' +
 											//'<tr><td colspan="3">Filtered By: <span class="span_filtered_by"></span>   Grouped By: <span class="span_grouped_by"></span></td></tr>' +
-
+	
 											'<tr class="content">' +
 												'<td style="width: 33.3%">' +
 													'<table style="float: left">' +
@@ -492,25 +492,24 @@ var worldmap = {
 												'</td>' +
 											'</tr>' +
 										'</table>';
-
+	
 				break;
 			case 'our_company':
 				title = '<h3 class="wm_title gill_sans purple_base">' + arrTranslations['our_company_header'] + '</h3>';
 				footnote = '<em class="wm_footnote">' + arrTranslations['our_company_footer'] + '</em>';
 				self.popupTemplate = '<div class="country_details">' +
-                                        '<h3>[country_name]</h3>' +
-                                        '<table>' +
-                                        '<tr><td><div class="popup_header">' + arrTranslations['number_of_employees'] + '</div></td><td><div class="country_total total_value">[employees_total]</div></td></tr>' +
-                                        '<tr><td><div class="popup_header">' + arrTranslations['employees_female'] + '</div></td><td><div class="total_value">[female]</div><span>%</span></td></tr>' +
-                                        '<tr><td><div class="popup_header">' + arrTranslations['employees_male'] + '</div></td><td><div class="country_total total_value">[male]</div><span>%</span></td></tr>' +
-                                        '<tr><td><div class="popup_header">' + arrTranslations['r_and_d_centers'] + '</div></td><td><div class="country_total total_value">[research]</div></td></tr>' +
-                                        '<tr><td><div class="popup_header">' + arrTranslations['manufacturing_sites'] + '</div></td><td><div class="country_total total_value">[manufacturing]</div></td></tr>' +
-                                        '</table>' +
-                                    '</div>'
-
+	                                    '<h3>[country_name]</h3>' +
+	                                    '<table>' +
+	                                    '<tr><td><div class="popup_header">' + arrTranslations['number_of_employees'] + '</div></td><td><div class="country_total total_value">[employees_total]</div></td></tr>' +
+	                                    '<tr><td><div class="popup_header">' + arrTranslations['employees_female'] + '</div></td><td><div class="total_value">[female]</div><span>%</span></td></tr>' +
+	                                    '<tr><td><div class="popup_header">' + arrTranslations['employees_male'] + '</div></td><td><div class="country_total total_value">[male]</div><span>%</span></td></tr>' +
+	                                    '<tr><td><div class="popup_header">' + arrTranslations['r_and_d_centers'] + '</div></td><td><div class="country_total total_value">[research]</div></td></tr>' +
+	                                    '<tr><td><div class="popup_header">' + arrTranslations['manufacturing_sites'] + '</div></td><td><div class="country_total total_value">[manufacturing]</div></td></tr>' +
+	                                    '</table>' +
+	                                '</div>'
+	
 				break;
 		}
-
 
 
 

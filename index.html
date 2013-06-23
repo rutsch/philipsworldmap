@@ -63,7 +63,7 @@
         <form class="btn_inner height_auto">
             <div style="padding:10px 20px;">
 				<h3>Please sign in</h3>
-				<input type="text" name="user" id="un" value="" placeholder="username" data-theme="b" />
+				<input type="text" name="user" id="un" value="" placeholder="CODE1 account" data-theme="b" />
 				<input type="password" name="pass" id="pw" value="" placeholder="password" data-theme="b" />
 
 				<div class="btn" onclick="app.btnSignInClick();">			    	
@@ -75,7 +75,8 @@
 
 
 	<div class="pages" id="home">
-		<div id="menu" class="">
+		<div class="scroller_wrapper">
+			<div id="menu" class="">
 			<div class="">
 				<div class="menu_inner">
 					<label >Group data by</label>
@@ -137,7 +138,9 @@
 					Favourites
 				</div>
 			</div>
+		</div>		
 		</div>
+		
 
 
 		<!-- /header -->
@@ -194,8 +197,8 @@
 	<script type="text/javascript" src="js/async.js">//</script>
 	<!-- needed to retrieve translations - this needs to be hosted/served by the same server that generates the content (NodeJS?) -->
 	
-	<script type="text/javascript" src="js/iscroll.js">//</script>
-	<!--<script src="js/jquery.nicescroll.js"></script> -->
+	<!--<script type="text/javascript" src="js/iscroll.js">//</script>
+	<script src="js/jquery.nicescroll.js"></script> -->
 	<script type="text/javascript" src="js/world_map/swipeupdown.js">//</script>
 	<script type="text/javascript" src="js/world_map/jquery-jvectormap.js">//</script>
 	<script type="text/javascript" src="js/world_map/jquery-mousewheel.js">//</script>

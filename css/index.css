@@ -346,20 +346,29 @@ label{
 }
 
 /* right menu panel */
-#menu, #favourites {
+.scroller_wrapper{
 	position: fixed;
 	right: 0px;
 	bottom: 0px;
 	top: 0px;
 	height: 100%;
 	width: 250px;
+
+	background: #eaeaea;
+	z-index: 0;	
+	overflow: auto;
+}
+#menu, #favourites {
+	position: absolute;
+	height: auto;
+	width: 250px;
 	display: none;
 	background: #eaeaea;
 	z-index: 0;
+	-webkit-transition: right 0.2s ease-in-out;
 }
 #favourites {
 	z-index: 1;
-	-webkit-transition: right 0.2s ease-in-out;
 }
 #favourites .menu_inner{
 	position: relative;
@@ -564,7 +573,8 @@ td.dial_wrapper div{
 	width: 100%!important;
 	height: 100%!important;
 	z-index: 100;
-	background: #000;	
+	background: #000;
+	display: none;	
 }
 /* login popup */
 #popupLoginWrapper{

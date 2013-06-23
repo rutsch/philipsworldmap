@@ -49,6 +49,7 @@ var app = {
     $currentfilter: $('#current_favourite ul'),
     $btnaddfavourite: $('div.add_favourite'),
     $overlay: $('#overlay'),
+    $scrollerwrapper: $('.scroller_wrapper'),
     // Application Constructor
     initialize: function() {
         var self = this;
@@ -86,6 +87,11 @@ var app = {
         	e.preventDefault();
         	e.stopPropagation();
         	app.addFavourite($(e.currentTarget));
+        });
+        app.$overlay.click(function(e){
+        	debugger;
+        	e.preventDefault();
+        	e.stopPropagation();
         });
         
         // Swipe events
@@ -148,8 +154,8 @@ var app = {
     	app.store.clearCache(function(){
     		
     	});
-        app.myScroll = new iScroll('menu', {lockDirection: true }); 
-        app.myScrollFavs = new iScroll('favourites', {lockDirection: true });
+        //app.myScroll = new iScroll('menu', {lockDirection: true }); 
+        //app.myScrollFavs = new iScroll('favourites', {lockDirection: true });
      
 
     	// parallel async
@@ -688,6 +694,8 @@ var app = {
     	var un, pw;
     	un = $('#un').val();
     	pw = $('#pw').val();
+    	
+    	if(un.indexOf('code1\\') == -1 && un.indexOf('code1\\') == -1) un = 'code1\\'+un;
 
         //call1 - get a session
         var objData = {
@@ -943,7 +951,7 @@ var app = {
 		
 		self.$favourites.find('div.menu_inner').html(html);
 		self.$favourites.find('.add_favourite').addClass('selected');
-		self.myScrollFavs.refresh();
+		//self.myScrollFavs.refresh();
 		
 		// attach click event to each stored favourite
 		self.$favourites.find('div.favourite_wrapper li').click(function(){
@@ -1021,7 +1029,7 @@ var app = {
     	
         var event = "ontouchend" in document ? 'tap' : 'click';     
         
-    	self.myScroll.refresh(); 
+    	//self.myScroll.refresh(); 
     },
     renderFavouritePanel: function(regionData){
     	var self = this;
@@ -1061,6 +1069,9 @@ var app = {
         app.window.intoptionswidth = temp > 400 ? 400 : temp;
         app.window.optionswidth = app.window.intoptionswidth + 'px';
         
+        app.$scrollerwrapper.css({
+	    	width: app.window.optionswidth
+	    }); 
         app.$menu.css({
 	    	width: app.window.optionswidth
 	    }); 
@@ -1074,8 +1085,8 @@ var app = {
         });		
         app.menuStatus = 'closed';
 
-        app.myScroll.refresh();
-        app.myScrollFavs.refresh();
+        //app.myScroll.refresh();
+        //app.myScrollFavs.refresh();
         
         app.$bottomcarousel.iosSlider('destroy');
 		app.$bottomcarousel.iosSlider({
@@ -1203,7 +1214,13 @@ var app = {
     		//app.menuStatus = "0px"
     		
     	});
-    	self.myScrollFavs.refresh();
+    	self.$menu.css({
+    		right: - self.window.intoptionswidth
+    	}, 300, function(){
+    		//app.menuStatus = "0px"
+    		
+    	});    	
+    	//self.myScrollFavs.refresh();
     },
     hideFavourites: function(){
     	var self = this;
@@ -1215,6 +1232,12 @@ var app = {
     		//app.menuStatus = "0px"
     		
     	});
+    	self.$menu.css({
+    		right: 0
+    	}, 300, function(){
+    		//app.menuStatus = "0px"
+    		
+    	});    	
     },
     addFavourite: function($el){
 
