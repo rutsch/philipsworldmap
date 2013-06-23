@@ -417,7 +417,7 @@ var worldmap = {
 				onRegionOver: function (e, code) {
 					//self.handleRegionMouseOver(e, code);
 					console.log('onRegionOver(e, "'+code+'")');
-					if(!isClickFunctionRunning){
+					if(!isClickFunctionRunning && isClientMobile){
 						console.log('Executing MOUSEOVER');
 						isClickFunctionRunning=true;
 						self.handleRegionMouseOver(e, code);
@@ -563,5 +563,5 @@ var isClickFunctionRunning=false;
 var timerId=window.setInterval(function(){
 	if(isClickFunctionRunning)isClickFunctionRunning=false;
 },1000);
-
-
+var isClientMobile=false;
+if ("ontouchend" in document)isClientMobile=true;
