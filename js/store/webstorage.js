@@ -14,9 +14,9 @@ var LocalStorageStore = function(successCallback, errorCallback) {
     this.clearCache = function(callback){
         for (var i = 0; i < store.length; i++){
             var key = localStorage.key(i);
-            //if(key !== 'usersettings' && key.indexOf('fav_') === -1 ){
+            if(key !== 'usersettings' && key.indexOf('fav_') === -1 ){
                 store.removeItem(key);                
-            //}
+            }
             if(i===store.length-1){
             	callLater(callback);  
             }
