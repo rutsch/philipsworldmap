@@ -518,7 +518,7 @@ var app = {
     	var objData = {
     		oru: oru,
     		mru: mru,
-    		token: app.token,
+    		token: '',//app.token,
     		type: 'json',
     		snapshotid: 1
     	};         
@@ -529,7 +529,7 @@ var app = {
                 cb(null, JSON.parse(result));
                 
             }else{
-
+            	
                 var objRequest = $.ajax({
                     type: "GET",
                     url: config.general.snapshot_url,
@@ -540,6 +540,7 @@ var app = {
                 });
 
                 objRequest.done(function (response) {
+                	debugger;
                 	console.log('getting snapshot data complete');
                 	//console.log(response);
                     app.store.setCacheKey(key, JSON.stringify(response), function(){
@@ -549,6 +550,7 @@ var app = {
                 });
 
                 objRequest.fail(function (objRequestStatus) {
+                	debugger;
                     var strErrorMessage;
                     switch (objRequestStatus.status) {
                         case 0:
