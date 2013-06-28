@@ -7,6 +7,13 @@
  *              - In future maybe have customers show pictures of how their lives are improved by philips ?
  *          
  */
+var isClickFunctionRunning=false;
+var isClientMobile=false;
+var timerId;
+function timerFunc(){
+	console.log('isClickFunctionRunning: '+isClickFunctionRunning);
+	if(isClickFunctionRunning)isClickFunctionRunning=false;
+}
 var app = {
     /*
      * Some global variables
@@ -33,6 +40,7 @@ var app = {
     $selectoru: $('#select-oru'),
     $bottomcarousel: $('#carousel-single-image'),
     $menu: $('#menu'),
+    $leftmenu: $('#left_panel'),
     $signin: $('#signin'),
     $signedin: $('#signedin'),
     $slideselectors: $('.slideSelectors'),
@@ -55,6 +63,10 @@ var app = {
     // Application Constructor
     initialize: function() {
         var self = this;
+        console.log('initialize');
+
+		if ("ontouchend" in document)isClientMobile=true;    
+		
         self.sql = new WebSqlStore();
         
         if ("ontouchend" in document){
@@ -102,6 +114,8 @@ var app = {
         	app.$worldmappage.css({
         		marginLeft: "-" + app.window.optionswidth
             });
+            worldmap.map.clearSelectedRegions();
+        	app.$infopanel.trigger('swipedown');  
             self.menuStatus = 'open'
         });
      
@@ -151,6 +165,67 @@ var app = {
     },
     startApp: function(){
     	var self = this;
+		//hack to allow first click on worldmap
+		console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+		setInterval(timerFunc,1000);    	
+    	
+        $(".knob").knob({
+            /*change : function (value) {
+                //console.log("change : " + value);
+            },
+            release : function (value) {
+                console.log("release : " + value);
+            },
+            cancel : function () {
+                console.log("cancel : " + this.value);
+            },*/
+            draw : function () {
+
+                // "tron" case
+                if(this.$.data('skin') == 'tron') {
+
+                    var a = this.angle(this.cv)  // Angle
+                        , sa = this.startAngle          // Previous start angle
+                        , sat = this.startAngle         // Start angle
+                        , ea                            // Previous end angle
+                        , eat = sat + a                 // End angle
+                        , r = true;
+
+                    this.g.lineWidth = this.lineWidth;
+
+                    this.o.cursor
+                        && (sat = eat - 0.3)
+                        && (eat = eat + 0.3);
+
+                    if (this.o.displayPrevious) {
+                        ea = this.startAngle + this.angle(this.value);
+                        this.o.cursor
+                            && (sa = ea - 0.3)
+                            && (ea = ea + 0.3);
+                        this.g.beginPath();
+                        this.g.strokeStyle = this.previousColor;
+                        this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sa, ea, false);
+                        this.g.stroke();
+                    }
+
+                    this.g.beginPath();
+                    this.g.strokeStyle = r ? this.o.fgColor : this.fgColor ;
+                    this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sat, eat, false);
+                    this.g.stroke();
+
+                    this.g.lineWidth = 2;
+                    this.g.beginPath();
+                    this.g.strokeStyle = this.o.fgColor;
+                    this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
+                    this.g.stroke();
+
+                    return false;
+                }
+            }
+        });
+    	
+    	
+    	
     	/* Init plugins */
     	app.store = new LocalStorageStore();
     	app.store.clearCache(function(){
@@ -216,6 +291,8 @@ var app = {
     			if(err) app.handleAppError(err);
     			//console.log(data);
     			app.initWorldMap(data); 
+
+			
     		});
     	});    		
     },
@@ -683,6 +760,8 @@ var app = {
         		marginLeft: "-" + app.window.optionswidth
             });
             app.menuStatus = 'open'
+            worldmap.map.clearSelectedRegions();
+        	app.$infopanel.trigger('swipedown');            	
             return false;
     	} else {
 			app.$worldmappage.css({
@@ -692,6 +771,31 @@ var app = {
 			return false;
         }
     }, 
+    leftMenuButtonClick: function(js){
+    	//alert(app.menuStatus);
+        if(app.leftMenuStatus == 'closed'){
+        	//JT: selector should be made generic (and more specific) to improve performance
+            app.$worldmappage.css({
+            	marginLeft: app.window.optionswidth
+            });
+			app.$menu.css({
+				marginRight: "-" + app.window.optionswidth
+			});			            
+            app.leftMenuStatus = 'open'
+            worldmap.map.clearSelectedRegions();
+        	app.$infopanel.trigger('swipedown');            	
+            return false;
+    	} else {
+			app.$worldmappage.css({
+				marginLeft: "0px"
+			});
+			app.$menu.css({
+				marginRight: "0px"
+			});						
+			app.leftMenuStatus = 'closed'
+			return false;
+        }
+    },
     btnSignInClick: function(){
     	// do the actual signin
     	var un, pw;
@@ -1090,6 +1194,9 @@ var app = {
         app.$menu.css({
 	    	width: app.window.optionswidth
 	    }); 
+        app.$leftmenu.css({
+	    	width: app.window.optionswidth
+	    });         
         app.$favourites.css({
 	    	width: app.window.optionswidth,
 	    	right: - app.window.intoptionswidth
@@ -1142,6 +1249,173 @@ var app = {
         app.menuStatus = 'closed';    	
     },
     /* helper functions */
+    loadSlider: function(radius, current_value) {
+        var r = Raphael("holder", (radius+50)*2, (radius+50)*2),
+            R = radius,
+            init = true,
+            param = {stroke: "#fff", "stroke-width": 30},
+            hash = document.location.hash,
+            marksAttr = {fill: hash || "#444", stroke: "none"},
+            draggerAttr = {fill: "#111", 'fill-opacity': 0, stroke: "none"},                    
+            dragging = false,
+            currenthand;
+
+        // Custom Attribute
+        r.customAttributes.arc = function (value, total, R) {
+            var alpha = 360 / total * value,
+                a = (90 - alpha) * Math.PI / 180,
+                x = radius + R * Math.cos(a),
+                y = radius - R * Math.sin(a),
+                color = "hsb(".concat(Math.round(R) / 200, ",", value / total, ", .75)"),
+                path;
+            if (total == value) {
+                path = [["M", radius, radius - R], ["A", R, R, 0, 1, 1, 199.99, radius - R]];
+            } else {
+                path = [["M", radius, radius - R], ["A", R, R, 0, +(alpha > 180), 1, x, y]];
+            }
+            return {path: path, stroke: color};
+        };
+
+        drawMarks(R, 1000);
+        var sec = r.path().attr(param).attr({arc: [0, 1000, R]});
+        R -= 40;
+        drawMarks(R, 1000);
+        var min = r.path().attr(param).attr({arc: [0, 1000, R]});
+        R -= 40;
+        drawMarks(R, 1000);
+        var hor = r.path().attr(param).attr({arc: [0, 1000, R]});
+
+
+        function updateVal(value, total, R, hand, id) {
+            if (total == 31) { // month
+                var d = new Date;
+                d.setDate(1);
+                d.setMonth(d.getMonth() + 1);
+                d.setDate(-1);
+                total = d.getDate();
+            }
+            var color = "hsb(".concat(Math.round(R) / 200, ",", value / total, ", .75)");
+            if (init || dragging) {
+                hand.animate({arc: [value, total, R]}, 400, ">");
+                hand.value = value;
+            } else {
+                hand.animate({arc: [value, total, R]}, 400, ">");
+                hand.value = value;
+            }
+        }
+
+        function drawMarks(R, total) {
+            if (total == 31) { // month
+                var d = new Date;
+                d.setDate(1);
+                d.setMonth(d.getMonth() + 1);
+                d.setDate(-1);
+                total = d.getDate();
+            }
+            var color = "hsb(".concat(Math.round(R) / 200, ", 1, .75)"),
+                out = r.set();
+            for (var value = 0; value < total; value++) {
+                var alpha = 360 / total * value,
+                    a = (90 - alpha) * Math.PI / 180,
+                    x = radius + R * Math.cos(a),
+                    y = radius - R * Math.sin(a);
+                out.push(r.circle(x, y, 15).attr(marksAttr));
+            }
+                            
+            return out;
+        }
+        
+        function drawDragger(R, total) {
+            if (total == 31) { // month
+                var d = new Date;
+                d.setDate(1);
+                d.setMonth(d.getMonth() + 1);
+                d.setDate(-1);
+                total = d.getDate();
+            }
+            var color = "hsb(".concat(Math.round(R) / 200, ", 1, .75)"),
+                out = r.set();
+            for (var value = 0; value < total; value++) {
+                var alpha = 360 / total * value,
+                    a = (90 - alpha) * Math.PI / 180,
+                    x = radius + R * Math.cos(a),
+                    y = radius - R * Math.sin(a);
+                out.push(r.circle(x, y, 5).attr(draggerAttr));
+            }
+           
+			dragging = false;
+            out.mousedown(function(e, x, y){
+            	console.log(this);
+            	var value = getValueFromId(this.id-2);
+            	var hand = getHandFromId(this.id-2);
+            	var radius = getRadiusFromId(this.id-2);
+            	currenthand = hand;
+            	updateVal(value, 1000, radius, hand, 2);
+
+				dragging = true;
+                out.mousemove(function(e, x, y){
+                	if(dragging){
+                		var value = getValueFromId(this.id-2);
+                		var hand = getHandFromId(this.id-2);
+                		var radius = getRadiusFromId(this.id-2);
+                		if(hand == currenthand){
+                			updateVal(value, 1000, radius, hand, 2);	
+                		}
+                	}
+                });  
+            });  
+			out.mouseout(function(){
+				//dragging = false;
+			});
+            out.mouseup(function(e, x, y){
+            	var value = getValueFromId(this.id-2);
+            	var hand = getHandFromId(this.id-2);
+            	var radius = getRadiusFromId(this.id-2);
+            	updateVal(value, 1000, radius, hand, 2);
+            	dragging = false;
+            });                      
+            return out;
+        }
+        
+        function getValueFromId(id){
+        	if(id>1000){
+        		id = id +"";
+        		id = id.slice(-3);
+        	}
+        	console.log(id);
+        	return id;
+        }
+        
+        function getHandFromId(id){
+        	if(id>5000){
+        		return hor;
+        	}else if(id>4000){
+        		return min;
+        	}else{
+        		return sec;
+        	}
+        }
+        
+        function getRadiusFromId(id){
+        	if(id>5000){
+        		return radius - 80;
+        	}else if(id>4000){
+        		return radius - 40;
+        	}else{
+        		return radius;
+        	}
+        }                
+
+        (function () {
+            updateVal(500, 1000, radius, sec, 2);
+            drawDragger(radius, 1000);
+            updateVal(500, 1000, radius-40, min, 1);
+            drawDragger(radius-40, 1000);
+            updateVal(500, 1000, radius-80, hor, 0);
+            drawDragger(radius-80, 1000);
+            init = false;
+        })();
+    },
 	slideChange: function(args) {
 		var self = this;
 		//JT: elements need to be found "onload"	

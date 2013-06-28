@@ -193,6 +193,8 @@ var worldmap = {
 
 			$('#region-details').html(regionHtml);
 			app.renderFavouritePanel(regionData);
+			debugger;
+			app.loadSlider(app.window.intoptionswidth /2 - 40, regionData.percentageLI);
 			//debugger;
 			//$('#region-filter').html('<div class="btn" onclick="app.addFavourite(\''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\', \''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\');"><div class="btn_inner">'+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'</div></div>');
 	        $(".dial").each(function(){
@@ -557,11 +559,3 @@ function format(nStr) {
 	}
 	return x1 + x2;
 }
-
-//hack to allow first click on worldmap
-var isClickFunctionRunning=false;
-var timerId=window.setInterval(function(){
-	if(isClickFunctionRunning)isClickFunctionRunning=false;
-},1000);
-var isClientMobile=false;
-if ("ontouchend" in document)isClientMobile=true;

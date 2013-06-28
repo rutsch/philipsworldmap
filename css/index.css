@@ -299,6 +299,21 @@ label{
 	padding: 10px;
 	z-index: 100;
 }
+.showLeftMenu{
+	position: absolute;
+	top: 0px;
+	left: 0px;	
+	border-color: #fff!important;
+	background-color: rgb(57, 107, 158);
+	height: 32px!important;
+	width: 32px!important;
+	background: url('../img/menu_icon.png') no-repeat 10px 10px!important; 
+	border: none!important;
+	display: block;
+	float: left;
+	padding: 10px;
+	z-index: 100;
+}
 .worldmap{
 	position: relative;
 	top: 0;
@@ -357,7 +372,18 @@ label{
 	background: #eaeaea;
 	z-index: 0;
 }
-#favourites {
+#left_panel {
+	position: fixed;
+	left: 0px;
+	bottom: 0px;
+	top: 0px;
+	height: 100%;
+	width: 250px;
+
+	background: #454545;
+	z-index: 0;
+}
+#favourites, #menu {
 	z-index: 1;
 	-webkit-transition: right 0.2s ease-in-out;
 }
