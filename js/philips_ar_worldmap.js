@@ -193,8 +193,8 @@ var worldmap = {
 
 			$('#region-details').html(regionHtml);
 			app.renderFavouritePanel(regionData);
-			debugger;
-			app.loadSlider(app.window.intoptionswidth /2 - 40, regionData.percentageLI);
+			//debugger;
+			
 			//debugger;
 			//$('#region-filter').html('<div class="btn" onclick="app.addFavourite(\''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\', \''+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'\');"><div class="btn_inner">'+arrTranslations[regionData.name.toLowerCase()] + '_' + app.current_oru+'</div></div>');
 	        $(".dial").each(function(){
@@ -233,9 +233,11 @@ var worldmap = {
 			$('#info').css({
 				bottom: 0
 			});
+					
 			//console.log(code);
 			//console.log(self.zoom);
 			self.$mapPlaceholder.vectorMap('set', 'focus', regionData.code, 1);
+				
 		} else {
 			// Country not found, prevent popup from showing
 			e.preventDefault();

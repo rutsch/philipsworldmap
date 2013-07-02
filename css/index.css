@@ -379,9 +379,12 @@ label{
 	top: 0px;
 	height: 100%;
 	width: 250px;
-
+	display: none;
 	background: #454545;
 	z-index: 0;
+}
+#left_panel #holder{
+	margin: 0px auto;
 }
 #favourites, #menu {
 	z-index: 1;

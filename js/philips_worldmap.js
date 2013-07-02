@@ -11,7 +11,7 @@ var isClickFunctionRunning=false;
 var isClientMobile=false;
 var timerId;
 function timerFunc(){
-	console.log('isClickFunctionRunning: '+isClickFunctionRunning);
+	//console.log('isClickFunctionRunning: '+isClickFunctionRunning);
 	if(isClickFunctionRunning)isClickFunctionRunning=false;
 }
 var app = {
@@ -166,65 +166,7 @@ var app = {
     startApp: function(){
     	var self = this;
 		//hack to allow first click on worldmap
-		console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
 		setInterval(timerFunc,1000);    	
-    	
-        $(".knob").knob({
-            /*change : function (value) {
-                //console.log("change : " + value);
-            },
-            release : function (value) {
-                console.log("release : " + value);
-            },
-            cancel : function () {
-                console.log("cancel : " + this.value);
-            },*/
-            draw : function () {
-
-                // "tron" case
-                if(this.$.data('skin') == 'tron') {
-
-                    var a = this.angle(this.cv)  // Angle
-                        , sa = this.startAngle          // Previous start angle
-                        , sat = this.startAngle         // Start angle
-                        , ea                            // Previous end angle
-                        , eat = sat + a                 // End angle
-                        , r = true;
-
-                    this.g.lineWidth = this.lineWidth;
-
-                    this.o.cursor
-                        && (sat = eat - 0.3)
-                        && (eat = eat + 0.3);
-
-                    if (this.o.displayPrevious) {
-                        ea = this.startAngle + this.angle(this.value);
-                        this.o.cursor
-                            && (sa = ea - 0.3)
-                            && (ea = ea + 0.3);
-                        this.g.beginPath();
-                        this.g.strokeStyle = this.previousColor;
-                        this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sa, ea, false);
-                        this.g.stroke();
-                    }
-
-                    this.g.beginPath();
-                    this.g.strokeStyle = r ? this.o.fgColor : this.fgColor ;
-                    this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sat, eat, false);
-                    this.g.stroke();
-
-                    this.g.lineWidth = 2;
-                    this.g.beginPath();
-                    this.g.strokeStyle = this.o.fgColor;
-                    this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
-                    this.g.stroke();
-
-                    return false;
-                }
-            }
-        });
-    	
-    	
     	
     	/* Init plugins */
     	app.store = new LocalStorageStore();
@@ -529,7 +471,7 @@ var app = {
                 cb(null, JSON.parse(result));
                 
             }else{
-
+            	
                 var objRequest = $.ajax({
                     type: "GET",
                     url: config.general.snapshot_url,
@@ -540,12 +482,17 @@ var app = {
                 });
 
                 objRequest.done(function (response) {
-                	console.log('getting snapshot data complete');
-                	//console.log(response);
-                    app.store.setCacheKey(key, JSON.stringify(response), function(){
-                        
-                    });                	
-                    cb(null, response);
+                	if(response.error){
+                		cb(response.error.message);
+                	}else{
+                    	console.log('getting snapshot data complete');
+                    	//console.log(response);
+                        app.store.setCacheKey(key, JSON.stringify(response), function(){
+                            
+                        });                	
+                        cb(null, response);                		
+                	}
+
                 });
 
                 objRequest.fail(function (objRequestStatus) {
@@ -573,180 +520,185 @@ var app = {
     getWorldmapData: function(oru, mru, cb){
     	var self = this;
     	app.getSnapshotData(oru, mru, function(err, result){
-    		//console.log(result.arrRegions);
-    		app.snapshotdata = result.snapshotdata;
-            // get countries from oru json based on passed oru level
-        	//var result = jF('*[guid=dach]', app.orudata).get();
+    		if(err){
+    			cb(err);
+    		}else{
+    			//console.log(result.arrRegions);
+        		app.snapshotdata = result.snapshotdata;
+                // get countries from oru json based on passed oru level
+            	//var result = jF('*[guid=dach]', app.orudata).get();
 
-        	var arrRegions = [];
+            	var arrRegions = [];
 
-            //colors to be defined in config.js? or maybe even in base_configuration.xml on the server (that might avoid the need to publish the app each time tis changes...)
-        	var colors = {
-        		'emea': {
-        			low: '#99EAF0',
-        			middle: '#5BCCD4',
-        			high: '#30B6BF'
-        		},
-        		'asia': {
-        			low: '#BE67E9',
-        			middle: '#A359C8',
-        			high: '#8737B0'    			
-        		},
-        		'north_america': {
-        			low: '#7DABF1',
-        			middle: '#5C95EA',
-        			high: '#3D7FDF'    			
-        		},
-        		'north america_bmc': {
-        			low: '#7DABF1',
-        			middle: '#5C95EA',
-        			high: '#3D7FDF'    			
-        		},    		
-        		'latam': {
-        			low: '#CBF277',
-        			middle: '#A6D542',
-        			high: '#98C833'    			
-        		},
-        		'latin_america': {
-        			low: '#CBF277',
-        			middle: '#A6D542',
-        			high: '#98C833'    			
-        		}
-        	};
-        	////debugger;
-        	// [{"name":"DACH","color":"#d5eff0","value_total_population":"98","value_total_gdp":"4384","code":["DE","AT","CH"],"categories":[{"name":"Philips","code":"PH","value":"87"}]}]
-        	if(oru == 1){
-        		var region = app.orudata.unit;
-        		var color = {
-        			low: '#BE67E9',
-        			middle: '#A359C8',
-        			high: '#8737B0' 
-        		}
-        		var objRegion = {
-        	    		name: region.name,
-        	    		guid: region.guid,
-        	    		color: color,
-        	    		value_total_population: 0,
-        	    		value_total_gdp: 0,
-        	    		code: [],
-        	    		categories: [{
-        	    			name: 'Philips',
-        	    			code: 'PH',
-        	    			value: 0
-        	    		}]
-        	    	}; 
-        		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
-        		if(oru < 4){
-        			//JT: join and then split?
-        			//Don't know of another way to convert a whole array to uppercase ;-)
-                    objRegion.code = jsonPath(region, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
-        		}else{
-        			objRegion.code = region.guid.toUpperCase();
-        		}
-        		
-        		var guid = mru + '_' + region.guid;
-        		//console.log(guid);
-        		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
-        		
-        		if(data){
-        			objRegion.categories[0].value = data.l;
-        			objRegion.value_total_population = data.p;
-        			objRegion.value_total_gdp = data.g;   			
-        		}
-
-
-    	
-    			arrRegions.push(objRegion);    		
-        	}else{
-            	var regions = jsonPath(app.orudata, '$..subunits[?(@.level==2)]');
-
-                //JT: here we need to be careful: loops within loops can be a performance killer... the "smallest" loop needs to be the nested loop...
-            	$.each(regions, function(index, el){
-            		//console.log(el.guid);
-            		var color = colors[el.guid];
-            		//console.log(color);
-            		var arrUnits = jsonPath(el, '$..subunits[?(@.level=='+oru+')]');
-            		if(arrUnits){
-        	        	$.each(arrUnits, function(index, region){
-        	        		////debugger;
-        	        		var objRegion = {
-        	        	    		name: region.name,
-        	        	    		guid: region.guid,
-        	        	    		color: color,
-        	        	    		value_total_population: 0,
-        	        	    		value_total_gdp: 0,
-        	        	    		code: [],
-        	        	    		categories: [{
-        	        	    			name: 'Philips',
-        	        	    			code: 'PH',
-        	        	    			value: 0
-        	        	    		}]
-        	        	    	}; 
-        	        		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
-        	        		if(oru < 4){
-        	        			objRegion.code = jsonPath(region, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
-        	        		}else{
-        	        			objRegion.code = region.guid.toUpperCase();
-        	        		}
-        	        		
-        	        		var guid = mru + '_' + region.guid;
-        	        		//console.log(guid);
-        	        		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
-        	        		
-        	        		if(data){
-        	        			objRegion.categories[0].value = data.l;
-        	        			objRegion.value_total_population = data.p;
-        	        			objRegion.value_total_gdp = data.g;   			
-        	        		}
-        	
-        	
-        	    	
-        	    			arrRegions.push(objRegion);
-        	    	    		
-        	
-        	
-        	        		
-        	        	}); 
-            		}else{
-                		var objRegion = {
-                	    		name: el.name,
-                	    		guid: el.guid,
-                	    		color: color,
-                	    		value_total_population: 0,
-                	    		value_total_gdp: 0,
-                	    		code: [],
-                	    		categories: [{
-                	    			name: 'Philips',
-                	    			code: 'PH',
-                	    			value: 0
-                	    		}]
-                	    	}; 
-                		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
-                		objRegion.code = jsonPath(el, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
-                		var guid = mru + '_' + el.guid;
-                		//console.log(guid);
-                		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
-                		
-                		if(data){
-                			objRegion.categories[0].value = data.l;
-                			objRegion.value_total_population = data.p;
-                			objRegion.value_total_gdp = data.g;   			
-                		}
-
-
-            	
-            			arrRegions.push(objRegion);    			
+                //colors to be defined in config.js? or maybe even in base_configuration.xml on the server (that might avoid the need to publish the app each time tis changes...)
+            	var colors = {
+            		'emea': {
+            			low: '#99EAF0',
+            			middle: '#5BCCD4',
+            			high: '#30B6BF'
+            		},
+            		'asia': {
+            			low: '#BE67E9',
+            			middle: '#A359C8',
+            			high: '#8737B0'    			
+            		},
+            		'north_america': {
+            			low: '#7DABF1',
+            			middle: '#5C95EA',
+            			high: '#3D7FDF'    			
+            		},
+            		'north america_bmc': {
+            			low: '#7DABF1',
+            			middle: '#5C95EA',
+            			high: '#3D7FDF'    			
+            		},    		
+            		'latam': {
+            			low: '#CBF277',
+            			middle: '#A6D542',
+            			high: '#98C833'    			
+            		},
+            		'latin_america': {
+            			low: '#CBF277',
+            			middle: '#A6D542',
+            			high: '#98C833'    			
             		}
-            	});    		
-        	}
+            	};
+            	////debugger;
+            	// [{"name":"DACH","color":"#d5eff0","value_total_population":"98","value_total_gdp":"4384","code":["DE","AT","CH"],"categories":[{"name":"Philips","code":"PH","value":"87"}]}]
+            	if(oru == 1){
+            		var region = app.orudata.unit;
+            		var color = {
+            			low: '#BE67E9',
+            			middle: '#A359C8',
+            			high: '#8737B0' 
+            		}
+            		var objRegion = {
+            	    		name: region.name,
+            	    		guid: region.guid,
+            	    		color: color,
+            	    		value_total_population: 0,
+            	    		value_total_gdp: 0,
+            	    		code: [],
+            	    		categories: [{
+            	    			name: 'Philips',
+            	    			code: 'PH',
+            	    			value: 0
+            	    		}]
+            	    	}; 
+            		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
+            		if(oru < 4){
+            			//JT: join and then split?
+            			//Don't know of another way to convert a whole array to uppercase ;-)
+                        objRegion.code = jsonPath(region, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
+            		}else{
+            			objRegion.code = region.guid.toUpperCase();
+            		}
+            		
+            		var guid = mru + '_' + region.guid;
+            		//console.log(guid);
+            		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
+            		
+            		if(data){
+            			objRegion.categories[0].value = data.l;
+            			objRegion.value_total_population = data.p;
+            			objRegion.value_total_gdp = data.g;   			
+            		}
 
-        	////debugger;
-    		//if(arrRegions.length == arrUnits.length){
-    			//console.log(arrRegions);
-    			////debugger;
-    			cb(null, arrRegions);
-    		//}   	
 
+        	
+        			arrRegions.push(objRegion);    		
+            	}else{
+                	var regions = jsonPath(app.orudata, '$..subunits[?(@.level==2)]');
+
+                    //JT: here we need to be careful: loops within loops can be a performance killer... the "smallest" loop needs to be the nested loop...
+                	$.each(regions, function(index, el){
+                		//console.log(el.guid);
+                		var color = colors[el.guid];
+                		//console.log(color);
+                		var arrUnits = jsonPath(el, '$..subunits[?(@.level=='+oru+')]');
+                		if(arrUnits){
+            	        	$.each(arrUnits, function(index, region){
+            	        		////debugger;
+            	        		var objRegion = {
+            	        	    		name: region.name,
+            	        	    		guid: region.guid,
+            	        	    		color: color,
+            	        	    		value_total_population: 0,
+            	        	    		value_total_gdp: 0,
+            	        	    		code: [],
+            	        	    		categories: [{
+            	        	    			name: 'Philips',
+            	        	    			code: 'PH',
+            	        	    			value: 0
+            	        	    		}]
+            	        	    	}; 
+            	        		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
+            	        		if(oru < 4){
+            	        			objRegion.code = jsonPath(region, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
+            	        		}else{
+            	        			objRegion.code = region.guid.toUpperCase();
+            	        		}
+            	        		
+            	        		var guid = mru + '_' + region.guid;
+            	        		//console.log(guid);
+            	        		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
+            	        		
+            	        		if(data){
+            	        			objRegion.categories[0].value = data.l;
+            	        			objRegion.value_total_population = data.p;
+            	        			objRegion.value_total_gdp = data.g;   			
+            	        		}
+            	
+            	
+            	    	
+            	    			arrRegions.push(objRegion);
+            	    	    		
+            	
+            	
+            	        		
+            	        	}); 
+                		}else{
+                    		var objRegion = {
+                    	    		name: el.name,
+                    	    		guid: el.guid,
+                    	    		color: color,
+                    	    		value_total_population: 0,
+                    	    		value_total_gdp: 0,
+                    	    		code: [],
+                    	    		categories: [{
+                    	    			name: 'Philips',
+                    	    			code: 'PH',
+                    	    			value: 0
+                    	    		}]
+                    	    	}; 
+                    		//console.log(jsonPath(region, '$..subunits[?(@.level==4)]'));
+                    		objRegion.code = jsonPath(el, '$..subunits[?(@.level==4)].guid').join(',').toUpperCase().split(',');
+                    		var guid = mru + '_' + el.guid;
+                    		//console.log(guid);
+                    		var data = app.snapshotdata[guid];//app.sql.findCacheKey(guid);
+                    		
+                    		if(data){
+                    			objRegion.categories[0].value = data.l;
+                    			objRegion.value_total_population = data.p;
+                    			objRegion.value_total_gdp = data.g;   			
+                    		}
+
+
+                	
+                			arrRegions.push(objRegion);    			
+                		}
+                	});    		
+            	}
+
+            	////debugger;
+        		//if(arrRegions.length == arrUnits.length){
+        			//console.log(arrRegions);
+        			////debugger;
+        			cb(null, arrRegions);
+        		//}   	
+    			
+    		}
+    		
     		
     	});
 
@@ -998,8 +950,13 @@ var app = {
     	app.signedin = false;
 		app.$signin.show();
 		app.$signedin.hide();
+		app.current_mru = 'philips';
+		app.$currentfilter = 'philips';
 		app.$orubtnright.addClass('disabled');
-		app.renderSelectList('li#philips', false);    	
+		app.renderSelectList('li#philips', false);  
+		app.$loginloader.hide();
+		app.$loginscreen.find('form').show();		
+		
     },
     oruSelected: function(el){ 
     	
@@ -1014,12 +971,18 @@ var app = {
         	app.$infopanel.trigger('swipedown');
 
             app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
-            	worldmap.map.remove();
-                worldmap.mapVariation = 'lives_improved';
-                worldmap.mapData = data;
-              
-                worldmap.init(app.window.width, app.window.height);  
-                app.$overlay.hide();// $body.toggleClass('loading');
+            	if(err){
+            		alert("You are not signed in anymore, please sign in again.");
+            		app.signOut();
+            		app.$overlay.hide();
+            	}else{
+                	worldmap.map.remove();
+                    worldmap.mapVariation = 'lives_improved';
+                    worldmap.mapData = data;
+                  
+                    worldmap.init(app.window.width, app.window.height);  
+                    app.$overlay.hide();// $body.toggleClass('loading');           		
+            	}
             });       		
     	}else{
     		alert('Please sign in.')
@@ -1043,12 +1006,18 @@ var app = {
     		elClicked.removeClass('checked');
         }
         app.getWorldmapData(app.current_oru, app.current_mru, function(err, data){
-        	worldmap.map.remove();
-            worldmap.mapVariation = 'lives_improved';
-            worldmap.mapData = data;
-          
-            worldmap.init(app.window.width, app.window.height);  
-            app.$overlay.hide();//app.$body.toggleClass('loading');
+        	if(err){
+        		alert("You are not signed in anymore, please sign in again.");
+        		app.signOut();
+        		app.$overlay.hide();
+        	}else{
+            	worldmap.map.remove();
+                worldmap.mapVariation = 'lives_improved';
+                worldmap.mapData = data;
+              
+                worldmap.init(app.window.width, app.window.height);  
+                app.$overlay.hide();// $body.toggleClass('loading');           		
+        	}
         });    	        
     },    
     /* HTML functions */
@@ -1249,11 +1218,15 @@ var app = {
         app.menuStatus = 'closed';    	
     },
     /* helper functions */
-    loadSlider: function(radius, current_value) {
-        var r = Raphael("holder", (radius+50)*2, (radius+50)*2),
+    loadSlider: function(radius, stroke, current_value) {
+    	$('#holder').css({
+    		width: (radius*2) + stroke
+    	});
+    	//debugger;
+        var r = Raphael("holder", (radius*2) + stroke, (radius*2)+stroke),
             R = radius,
             init = true,
-            param = {stroke: "#fff", "stroke-width": 30},
+            param = {stroke: "#fff", "stroke-width": stroke},
             hash = document.location.hash,
             marksAttr = {fill: hash || "#444", stroke: "none"},
             draggerAttr = {fill: "#111", 'fill-opacity': 0, stroke: "none"},                    
@@ -1264,26 +1237,36 @@ var app = {
         r.customAttributes.arc = function (value, total, R) {
             var alpha = 360 / total * value,
                 a = (90 - alpha) * Math.PI / 180,
-                x = radius + R * Math.cos(a),
-                y = radius - R * Math.sin(a),
-                color = "hsb(".concat(Math.round(R) / 200, ",", value / total, ", .75)"),
+                x = radius + R * Math.cos(a)+(stroke/2),
+                y = radius - R * Math.sin(a)+(stroke/2),
+                color = '#FF746F', //"hsb(".concat(Math.round(R) / 200, ",", value / total, ", .75)"),
                 path;
-            if (total == value) {
-                path = [["M", radius, radius - R], ["A", R, R, 0, 1, 1, 199.99, radius - R]];
-            } else {
-                path = [["M", radius, radius - R], ["A", R, R, 0, +(alpha > 180), 1, x, y]];
+            console.log(R);
+            if(R>=160){
+            	color = '#FF746F';
+            }else if(R>=120){
+            	color = '#00E5FF'
+            }else{
+            	color = '#00FD72'
             }
+            
+            if (total == value) {
+                path = [["M", radius, radius - R], ["A", R, R, 0, 1, 1, 199.99, radius - R ]];
+            } else {
+                path = [["M", radius+(stroke/2), radius - R+(stroke/2)], ["A", R, R, 0, +(alpha > 180), 1, x, y]];
+            }
+            console.log(path);
             return {path: path, stroke: color};
         };
 
-        drawMarks(R, 1000);
-        var sec = r.path().attr(param).attr({arc: [0, 1000, R]});
-        R -= 40;
-        drawMarks(R, 1000);
-        var min = r.path().attr(param).attr({arc: [0, 1000, R]});
-        R -= 40;
-        drawMarks(R, 1000);
-        var hor = r.path().attr(param).attr({arc: [0, 1000, R]});
+        drawMarks(R, 100);
+        var sec = r.path().attr(param).attr({arc: [0, 100, R]});
+        R -= radius+10;
+        drawMarks(R, 100);
+        var min = r.path().attr(param).attr({arc: [0, 100, R]});
+        R -= radius+10;
+        drawMarks(R, 100);
+        var hor = r.path().attr(param).attr({arc: [0, 100, R]});
 
 
         function updateVal(value, total, R, hand, id) {
@@ -1294,12 +1277,12 @@ var app = {
                 d.setDate(-1);
                 total = d.getDate();
             }
-            var color = "hsb(".concat(Math.round(R) / 200, ",", value / total, ", .75)");
+            //var color = "hsb(".concat(Math.round(R) / 200, ",", value / total, ", .75)");
             if (init || dragging) {
-                hand.animate({arc: [value, total, R]}, 400, ">");
+                hand.animate({arc: [value, total, R]}, 0, ">");
                 hand.value = value;
             } else {
-                hand.animate({arc: [value, total, R]}, 400, ">");
+                hand.animate({arc: [value, total, R]}, 0, ">");
                 hand.value = value;
             }
         }
@@ -1317,9 +1300,9 @@ var app = {
             for (var value = 0; value < total; value++) {
                 var alpha = 360 / total * value,
                     a = (90 - alpha) * Math.PI / 180,
-                    x = radius + R * Math.cos(a),
-                    y = radius - R * Math.sin(a);
-                out.push(r.circle(x, y, 15).attr(marksAttr));
+                    x = radius + R * Math.cos(a)+(stroke/2),
+                    y = radius - R * Math.sin(a)+(stroke/2);
+                out.push(r.circle(x, y, (stroke/2)).attr(marksAttr));
             }
                             
             return out;
@@ -1338,9 +1321,9 @@ var app = {
             for (var value = 0; value < total; value++) {
                 var alpha = 360 / total * value,
                     a = (90 - alpha) * Math.PI / 180,
-                    x = radius + R * Math.cos(a),
-                    y = radius - R * Math.sin(a);
-                out.push(r.circle(x, y, 5).attr(draggerAttr));
+                    x = radius + R * Math.cos(a)+(stroke/2),
+                    y = radius - R * Math.sin(a)+(stroke/2);
+                out.push(r.circle(x, y, (stroke/2)).attr(draggerAttr));
             }
            
 			dragging = false;
@@ -1350,46 +1333,76 @@ var app = {
             	var hand = getHandFromId(this.id-2);
             	var radius = getRadiusFromId(this.id-2);
             	currenthand = hand;
-            	updateVal(value, 1000, radius, hand, 2);
+            	updateVal(value, 100, radius, hand, 2);
 
 				dragging = true;
                 out.mousemove(function(e, x, y){
+                	
                 	if(dragging){
+                		console.log(this);
                 		var value = getValueFromId(this.id-2);
                 		var hand = getHandFromId(this.id-2);
                 		var radius = getRadiusFromId(this.id-2);
                 		if(hand == currenthand){
-                			updateVal(value, 1000, radius, hand, 2);	
+                			updateVal(value, 100, radius, hand, 2);	
                 		}
                 	}
                 });  
             });  
-			out.mouseout(function(){
-				//dragging = false;
-			});
+
             out.mouseup(function(e, x, y){
+            	var value = getValueFromId(this.id-2);
+            	var hand = getHandFromId(this.id-2);
+            	var radius = getRadiusFromId(this.id-2);
+            	updateVal(value, 100, radius, hand, 2);
+            	dragging = false;
+            });  
+            
+            /*out.touchstart(function(e, x, y){
+            	
+            	var value = getValueFromId(this.id-2);
+            	var hand = getHandFromId(this.id-2);
+            	var radius = getRadiusFromId(this.id-2);
+            	currenthand = hand;
+            	updateVal(value, 1000, radius, hand, 2);
+
+				dragging = true;
+ 
+            });  
+            out.touchmove(function(e, x, y){
+            	console.log(this);
+            	if(dragging){
+            		var value = getValueFromId(this.id-2);
+            		var hand = getHandFromId(this.id-2);
+            		var radius = getRadiusFromId(this.id-2);
+            		if(hand == currenthand){
+            			updateVal(value, 1000, radius, hand, 2);	
+            		}
+            	}
+            });             
+            out.touchend(function(e, x, y){
             	var value = getValueFromId(this.id-2);
             	var hand = getHandFromId(this.id-2);
             	var radius = getRadiusFromId(this.id-2);
             	updateVal(value, 1000, radius, hand, 2);
             	dragging = false;
-            });                      
+            });    */          
             return out;
         }
         
         function getValueFromId(id){
-        	if(id>1000){
+        	if(id>100){
         		id = id +"";
-        		id = id.slice(-3);
+        		id = id.slice(-2);
         	}
-        	console.log(id);
+        	//console.log(id);
         	return id;
         }
         
         function getHandFromId(id){
-        	if(id>5000){
+        	if(id>500){
         		return hor;
-        	}else if(id>4000){
+        	}else if(id>400){
         		return min;
         	}else{
         		return sec;
@@ -1397,9 +1410,9 @@ var app = {
         }
         
         function getRadiusFromId(id){
-        	if(id>5000){
+        	if(id>500){
         		return radius - 80;
-        	}else if(id>4000){
+        	}else if(id>400){
         		return radius - 40;
         	}else{
         		return radius;
@@ -1407,12 +1420,12 @@ var app = {
         }                
 
         (function () {
-            updateVal(500, 1000, radius, sec, 2);
-            drawDragger(radius, 1000);
-            updateVal(500, 1000, radius-40, min, 1);
-            drawDragger(radius-40, 1000);
-            updateVal(500, 1000, radius-80, hor, 0);
-            drawDragger(radius-80, 1000);
+            updateVal(50, 100, radius, sec, 2);
+            drawDragger(radius, 100);
+            updateVal(50, 100, radius-40, min, 1);
+            drawDragger(radius-40, 100);
+            updateVal(50, 100, radius-80, hor, 0);
+            drawDragger(radius-80, 100);
             init = false;
         })();
     },
@@ -1566,9 +1579,12 @@ var app = {
         app.$favourites.css({
         	display: 'block'
         });
+        app.$leftmenu.css({
+        	display: 'block'
+        });
         app.$body.click().click().click();
         if (window.cordova) window.cordova.exec(null, null, "SplashScreen", "hide", []);
-        
+        app.loadSlider(app.window.intoptionswidth /2 - 40, 20, 75);
 
     },
     /* Error handling */
