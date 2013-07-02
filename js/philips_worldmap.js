@@ -460,7 +460,7 @@ var app = {
     	var objData = {
     		oru: oru,
     		mru: mru,
-    		token: app.token,
+    		token: '',//app.token,
     		type: 'json',
     		snapshotid: 1
     	};         
@@ -492,7 +492,6 @@ var app = {
                         });                	
                         cb(null, response);                		
                 	}
-
                 });
 
                 objRequest.fail(function (objRequestStatus) {
